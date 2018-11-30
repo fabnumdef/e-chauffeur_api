@@ -1,0 +1,7 @@
+{
+  "token": {
+    "secret": "json web token secret",
+    "duration": 3600
+  },
+  "mongodb": "mongodb://localhost/e-chauffeur"
+}
