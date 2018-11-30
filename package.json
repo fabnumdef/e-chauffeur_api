@@ -1,0 +1,39 @@
+{
+  "name": "e-chauffeur_api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "mjs-mocha $NODE_DEBUG_OPTION",
+    "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.js",
+    "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
+    "precommit": "npm run lint"
+  },
+  "author": "Gaël",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^2.2.2",
+    "bcrypt": "^3.0.2",
+    "joi": "^14.0.6",
+    "json-mask": "^0.3.8",
+    "jsonwebtoken": "^8.4.0",
+    "koa": "^2.6.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-jwt": "^3.5.1",
+    "koa-qs": "^2.0.0",
+    "koa-router": "^7.4.0",
+    "lodash.omit": "^4.5.0",
+    "mongoose": "^5.3.12",
+    "nconf": "^0.10.0",
+    "qs": "^6.5.2",
+    "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "chai": "^4.2.0",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "mjs-mocha": "^2.1.2",
+    "supertest": "^3.3.0"
+  }
+}
