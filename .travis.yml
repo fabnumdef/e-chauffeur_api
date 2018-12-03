@@ -3,3 +3,5 @@ node_js:
   - "stable"
 services:
   - mongodb
+before_install:
+  - cp config.json.dist config.json
