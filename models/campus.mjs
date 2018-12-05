@@ -12,4 +12,4 @@ CampusSchema.index({
   name: 'text',
 });
 
-export default mongoose.model('Campus', CampusSchema);
+export default mongoose.model('Campus', CampusSchema, 'campuses');
