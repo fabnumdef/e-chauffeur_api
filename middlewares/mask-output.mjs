@@ -20,6 +20,6 @@ export default async (ctx, next) => {
       ctx.body = ctx.body.map(cleanObject);
     }
     ctx.body = cleanObject(ctx.body);
+    ctx.body = mask(ctx.body, (ctx.query || {}).mask || ',');
   }
-  ctx.body = mask(ctx.body, (ctx.query || {}).mask || ',');
 };
