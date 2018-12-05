@@ -1,5 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
+import addFilter from '../middlewares/add-filter';
 
 import Car from '../models/car';
 
@@ -22,10 +23,11 @@ router.post(
 router.get(
   '/',
   maskOutput,
+  addFilter('campus', 'campus._id'),
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(Car);
-    const total = await Car.countDocuments();
-    const data = await Car.find().skip(offset).limit(limit).lean();
+    const total = await Car.countDocuments(ctx.filters);
+    const data = await Car.find(ctx.filters).skip(offset).limit(limit).lean();
     ctx.setRangePagination(Car, { total, offset, count: data.length });
 
     ctx.body = data;

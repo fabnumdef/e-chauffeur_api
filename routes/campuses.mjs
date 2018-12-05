@@ -41,7 +41,12 @@ router.get(
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
-    ctx.body = await Campus.findById(id).lean();
+    const campus = await Campus.findById(id).lean();
+    if (!campus) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.body = campus;
   },
 );
 
