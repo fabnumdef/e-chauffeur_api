@@ -3,6 +3,7 @@ import omit from 'lodash.omit';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../services/config';
+import rights from './rights';
 
 const SALT_WORK_FACTOR = 10;
 const { Schema } = mongoose;
@@ -10,6 +11,25 @@ const { Schema } = mongoose;
 const UserSchema = new Schema({
   email: { type: String, required: true, index: { unique: true } },
   password: { type: String, required: true },
+  roles: [{
+    _id: {
+      type: String,
+      required: true,
+      alias: 'id',
+      validate: {
+        validator(v) {
+          return this.parent()._id !== v; // @todo: Add more resilient cycle checking
+        },
+      },
+    },
+  }],
+  cached_rights: [{
+    type: String,
+    required: true,
+    validate: {
+      validator: a => rights.includes(a),
+    },
+  }],
 });
 
 UserSchema.pre('save', function preSave(next) {
