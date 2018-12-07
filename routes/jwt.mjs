@@ -21,6 +21,19 @@ router.post('/generate', async (ctx) => {
   }
 });
 
+router.post(
+  '/renew',
+  maskOutput,
+  jwt({ secret: config.get('token:secret') }),
+  async (ctx) => {
+    const user = await User.findById(ctx.state.user.id);
+    if (!user) {
+      throw new Error('User not found.');
+    }
+    ctx.body = { token: user.emitJWT() };
+  },
+);
+
 router.get(
   '/user',
   maskOutput,

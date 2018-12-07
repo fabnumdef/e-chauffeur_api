@@ -13,7 +13,7 @@
   "dependencies": {
     "@koa/cors": "^2.2.2",
     "bcrypt": "^3.0.2",
-    "joi": "^14.0.6",
+    "joi": "^14.3.0",
     "json-mask": "^0.3.8",
     "jsonwebtoken": "^8.4.0",
     "koa": "^2.6.2",
@@ -22,10 +22,10 @@
     "koa-qs": "^2.0.0",
     "koa-router": "^7.4.0",
     "lodash.omit": "^4.5.0",
-    "mongoose": "^5.3.12",
+    "mongoose": "^5.3.15",
     "nconf": "^0.10.0",
-    "qs": "^6.5.2",
-    "socket.io": "^2.1.1"
+    "qs": "^6.6.0",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "acorn": "^6.0.4",
