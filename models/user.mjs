@@ -24,11 +24,12 @@ const UserSchema = new Schema({
     },
   }],
   cached_rights: [{
-    type: String,
-    required: true,
-    validate: {
-      validator: a => rights.includes(a),
-    },
+    _id: false,
+    rights: [String],
+    campuses: [{
+      _id: { type: String, required: true, alias: 'id' },
+      name: { type: String, required: true },
+    }],
   }],
 });
 
@@ -43,6 +44,10 @@ UserSchema.pre('save', function preSave(next) {
       next();
     })
     .catch(err => next(err));
+});
+
+UserSchema.pre('save', function beforeSave() {
+  return this.updateRightsCache();
 });
 
 UserSchema.methods.toCleanObject = function toCleanObject(...params) {
@@ -65,5 +70,21 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
 };
 
 UserSchema.statics.cleanObject = o => UserSchema.methods.toCleanObject.call(o);
+
+// @todo: Defer update + batch process
+UserSchema.methods.updateRightsCache = async function updateRightsCache() {
+  const Role = mongoose.model('Role');
+
+  const lookup = async (toLookUp = [], previouslyLookedUp = []) => {
+    const roles = await Role.find({ _id: { $in: toLookUp } });
+    const nextLoopLookUp = roles.map(role => role.inherit.map(i => i._id)).reduce((a, b) => a.concat(b), []);
+    if (nextLoopLookUp.length) {
+      return roles.concat(await lookup(nextLoopLookUp, previouslyLookedUp.concat(roles.map(r => r._id))));
+    }
+    return roles;
+  };
+  this.cached_rights = (await lookup(this.roles.map(i => i._id)));
+  return this;
+};
 
 export default mongoose.model('User', UserSchema);
