@@ -43,4 +43,14 @@ router.get(
   },
 );
 
+router.get(
+  '/user/campuses',
+  maskOutput,
+  jwt({ secret: config.get('token:secret') }),
+  async (ctx) => {
+    const u = await User.findById(ctx.state.user.id);
+    ctx.body = u.getCampusesAccessibles();
+  },
+);
+
 export default router.routes();

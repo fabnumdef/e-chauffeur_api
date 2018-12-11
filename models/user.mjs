@@ -87,4 +87,9 @@ UserSchema.methods.updateRightsCache = async function updateRightsCache() {
   return this;
 };
 
+UserSchema.methods.getCampusesAccessibles = function getCampusesAccessibles() {
+  return this.cached_rights
+    .map(r => r.campuses)
+    .reduce((a, b) => a.concat(b), []); // @todo: add dedup
+};
 export default mongoose.model('User', UserSchema);
