@@ -26,6 +26,7 @@
     "lodash.transform": "^4.6.0",
     "mongoose": "^5.3.15",
     "nconf": "^0.10.0",
+    "opening_hours": "^3.5.0",
     "qs": "^6.6.0",
     "socket.io": "^2.2.0"
   },
