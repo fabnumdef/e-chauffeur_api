@@ -2,14 +2,15 @@ import mongoose from 'mongoose';
 import omit from 'lodash.omit';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import OpeningHours from 'opening_hours';
 import config from '../services/config';
-import rights from './rights';
 
 const SALT_WORK_FACTOR = 10;
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
   email: { type: String, required: true, index: { unique: true } },
+  name: String,
   password: { type: String, required: true },
   roles: [{
     _id: {
@@ -23,7 +24,7 @@ const UserSchema = new Schema({
       },
     },
   }],
-  cached_rights: [{
+  cachedRights: [{
     _id: false,
     rights: [String],
     campuses: [{
@@ -31,6 +32,18 @@ const UserSchema = new Schema({
       name: { type: String, required: true },
     }],
   }],
+  workingHours: {
+    type: String,
+    validate: {
+      validator(v) {
+        try {
+          return !!(new OpeningHours(v));
+        } catch (e) {
+          return false;
+        }
+      },
+    },
+  },
 });
 
 UserSchema.pre('save', function preSave(next) {
@@ -83,12 +96,12 @@ UserSchema.methods.updateRightsCache = async function updateRightsCache() {
     }
     return roles;
   };
-  this.cached_rights = (await lookup(this.roles.map(i => i._id)));
+  this.cachedRights = (await lookup(this.roles.map(i => i._id)));
   return this;
 };
 
 UserSchema.methods.getCampusesAccessibles = function getCampusesAccessibles() {
-  return this.cached_rights
+  return this.cachedRights
     .map(r => r.campuses)
     .reduce((a, b) => a.concat(b), []); // @todo: add dedup
 };

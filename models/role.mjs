@@ -75,10 +75,10 @@ RoleSchema.methods.updateCache = async function updateCache() { // @todo: Optimi
 };
 
 // @todo: Defer update + batch process
-RoleSchema.methods.updateUserRights = async function () {
+RoleSchema.methods.updateUserRights = async function updateUserRights() {
   const User = mongoose.model('User');
   const users = await User.find({ 'roles._id': this._id });
   return Promise.all(users.map(async u => u.updateRightsCache()));
-}
+};
 
 export default mongoose.model('Role', RoleSchema);

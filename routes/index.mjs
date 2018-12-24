@@ -7,6 +7,7 @@ import cars from './cars';
 import rides from './rides';
 import carModels from './car-models';
 import carEvents from './car-events';
+import userEvents from './user-events';
 import jwt from './jwt';
 import campus from './campuses';
 
@@ -20,6 +21,7 @@ router.use('/cars', cars);
 router.use('/rides', rides);
 router.use('/car-models', carModels);
 router.use('/car-events', carEvents);
+router.use('/user-events', userEvents);
 router.use('/jwt', jwt);
 router.use('/campuses', campus);
 
