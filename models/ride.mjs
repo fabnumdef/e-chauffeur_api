@@ -1,13 +1,18 @@
 import mongoose from 'mongoose';
+import stateMachinePlugin from '@rentspree/mongoose-state-machine';
+import stateMachine from './status';
 
 const { Schema } = mongoose;
 
 const RideSchema = new Schema({
+  status: String,
   campus: {
     _id: { type: String, required: true },
     name: String,
   },
 });
+
+RideSchema.plugin(stateMachinePlugin, { stateMachine });
 
 RideSchema.virtual('campus.id')
   .get(function get() {

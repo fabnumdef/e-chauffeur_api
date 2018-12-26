@@ -6,13 +6,16 @@
     "test": "mjs-mocha $NODE_DEBUG_OPTION",
     "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.js",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
-    "precommit": "npm run lint"
+    "precommit": "npm run lint",
+    "generate-state-schema": "node --experimental-modules tests/generate-state-schema.js"
   },
   "author": "Gaël",
   "license": "ISC",
   "dependencies": {
     "@koa/cors": "^2.2.2",
+    "@rentspree/mongoose-state-machine": "^0.1.0",
     "bcrypt": "^3.0.2",
+    "javascript-state-machine": "^3.1.0",
     "joi": "^14.3.0",
     "json-mask": "^0.3.8",
     "jsonwebtoken": "^8.4.0",
