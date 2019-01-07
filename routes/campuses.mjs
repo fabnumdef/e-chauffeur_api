@@ -2,8 +2,13 @@ import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 
 import Campus from '../models/campus';
+import driversRoutes from './campuses/drivers';
+import carsRoutes from './campuses/cars';
 
 const router = new Router();
+
+router.use('/:campus_id/drivers', driversRoutes);
+router.use('/:campus_id/cars', carsRoutes);
 
 router.post(
   '/',

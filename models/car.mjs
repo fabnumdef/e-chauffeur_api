@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
+import Luxon from 'luxon';
 
+const { Interval } = Luxon;
 const { Schema } = mongoose;
 
 const CarSchema = new Schema({
@@ -35,5 +37,20 @@ CarSchema.index({
   _id: 'text',
   label: 'text',
 });
+
+CarSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
+  const interval = Interval.fromDateTimes(start, end);
+  const eventsIntervals = Interval.merge(events.map(e => e.toInterval()));
+  try {
+    const intervals = [];
+    const diff = interval.difference(...eventsIntervals);
+    if (diff) {
+      intervals.push(...diff);
+    }
+    return intervals;
+  } catch (e) {
+    return [];
+  }
+};
 
 export default mongoose.model('Car', CarSchema);

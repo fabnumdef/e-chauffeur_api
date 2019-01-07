@@ -2,11 +2,14 @@ import mongoose from 'mongoose';
 import omit from 'lodash.omit';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Luxon from 'luxon';
 import OpeningHours from 'opening_hours';
 import config from '../services/config';
 
 const SALT_WORK_FACTOR = 10;
 const { Schema } = mongoose;
+// @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
+const { DateTime, Interval } = Luxon;
 
 const UserSchema = new Schema({
   email: { type: String, required: true, index: { unique: true } },
@@ -105,4 +108,25 @@ UserSchema.methods.getCampusesAccessibles = function getCampusesAccessibles() {
     .map(r => r.campuses)
     .reduce((a, b) => a.concat(b), []); // @todo: add dedup
 };
+
+UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
+  const eventsIntervals = Interval.merge(events.map(e => e.toInterval()));
+  try {
+    const oh = new OpeningHours(this.workingHours);
+    const ohIntervals = oh
+      .getOpenIntervals(start, end)
+      .map(([f, t]) => Interval.fromDateTimes(DateTime.fromJSDate(f), DateTime.fromJSDate(t)));
+    const intervals = [];
+    ohIntervals.forEach((i) => {
+      const diff = i.difference(...eventsIntervals);
+      if (diff) {
+        intervals.push(...diff);
+      }
+    });
+    return intervals;
+  } catch (e) {
+    return [];
+  }
+};
+
 export default mongoose.model('User', UserSchema);

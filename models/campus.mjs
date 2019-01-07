@@ -16,4 +16,141 @@ CampusSchema.index({
   name: 'text',
 });
 
+CampusSchema.statics.findDrivers = async function findDrivers(campus, start, end) {
+  const User = mongoose.model('User');
+  const UserEvent = mongoose.model('UserEvent');
+  const userIds = (await User.aggregate([
+    {
+      $unwind: '$cachedRights',
+    },
+    {
+      $match: {
+        // 'cachedRights.rights': 'login', @todo: Add match on role that match with
+        'cachedRights.campuses._id': campus,
+      },
+    },
+    {
+      $group: {
+        _id: '$_id',
+      },
+    },
+  ])).map(u => u._id);
+
+  const users = await User.find({
+    _id: { $in: userIds },
+  });
+
+  const events = await UserEvent.find({
+    $or: [
+      {
+        start: {
+          $lte: start,
+        },
+        end: {
+          $gte: start,
+          $lte: end,
+        },
+      },
+      {
+        start: {
+          $gte: start,
+          $lte: end,
+        },
+        end: {
+          $gte: end,
+        },
+      },
+      {
+        start: {
+          $lte: start,
+        },
+        end: {
+          $gte: end,
+        },
+      },
+      {
+        start: {
+          $gte: start,
+          $lte: end,
+        },
+        end: {
+          $gte: start,
+          $lte: end,
+        },
+      },
+    ],
+    'user._id': { $in: userIds },
+  });
+
+  return users.map((u) => {
+    const e = events.filter(ev => ev.user.id === u.id);
+    const availabilities = u.getAvailabilities(start, end, e);
+    const user = u.toObject({ virtuals: true });
+    user.availabilities = availabilities;
+    return user;
+  }).filter(u => u.availabilities.length);
+};
+
+CampusSchema.statics.findCars = async function findCars(campus, start, end) {
+  const Car = mongoose.model('Car');
+  const CarEvent = mongoose.model('CarEvent');
+  const carIds = (await Car.find({
+    'campus._id': campus,
+  })).map(c => c._id);
+
+  const cars = await Car.find({
+    _id: { $in: carIds },
+  });
+
+  const events = await CarEvent.find({
+    $or: [
+      {
+        start: {
+          $lte: start,
+        },
+        end: {
+          $gte: start,
+          $lte: end,
+        },
+      },
+      {
+        start: {
+          $gte: start,
+          $lte: end,
+        },
+        end: {
+          $gte: end,
+        },
+      },
+      {
+        start: {
+          $lte: start,
+        },
+        end: {
+          $gte: end,
+        },
+      },
+      {
+        start: {
+          $gte: start,
+          $lte: end,
+        },
+        end: {
+          $gte: start,
+          $lte: end,
+        },
+      },
+    ],
+    'car._id': { $in: carIds },
+  });
+
+  return cars.map((c) => {
+    const e = events.filter(ev => ev.car.id === c.id);
+    const availabilities = c.getAvailabilities(start, end, e);
+    const car = c.toObject({ virtuals: true });
+    car.availabilities = availabilities;
+    return car;
+  }).filter(u => u.availabilities.length);
+};
+
 export default mongoose.model('Campus', CampusSchema, 'campuses');
