@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "mjs-mocha $NODE_DEBUG_OPTION",
+    "test": "NODE_OPTIONS=\"--experimental-modules\" mocha --exit --require @std/esm 'tests/**/*.mjs'",
     "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.js",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "precommit": "npm run lint",
@@ -35,13 +35,14 @@
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
+    "@std/esm": "^0.26.0",
     "acorn": "^6.0.5",
     "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
     "eslint": "^5.12.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "mjs-mocha": "^2.1.2",
+    "mocha": "^5.2.0",
     "supertest": "^3.3.0"
   },
   "peerDependencies": {
