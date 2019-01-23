@@ -58,7 +58,7 @@ router.del(
   '/:id',
   async (ctx) => {
     const { params: { id } } = ctx;
-    await CarModel.remove({ _id: id });
+    await CarModel.deleteOne({ _id: id });
     ctx.status = 204;
   },
 );
