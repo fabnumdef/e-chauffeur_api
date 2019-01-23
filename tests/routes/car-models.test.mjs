@@ -38,4 +38,10 @@ describe('Test the car models', () => {
     expect(response.statusCode).to.equal(200);
   });
 
+  // Test the removal of a car model by its ID
+  it('It should response the DELETE method', async () => {
+    const response = await request().delete('/car-models/BRL_CAR_MOD_999999').send({
+    });
+    expect(response.statusCode).to.equal(204);
+  });
 });
