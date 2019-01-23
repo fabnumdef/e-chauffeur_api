@@ -7,7 +7,8 @@
     "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.js",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "precommit": "npm run lint",
-    "generate-state-schema": "node --experimental-modules tests/generate-state-schema.js"
+    "generate-state-schema": "node --experimental-modules tests/generate-state-schema.js",
+    "import-fixtures": "node --experimental-modules $NODE_DEBUG_OPTION fixtures"
   },
   "author": "Gaël",
   "license": "ISC",
