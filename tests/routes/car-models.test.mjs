@@ -34,8 +34,13 @@ describe('Test the car models', () => {
 
   // Test the reading of a car model by its ID
   it('It should response the GET method', async () => {
-    const response = await request().get('/car-models/BRL_CAR_MOD_999999');
+    const response = await request().get('/car-models/BRL_CAR_MOD_999999?mask=*');
     expect(response.statusCode).to.equal(200);
+    const JsonObjectReturn = response.body;
+    const JsonObjectWitness = {};
+    JsonObjectWitness.id = 'BRL_CAR_MOD_999999';
+    JsonObjectWitness.label = 'RENAULT ZOE';
+    expect(JsonObjectReturn.toString()).to.equal(JsonObjectWitness.toString());
   });
 
   // Test the removal of a car model by its ID
