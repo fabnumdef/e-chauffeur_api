@@ -1,0 +1,29 @@
+[
+  {
+    "_id" : "BSL/lavoir",
+    "label" : "Lavoir de Saint-Martin",
+    "location": {
+      "type": "Point",
+      "coordinates": [-4.481348600000047, 48.394887]
+    },
+    "campus": "BSL"
+  },
+  {
+    "_id" : "BSL/musee-marine",
+    "label" : "Musée National de la Marine",
+    "location": {
+      "type": "Point",
+      "coordinates": [-4.492946699999948, 48.3816481]
+    },
+    "campus": "BSL"
+  },
+  {
+    "_id" : "BSL/musee-beaux-arts",
+    "label" : "Musée des Beaux-Arts de Brest",
+    "location": {
+      "type": "Point",
+      "coordinates": [-4.49014109999996, 48.3850325]
+    },
+    "campus": "BSL"
+  }
+]
