@@ -53,8 +53,29 @@ describe('Test the car models', () => {
   // Test the reading of a car model
   // ==========================================
   it('It should response the GET method', async () => {
+    console.log("Test of GET methode beginned");
+    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT ZOE' });
     const response = await request().get('/car-models/?mask=*');
     expect(response.statusCode).to.equal(200);
+
+    const JsonObjectWitness = {};
+    JsonObjectWitness.id = 'BRL_CAR_MOD_999999';
+    JsonObjectWitness.label = 'RENAULT ZOE';
+    var table = new Array();
+    table=response.body;
+
+    // for (var indice in table) {
+    //   const JsonObjectReturn = table[indice];
+    //   console.log(JsonObjectReturn);
+    //   if (JsonObjectReturn === JsonObjectWitness) {
+    //     console.log('YES');
+    //   } else {
+    //     console.log('NO');
+    //   }
+    // }
+
+    await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+    console.log("Test of GET methode terminated\n\n");
   });
 
   // ==========================================
