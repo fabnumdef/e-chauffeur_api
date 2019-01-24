@@ -4,10 +4,13 @@ import CarModel from '../../models/car-model';
 
 const { expect } = chai;
 
+const CID = 'BRL_CAR_MOD_999999';
+const CLABEL = 'RENAULT ZOE';
+
 // Init witness record
 const objectWitness = {};
-objectWitness.id = 'BRL_CAR_MOD_999999';
-objectWitness.label = 'RENAULT ZOE';
+objectWitness.id = CID;
+objectWitness.label = CLABEL;
 
 /**
  * Compares objects passed in parameters
@@ -26,9 +29,9 @@ function compObject(_ObjectReturn, _ObjectWitness)
  */
 async function createRec()
 {
-  const rec = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+  const rec = await CarModel.findById(CID).lean();
   if (rec == null) {
-    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT ZOE' });
+    await CarModel.create({ _id: CID, label: CLABEL });
   }
 }
 
@@ -37,9 +40,9 @@ async function createRec()
  */
 async function deleteRec()
 {
-  const rec = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+  const rec = await CarModel.findById(CID).lean();
   if (rec != null) {
-    await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+    await CarModel.deleteOne({ _id: CID });
   }
 }
 
@@ -49,15 +52,16 @@ describe('Test the car models', () => {
   // Test the creation of a car model
   // ==========================================
   it('It should response the POST method', async () => {
+     await deleteRec();
      console.log("Test of POST methode beginned");
      const response = await request().post('/car-models').send({
        // ID Car-model
-       id: 'BRL_CAR_MOD_999999',
+       id: CID,
        //
-       label: 'RENAULT ZOE',
+       label: CLABEL,
      });
      expect(response.statusCode).to.equal(200);
-     const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+     const objectReturn = await CarModel.findById(CID).lean();
      expect(compObject(objectReturn, objectWitness)).to.equal(true);
      await deleteRec();
      console.log("Test of POST methode terminated\n\n");
@@ -68,15 +72,17 @@ describe('Test the car models', () => {
   // ==========================================
   it('It should response the PATCH method', async () => {
     console.log("Test of PATCH methode beginned");
-    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT Z' });
+    const CLABEL2 = CLABEL.concat('xxx');
+    await deleteRec();
+    await CarModel.create({ _id: CID, label: CLABEL2 });
     const response = await request().patch('/car-models/BRL_CAR_MOD_999999').send({
       // ID Car-model
-      id: 'BRL_CAR_MOD_999999',
+      id: CID,
       //
-      label: 'RENAULT ZOE',
+      label: CLABEL,
     });
     expect(response.statusCode).to.equal(200);
-    const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+    const objectReturn = await CarModel.findById(CID).lean();
     expect(compObject(objectReturn, objectWitness)).to.equal(true);
     await deleteRec();
     console.log("Test of PATCH methode terminated\n\n");
@@ -95,7 +101,7 @@ describe('Test the car models', () => {
     // table = response.body;
     var table = response.body;
     var found = table.find(function(element) {
-      return element.id === 'BRL_CAR_MOD_999999';
+      return element.id === CID;
     });
     expect(found).to.not.equal(undefined);
     await deleteRec();
@@ -110,7 +116,7 @@ describe('Test the car models', () => {
     await createRec();
     const response = await request().get('/car-models/BRL_CAR_MOD_999999?mask=*');
     expect(response.statusCode).to.equal(200);
-    const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+    const objectReturn = await CarModel.findById(CID).lean();
     expect(compObject(objectReturn, objectWitness)).to.equal(true);
     await deleteRec();
     console.log("Test of GET by ID methode terminated\n\n");
@@ -125,8 +131,9 @@ describe('Test the car models', () => {
     const response = await request().delete('/car-models/BRL_CAR_MOD_999999').send({
     });
     expect(response.statusCode).to.equal(204);
-    const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+    const objectReturn = await CarModel.findById(CID).lean();
     expect(objectReturn).to.equal(null);
+    await deleteRec();
     console.log("Test of DELETE methode terminated\n\n");
   });
 });
