@@ -1,8 +1,47 @@
 import chai from 'chai';
 import request from '../request';
-import CarModel from "../../models/car-model";
+import CarModel from '../../models/car-model';
 
 const { expect } = chai;
+
+// Init witness record
+const objectWitness = {};
+objectWitness.id = 'BRL_CAR_MOD_999999';
+objectWitness.label = 'RENAULT ZOE';
+
+/**
+ * Compares objects passed in parameters
+ * @param _ObjectReturn Returned object
+ * @param _ObjectWitness Witness object
+ * @returns {boolean} true = equal, false = not equal
+ */
+function compObject(_ObjectReturn, _ObjectWitness)
+{
+  return _ObjectReturn._id === _ObjectWitness.id
+    && _ObjectReturn.label === _ObjectWitness.label;
+}
+
+/**
+ * Creating the instance used for the unit test
+ */
+async function createRec()
+{
+  const rec = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+  if (rec == null) {
+    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT ZOE' });
+  }
+}
+
+/**
+ * Deleting the instance used for the unit test
+ */
+async function deleteRec()
+{
+  const rec = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+  if (rec != null) {
+    await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+  }
+}
 
 describe('Test the car models', () => {
 
@@ -15,15 +54,12 @@ describe('Test the car models', () => {
        // ID Car-model
        id: 'BRL_CAR_MOD_999999',
        //
-       label: 'RENAULT ZO',
+       label: 'RENAULT ZOE',
      });
      expect(response.statusCode).to.equal(200);
-     const JsonObjectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
-     const JsonObjectWitness = {};
-     JsonObjectWitness.id = 'BRL_CAR_MOD_999999';
-     JsonObjectWitness.label = 'RENAULT ZOE';
-     expect(JsonObjectReturn.toString()).to.equal(JsonObjectWitness.toString());
-     await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+     const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+     expect(compObject(objectReturn, objectWitness)).to.equal(true);
+     await deleteRec();
      console.log("Test of POST methode terminated\n\n");
   });
 
@@ -40,12 +76,9 @@ describe('Test the car models', () => {
       label: 'RENAULT ZOE',
     });
     expect(response.statusCode).to.equal(200);
-    const JsonObjectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
-    const JsonObjectWitness = {};
-    JsonObjectWitness.id = 'BRL_CAR_MOD_999999';
-    JsonObjectWitness.label = 'RENAULT ZOE';
-    expect(JsonObjectReturn.toString()).to.equal(JsonObjectWitness.toString());
-    await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+    const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+    expect(compObject(objectReturn, objectWitness)).to.equal(true);
+    await deleteRec();
     console.log("Test of PATCH methode terminated\n\n");
   });
 
@@ -54,27 +87,18 @@ describe('Test the car models', () => {
   // ==========================================
   it('It should response the GET method', async () => {
     console.log("Test of GET methode beginned");
-    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT ZOE' });
+    await createRec();
     const response = await request().get('/car-models/?mask=*');
     expect(response.statusCode).to.equal(200);
 
-    const JsonObjectWitness = {};
-    JsonObjectWitness.id = 'BRL_CAR_MOD_999999';
-    JsonObjectWitness.label = 'RENAULT ZOE';
-    var table = new Array();
-    table=response.body;
-
-    // for (var indice in table) {
-    //   const JsonObjectReturn = table[indice];
-    //   console.log(JsonObjectReturn);
-    //   if (JsonObjectReturn === JsonObjectWitness) {
-    //     console.log('YES');
-    //   } else {
-    //     console.log('NO');
-    //   }
-    // }
-
-    await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+    // var table = new Array();
+    // table = response.body;
+    var table = response.body;
+    var found = table.find(function(element) {
+      return element.id === 'BRL_CAR_MOD_999999';
+    });
+    expect(found).to.not.equal(undefined);
+    await deleteRec();
     console.log("Test of GET methode terminated\n\n");
   });
 
@@ -83,15 +107,12 @@ describe('Test the car models', () => {
   // ==========================================
   it('It should response the GET by ID method', async () => {
     console.log("Test of GET by ID methode beginned");
-    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT ZOE' });
+    await createRec();
     const response = await request().get('/car-models/BRL_CAR_MOD_999999?mask=*');
     expect(response.statusCode).to.equal(200);
-    const JsonObjectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
-    const JsonObjectWitness = {};
-    JsonObjectWitness.id = 'BRL_CAR_MOD_999999';
-    JsonObjectWitness.label = 'RENAULT ZOE';
-    expect(JsonObjectReturn.toString()).to.equal(JsonObjectWitness.toString());
-    await CarModel.deleteOne({ _id: 'BRL_CAR_MOD_999999' });
+    const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+    expect(compObject(objectReturn, objectWitness)).to.equal(true);
+    await deleteRec();
     console.log("Test of GET by ID methode terminated\n\n");
   });
 
@@ -100,12 +121,12 @@ describe('Test the car models', () => {
   // ==========================================
   it('It should response the DELETE method', async () => {
     console.log("Test of DELETE methode beginned");
-    await CarModel.create({ _id: 'BRL_CAR_MOD_999999', label: 'RENAULT ZOE' });
+    await createRec();
     const response = await request().delete('/car-models/BRL_CAR_MOD_999999').send({
     });
     expect(response.statusCode).to.equal(204);
-    const JsonObjectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
-    expect(JsonObjectReturn).to.equal(null);
+    const objectReturn = await CarModel.findById('BRL_CAR_MOD_999999').lean();
+    expect(objectReturn).to.equal(null);
     console.log("Test of DELETE methode terminated\n\n");
   });
 });
