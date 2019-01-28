@@ -24,4 +24,18 @@ router.get(
   },
 );
 
+router.get(
+  '/:driver_id/rides',
+  maskOutput,
+  async (ctx) => {
+    if (!ctx.query || !ctx.query.filters) {
+      throw new Error('`filters` are required');
+    }
+
+    const { filters } = ctx.query;
+
+    ctx.body = await Campus.findRidesWithStatus(ctx.params.driver_id, filters.status);
+  },
+);
+
 export default router.routes();
