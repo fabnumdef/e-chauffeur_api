@@ -9,7 +9,6 @@ const RoleSchema = new Schema({
     _id: {
       type: String,
       required: true,
-      alias: 'id',
       validate: {
         validator(v) {
           return this.parent()._id !== v; // @todo: Add more resilient cycle checking
@@ -25,7 +24,7 @@ const RoleSchema = new Schema({
     },
   }],
   campuses: [{
-    _id: { type: String, required: true, alias: 'id' },
+    _id: { type: String, required: true },
     name: { type: String, required: true },
   }],
   // @todo: Add caching system
@@ -33,7 +32,7 @@ const RoleSchema = new Schema({
     _id: false,
     rights: [String],
     campuses: [{
-      _id: { type: String, required: true, alias: 'id' },
+      _id: { type: String, required: true },
       name: { type: String, required: true },
     }],
   }],

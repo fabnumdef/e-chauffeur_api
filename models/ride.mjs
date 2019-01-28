@@ -17,7 +17,7 @@ const RideSchema = new Schema({
     label: String,
   },
   driver: {
-    _id: { type: Schema.ObjectId, required: true, alias: 'id' },
+    _id: { type: Schema.ObjectId, required: true },
     name: String,
   },
   car: {

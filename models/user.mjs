@@ -31,7 +31,7 @@ const UserSchema = new Schema({
     _id: false,
     rights: [String],
     campuses: [{
-      _id: { type: String, required: true, alias: 'id' },
+      _id: { type: String, required: true },
       name: { type: String, required: true },
     }],
   }],

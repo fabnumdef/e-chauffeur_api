@@ -7,10 +7,10 @@ const CarEventSchema = new Schema({
   start: Date,
   end: Date,
   car: {
-    _id: { type: String, required: true, alias: 'id' },
+    _id: { type: String, required: true, alias: 'car.id' },
     label: { type: String, required: true },
     campus: {
-      _id: { type: String, required: true, alias: 'id' },
+      _id: { type: String, required: true, alias: 'car.campus.id' },
     },
   },
 });
