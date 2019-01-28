@@ -46,5 +46,13 @@ export default {
   ],
 
   methods: {
+    onEnterState({ from, to }) {
+      if (from === this.status) {
+        this.statusChanges.push({
+          status: to,
+          time: new Date(),
+        });
+      }
+    },
   },
 };

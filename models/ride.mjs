@@ -7,6 +7,7 @@ const { Schema } = mongoose;
 const RideSchema = new Schema({
   status: { type: String, default: CREATED },
   statusChanges: [{
+    _id: false,
     status: { type: String, required: true },
     time: Date,
   }],
