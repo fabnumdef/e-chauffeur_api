@@ -8,6 +8,9 @@ const { DateTime } = Luxon;
 const GeoTrackingSchema = new Schema({
   start: Date,
   end: Date,
+  campus: {
+    _id: { type: Schema.ObjectId, required: true, alias: 'campus.id' },
+  },
   driver: {
     _id: { type: Schema.ObjectId, required: true, alias: 'driver.id' },
   },
@@ -27,19 +30,42 @@ const GeoTrackingSchema = new Schema({
   ],
 });
 
-GeoTrackingSchema.statics.pushHourlyTrack = async function pushHourlyTrack(user, position) {
+GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(campusId) {
+  const GeoTracking = mongoose.model('GeoTracking');
+  const positions = await GeoTracking.aggregate([
+    {
+      $match: {
+        'campus._id': campusId,
+      },
+    },
+    {
+      $unwind: '$positions',
+    },
+    {
+      $project: {
+        driverId: '$driver._id',
+        position: '$positions.location',
+        date: '$positions._id',
+      },
+    },
+  ]);
+  return positions;
+};
+
+GeoTrackingSchema.statics.pushHourlyTrack = async function pushHourlyTrack(user, campus, position) {
   const GeoTracking = mongoose.model('GeoTracking');
   const start = DateTime.local().startOf('hours').toJSDate();
   const end = DateTime.local().endOf('hours').toJSDate();
-  return GeoTracking.pushTrack(start, end, user, position);
+  return GeoTracking.pushTrack(start, end, user, campus, position);
 };
 
-GeoTrackingSchema.statics.pushTrack = async function pushTrack(start, end, user, [lon, lat]) {
+GeoTrackingSchema.statics.pushTrack = async function pushTrack(start, end, user, campus, [lon, lat]) {
   const GeoTracking = mongoose.model('GeoTracking');
   return GeoTracking.updateOne(
     {
       start,
       end,
+      campus: { _id: campus.id },
       driver: { _id: new ObjectId(user.id) },
     },
     {
