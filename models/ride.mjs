@@ -23,6 +23,10 @@ const RideSchema = new Schema({
   car: {
     _id: { type: String, required: true },
     label: String,
+    model: {
+      _id: { type: String, required: true },
+      label: { type: String, required: true },
+    },
   },
   campus: {
     _id: { type: String, required: true },
@@ -33,6 +37,12 @@ const RideSchema = new Schema({
 });
 
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
+
+RideSchema.pre('validate', async function beforeSave() {
+  const Car = mongoose.model('Car');
+  const carId = this.car._id;
+  this.car = await Car.findById(carId).lean();
+});
 
 RideSchema.virtual('campus.id')
   .get(function get() {
