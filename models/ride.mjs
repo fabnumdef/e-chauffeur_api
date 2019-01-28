@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
-import stateMachine from './status';
+import stateMachine, { CREATED } from './status';
 
 const { Schema } = mongoose;
 
 const RideSchema = new Schema({
-  status: String,
+  status: { type: String, default: CREATED },
+  statusChanges: [{
+    status: { type: String, required: true },
+    time: Date,
+  }],
   start: Date,
   end: Date,
   departure: {
