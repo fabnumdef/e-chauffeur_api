@@ -48,6 +48,8 @@ GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(
         date: '$positions._id',
       },
     },
+    { $sort: { date: -1 } },
+    { $group: { _id: '$driverId', date: { $max: '$date' } } },
   ]);
   return positions;
 };
