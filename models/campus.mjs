@@ -9,6 +9,15 @@ const CampusSchema = new Schema({
     _id: { type: String, required: true },
     label: String,
   }],
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
+    coordinates: {
+      type: [Number],
+    },
+  },
 });
 
 CampusSchema.index({
