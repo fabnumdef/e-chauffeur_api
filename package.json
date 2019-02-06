@@ -31,6 +31,7 @@
     "lodash.transform": "^4.6.0",
     "luxon": "^1.10.0",
     "mongoose": "^5.4.7",
+    "nanoid": "^2.0.1",
     "nconf": "^0.10.0",
     "opening_hours": "^3.5.0",
     "qs": "^6.6.0",

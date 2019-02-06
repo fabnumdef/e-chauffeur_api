@@ -43,6 +43,58 @@ router.get(
   },
 );
 
+/**
+ * Rights :
+ * - Il the user is not logged in, but token provided as a filter is the right one
+ */
+router.get(
+  '/:id',
+  maskOutput,
+  async (ctx) => {
+    const { params: { id }, query: { token } } = ctx;
+    const ride = await Ride.findById(Ride.castId(id));
+
+    if (!ride.isAccessibleByAnonymous(token)) {
+      throw new Error('User not authorized to fetch this ride');
+    }
+    if (!ride) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.body = ride;
+  },
+);
+
+/**
+ * Rights :
+ * - Il the user is not logged in, but token provided as a filter is the right one
+ */
+router.get(
+  '/:id/position',
+  maskOutput,
+  async (ctx) => {
+    const { params: { id }, query: { token } } = ctx;
+    const ride = await Ride.findById(Ride.castId(id));
+
+    if (!ride.isAccessibleByAnonymous(token)) {
+      throw new Error('User not authorized to fetch this ride');
+    }
+
+    if (!ride) {
+      ctx.status = 404;
+      return;
+    }
+
+    const position = await ride.findDriverPosition(new Date());
+    if (!position) {
+      ctx.status = 404;
+      return;
+    }
+
+    ctx.body = position;
+  },
+);
+
 router.post(
   '/:id/:action',
   maskOutput,

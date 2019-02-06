@@ -1,10 +1,15 @@
 import mongoose from 'mongoose';
+import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import stateMachine, { CREATED } from './status';
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 
 const RideSchema = new Schema({
+  token: {
+    type: String,
+    default: () => nanoid(48),
+  },
   status: { type: String, default: CREATED },
   statusChanges: [{
     _id: false,
@@ -89,6 +94,14 @@ RideSchema.virtual('driver.id')
     this.driver._id = id;
   });
 
+RideSchema.statics.castId = (v) => {
+  try {
+    return new Types.ObjectId(v);
+  } catch (e) {
+    return new Types.ObjectId(Buffer.from(v, 'base64').toString('hex'));
+  }
+};
+
 RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
   const filters = f;
   filters.$or = [
@@ -144,6 +157,27 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, e
     this.filtersWithin(start, end, filters),
     ...rest,
   );
+};
+
+RideSchema.methods.isAccessibleByAnonymous = function isAccessibleByAnonymous(token) {
+  return this.token === token;
+};
+
+RideSchema.methods.findDriverPosition = async function findDriverPosition(date) {
+  const GeoTracking = mongoose.model('GeoTracking');
+  const [position = null] = await GeoTracking.aggregate([
+    { $unwind: '$positions' },
+    {
+      $project: {
+        driver: '$driver._id',
+        position: '$positions.location',
+        date: '$positions._id',
+      },
+    },
+    { $sort: { date: -1 } },
+    { $limit: 1 },
+  ]);
+  return position;
 };
 
 export default mongoose.model('Ride', RideSchema);
