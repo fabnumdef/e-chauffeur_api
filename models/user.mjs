@@ -103,10 +103,12 @@ UserSchema.methods.updateRightsCache = async function updateRightsCache() {
   return this;
 };
 
-UserSchema.methods.getCampusesAccessibles = function getCampusesAccessibles() {
-  return this.cachedRights
+UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
+  const campuses = this.cachedRights
     .map(r => r.campuses)
-    .reduce((a, b) => a.concat(b), []); // @todo: add dedup
+    .reduce((a, b) => a.concat(b), []);
+  const Campus = mongoose.model('Campus');
+  return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
 };
 
 UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) {

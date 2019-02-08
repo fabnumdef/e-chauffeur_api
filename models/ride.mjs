@@ -21,10 +21,28 @@ const RideSchema = new Schema({
   departure: {
     _id: { type: String, required: true },
     label: String,
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
   },
   arrival: {
     _id: { type: String, required: true },
     label: String,
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
   },
   driver: {
     _id: { type: Schema.ObjectId, required: true },
@@ -49,9 +67,17 @@ const RideSchema = new Schema({
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
-  const Car = mongoose.model('Car');
-  const carId = this.car._id;
-  this.car = await Car.findById(carId).lean();
+  await Promise.all([
+    (async (Car) => {
+      const carId = this.car._id;
+      this.car = await Car.findById(carId).lean();
+    })(mongoose.model('Car')),
+    (async (Poi) => {
+      const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
+      this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
+      this.departure = pois.find(({ _id }) => _id === this.departure._id);
+    })(mongoose.model('Poi')),
+  ]);
 });
 
 RideSchema.virtual('campus.id')
@@ -163,7 +189,7 @@ RideSchema.methods.isAccessibleByAnonymous = function isAccessibleByAnonymous(to
   return this.token === token;
 };
 
-RideSchema.methods.findDriverPosition = async function findDriverPosition(date) {
+RideSchema.methods.findDriverPosition = async function findDriverPosition() {
   const GeoTracking = mongoose.model('GeoTracking');
   const [position = null] = await GeoTracking.aggregate([
     { $unwind: '$positions' },
