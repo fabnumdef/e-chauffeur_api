@@ -1,3 +1,8 @@
 [
-  "login"
+  "login",
+  "canEditCarModel",
+  "canCreateCarModel",
+  "canListCarModel",
+  "canGetCarModel",
+  "canRemoveCarModel"
 ]
