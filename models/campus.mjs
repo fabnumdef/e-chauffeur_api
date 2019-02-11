@@ -18,6 +18,10 @@ const CampusSchema = new Schema({
       type: [Number],
     },
   },
+  phone: {
+    drivers: String,
+    everybody: String,
+  },
 });
 
 CampusSchema.index({
