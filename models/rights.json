@@ -1,8 +1,33 @@
 [
   "login",
+
   "canEditCarModel",
   "canCreateCarModel",
   "canListCarModel",
   "canGetCarModel",
-  "canRemoveCarModel"
+  "canRemoveCarModel",
+
+  "canEditUser",
+  "canCreateUser",
+  "canListUser",
+  "canGetUser",
+  "canRemoveUser",
+
+  "canEditCampus",
+  "canCreateCampus",
+  "canListCampus",
+  "canGetCampus",
+  "canRemoveCampus",
+
+  "canEditRole",
+  "canCreateRole",
+  "canListRole",
+  "canGetRole",
+  "canRemoveRole",
+
+  "canEditCategory",
+  "canCreateCategory",
+  "canListCategory",
+  "canGetCategory",
+  "canRemoveCategory"
 ]
