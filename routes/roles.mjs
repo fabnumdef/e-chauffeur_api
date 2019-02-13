@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-import checkRights from "../middlewares/check-rights";
+import checkRights from '../middlewares/check-rights';
 import Role from '../models/role';
 
 const router = new Router();

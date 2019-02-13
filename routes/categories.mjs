@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 import addFilter from '../middlewares/add-filter';
-import checkRights from "../middlewares/check-rights";
+import checkRights from '../middlewares/check-rights';
 import Category from '../models/category';
 
 const router = new Router();

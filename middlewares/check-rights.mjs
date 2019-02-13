@@ -1,4 +1,5 @@
 export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) => {
+  const { user } = ctx.state;
   let campus = cps;
   if (campus) {
     if (!ctx.params.campus_id) {
@@ -7,8 +8,9 @@ export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) =
     campus = ctx.params.campus_id;
   }
   if (
-    !rights.reduce(
-      (acc, right) => acc || ctx.state.user.cachedRights.reduce(
+    !user
+    || !rights.reduce(
+      (acc, right) => acc || user.cachedRights.reduce(
         (cachedAcc, cachedRow) => cachedAcc || (
           cachedRow.rights.find(
             r => right === r,
