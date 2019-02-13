@@ -2,16 +2,20 @@ import mask from 'json-mask';
 import transform from 'lodash.transform';
 import isPlainObject from 'lodash.isplainobject';
 
-function cleanObject(e) {
-  if (!isPlainObject(e) && !Array.isArray(e)) {
+export function cleanObject(e) {
+  if (!e) {
     return e;
   }
-  let item = e;
 
+  let item = e;
   if (e.toCleanObject) {
     item = e.toCleanObject();
   } else if (e.toObject) {
     item = e.toObject();
+  }
+
+  if (!isPlainObject(item) && !Array.isArray(item)) {
+    return item;
   }
 
   return transform(item, (acc, val, key) => {

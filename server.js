@@ -6,6 +6,7 @@ const socketIo = require('socket.io');
   const { default: app } = await import('./app.mjs');
   const { default: io } = await import('./io.mjs');
   const server = http.createServer(app.callback());
-  io(socketIo(server));
+  app.io = socketIo(server);
+  io(app.io);
   server.listen(1337);
 })();

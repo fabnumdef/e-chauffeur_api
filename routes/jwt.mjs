@@ -49,7 +49,7 @@ router.get(
   jwt({ secret: config.get('token:secret') }),
   async (ctx) => {
     const u = await User.findById(ctx.state.user.id);
-    ctx.body = u.getCampusesAccessibles();
+    ctx.body = await u.getCampusesAccessibles();
   },
 );
 

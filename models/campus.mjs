@@ -6,9 +6,22 @@ const CampusSchema = new Schema({
   _id: String,
   name: { type: String, required: true },
   categories: [{
-    _id: { type: String, required: true, alias: 'id' },
+    _id: { type: String, required: true },
     label: String,
   }],
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
+    coordinates: {
+      type: [Number],
+    },
+  },
+  phone: {
+    drivers: String,
+    everybody: String,
+  },
 });
 
 CampusSchema.index({
@@ -151,6 +164,18 @@ CampusSchema.statics.findCars = async function findCars(campus, start, end) {
     car.availabilities = availabilities;
     return car;
   }).filter(u => u.availabilities.length);
+};
+
+CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(driver, status = []) {
+  const Ride = mongoose.model('Ride');
+  return Ride
+    .find({
+      status,
+      'driver._id': driver,
+    })
+    .sort({
+      start: 1,
+    });
 };
 
 export default mongoose.model('Campus', CampusSchema, 'campuses');
