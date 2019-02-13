@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-
+import checkRights from '../middlewares/check-rights';
 import Campus from '../models/campus';
 import driversRoutes from './campuses/drivers';
 import driversPositionsRoutes from './campuses/drivers-positions';
@@ -14,6 +14,7 @@ router.use('/:campus_id/cars', carsRoutes);
 
 router.post(
   '/',
+  checkRights('canCreateCampus'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -28,6 +29,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights('canListCampus'),
   maskOutput,
   async (ctx) => {
     const searchParams = {};
@@ -45,6 +47,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights('canGetCampus'),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -59,6 +62,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights('canEditCampus'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -71,6 +75,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights('canRemoveCampus'),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Campus.remove({ _id: id });
