@@ -1,5 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
+import checkRights from '../middlewares/check-rights';
 
 import CarModel from '../models/car-model';
 
@@ -7,6 +8,7 @@ const router = new Router();
 
 router.post(
   '/',
+  checkRights('canCreateCarModel'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -21,6 +23,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights('canListCarModel'),
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(CarModel);
@@ -34,6 +37,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights('canGetCarModel'),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -43,6 +47,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights('canEditCarModel'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -56,6 +61,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights('canRemoveCarModel'),
   async (ctx) => {
     const { params: { id } } = ctx;
     await CarModel.remove({ _id: id });

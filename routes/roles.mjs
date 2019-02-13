@@ -1,12 +1,13 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-
+import checkRights from '../middlewares/check-rights';
 import Role from '../models/role';
 
 const router = new Router();
 
 router.post(
   '/',
+  checkRights('canCreateRole'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -21,6 +22,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights('canListRole'),
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(Role);
@@ -34,6 +36,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights('canGetRole'),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -43,6 +46,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights('canEditRole'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -56,6 +60,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights('canRemoveRole'),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Role.remove({ _id: id });

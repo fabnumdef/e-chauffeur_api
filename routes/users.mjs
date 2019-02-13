@@ -1,12 +1,13 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-
+import checkRights from '../middlewares/check-rights';
 import User from '../models/user';
 
 const router = new Router();
 
 router.post(
   '/',
+  checkRights('canCreateUser'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -25,6 +26,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights('canGetUser'),
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(User);
@@ -38,6 +40,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights('canListUser'),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -49,6 +52,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights('canEditUser'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -66,6 +70,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights('canRemoveUser'),
   async (ctx) => {
     const { params: { id } } = ctx;
     await User.remove({ _id: id });
