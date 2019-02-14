@@ -1,139 +1,98 @@
 import chai from 'chai';
-import request from '../request';
+import nanoid from 'nanoid';
+import request, { generateUserJWTHeader } from '../request';
 import CarModel from '../../models/car-model';
+import { cleanObject } from '../../middlewares/mask-output';
 
 const { expect } = chai;
 
-const CID = 'BRL_CAR_MOD_999999';
-const CLABEL = 'RENAULT ZOE';
+// eslint-disable-next-line import/prefer-default-export
+export const generateDummyCarModel = () => ({
+  _id: nanoid(10),
+  label: 'Renault Zoé',
+});
 
-// Init witness record
-const objectWitness = {};
-objectWitness.id = CID;
-objectWitness.label = CLABEL;
+describe('Test the car models API endpoint', () => {
+  it('POST API endpoint should create a new car-model', async () => {
+    const dummyCarModel = generateDummyCarModel();
+    try {
+      const response = await request()
+        .post('/car-models')
+        .set(...generateUserJWTHeader('canCreateCarModel'))
+        .send(cleanObject(dummyCarModel));
+      expect(response.statusCode).to.equal(200);
 
-/**
- * Compares objects passed in parameters
- * @param _ObjectReturn Returned object
- * @param _ObjectWitness Witness object
- * @returns {boolean} true = equal, false = not equal
- */
-function compObject(_ObjectReturn, _ObjectWitness)
-{
-  return _ObjectReturn._id === _ObjectWitness.id
-    && _ObjectReturn.label === _ObjectWitness.label;
-}
-
-/**
- * Creating the instance used for the unit test
- */
-async function createRec()
-{
-  const rec = await CarModel.findById(CID).lean();
-  if (rec == null) {
-    await CarModel.create({ _id: CID, label: CLABEL });
-  }
-}
-
-/**
- * Deleting the instance used for the unit test
- */
-async function deleteRec()
-{
-  const rec = await CarModel.findById(CID).lean();
-  if (rec != null) {
-    await CarModel.deleteOne({ _id: CID });
-  }
-}
-
-describe('Test the car models', () => {
-
-  // ==========================================
-  // Test the creation of a car model
-  // ==========================================
-  it('It should response the POST method', async () => {
-     await deleteRec();
-     console.log("Test of POST methode beginned");
-     const response = await request().post('/car-models').send({
-       // ID Car-model
-       id: CID,
-       //
-       label: CLABEL,
-     });
-     expect(response.statusCode).to.equal(200);
-     const objectReturn = await CarModel.findById(CID).lean();
-     expect(compObject(objectReturn, objectWitness)).to.equal(true);
-     await deleteRec();
-     console.log("Test of POST methode terminated\n\n");
+      const carModel = await CarModel
+        .find(dummyCarModel)
+        .lean();
+      expect(carModel).to.not.be.null;
+    } finally {
+      await CarModel.deleteOne({ _id: dummyCarModel._id });
+    }
   });
 
-  // ==========================================
-  // Test the update of a car model
-  // ==========================================
-  it('It should response the PATCH method', async () => {
-    console.log("Test of PATCH methode beginned");
-    const CLABEL2 = CLABEL.concat('xxx');
-    await deleteRec();
-    await CarModel.create({ _id: CID, label: CLABEL2 });
-    const response = await request().patch('/car-models/BRL_CAR_MOD_999999').send({
-      // ID Car-model
-      id: CID,
-      //
-      label: CLABEL,
-    });
-    expect(response.statusCode).to.equal(200);
-    const objectReturn = await CarModel.findById(CID).lean();
-    expect(compObject(objectReturn, objectWitness)).to.equal(true);
-    await deleteRec();
-    console.log("Test of PATCH methode terminated\n\n");
+  it('PATCH API endpoint should edit an existing car-model', async () => {
+    const dummyCarModel = generateDummyCarModel();
+    const NEW_LABEL = 'New Label';
+    try {
+      const carModel = await CarModel.create(dummyCarModel);
+
+      const response = await request()
+        .patch(`/car-models/${encodeURIComponent(carModel.id)}`)
+        .set(...generateUserJWTHeader('canEditCarModel'))
+        .send({ label: NEW_LABEL });
+      expect(response.statusCode).to.equal(200);
+
+      const editedCarModel = await CarModel.findById(dummyCarModel._id).lean();
+      expect(editedCarModel.label).to.equal(NEW_LABEL);
+    } finally {
+      await CarModel.deleteOne({ _id: dummyCarModel._id });
+    }
   });
 
-  // ==========================================
-  // Test the reading of a car model
-  // ==========================================
-  it('It should response the GET method', async () => {
-    console.log("Test of GET methode beginned");
-    await createRec();
-    const response = await request().get('/car-models/?mask=*');
-    expect(response.statusCode).to.equal(200);
-
-    // var table = new Array();
-    // table = response.body;
-    var table = response.body;
-    var found = table.find(function(element) {
-      return element.id === CID;
-    });
-    expect(found).to.not.equal(undefined);
-    await deleteRec();
-    console.log("Test of GET methode terminated\n\n");
+  it('GET API endpoint should list existing car-models', async () => {
+    const dummyCarModel = generateDummyCarModel();
+    try {
+      await CarModel.create(dummyCarModel);
+      const response = await request()
+        .get('/car-models/?mask=*')
+        .set(...generateUserJWTHeader('canListCarModel'));
+      expect(response.statusCode).to.equal(200);
+      const found = response.body.find(({ id }) => id === dummyCarModel._id);
+      expect(found).to.deep.equal(cleanObject(dummyCarModel));
+    } finally {
+      await CarModel.deleteOne({ _id: dummyCarModel._id });
+    }
   });
 
-  // ==========================================
-  // Test the reading of a car model by its ID
-  // ==========================================
-  it('It should response the GET by ID method', async () => {
-    console.log("Test of GET by ID methode beginned");
-    await createRec();
-    const response = await request().get('/car-models/BRL_CAR_MOD_999999?mask=*');
-    expect(response.statusCode).to.equal(200);
-    const objectReturn = await CarModel.findById(CID).lean();
-    expect(compObject(objectReturn, objectWitness)).to.equal(true);
-    await deleteRec();
-    console.log("Test of GET by ID methode terminated\n\n");
+  it('GET API endpoint should return existing car-model', async () => {
+    const dummyCarModel = generateDummyCarModel();
+    try {
+      const carModel = await CarModel.create(dummyCarModel);
+      const response = await request()
+        .get(`/car-models/${encodeURIComponent(carModel.id)}?mask=*`)
+        .set(...generateUserJWTHeader('canGetCarModel'));
+      expect(response.statusCode).to.equal(200);
+
+      expect(response.body).to.deep.equal(cleanObject(dummyCarModel));
+    } finally {
+      await CarModel.deleteOne({ _id: dummyCarModel._id });
+    }
   });
 
-  // ==========================================
-  // Test the removal of a car model by its ID
-  // ==========================================
-  it('It should response the DELETE method', async () => {
-    console.log("Test of DELETE methode beginned");
-    await createRec();
-    const response = await request().delete('/car-models/BRL_CAR_MOD_999999').send({
-    });
-    expect(response.statusCode).to.equal(204);
-    const objectReturn = await CarModel.findById(CID).lean();
-    expect(objectReturn).to.equal(null);
-    await deleteRec();
-    console.log("Test of DELETE methode terminated\n\n");
+  it('DELETE API endpoint should remove existing car-model', async () => {
+    const dummyCarModel = generateDummyCarModel();
+    try {
+      const carModel = await CarModel.create(dummyCarModel);
+      const response = await request()
+        .delete(`/car-models/${encodeURIComponent(carModel.id)}`)
+        .set(...generateUserJWTHeader('canRemoveCarModel'));
+      expect(response.statusCode).to.equal(204);
+
+      const objectReturn = await CarModel.findById(dummyCarModel._id).lean();
+      expect(objectReturn).to.equal(null);
+    } finally {
+      await CarModel.deleteOne({ _id: dummyCarModel._id });
+    }
   });
 });
