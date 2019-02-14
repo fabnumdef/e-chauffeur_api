@@ -1,0 +1,50 @@
+[
+  {
+    "_id": "XX-000-XX",
+    "label": "Zoé XX-000-XX",
+    "model": {
+      "_id": "renault/zoe",
+      "label": "Renault Zoe"
+    },
+    "campus": {
+      "_id": "BSL",
+      "name": "Brest"
+    }
+  },
+  {
+    "_id": "XX-001-XX",
+    "label": "ZE XX-001-XX",
+    "model": {
+      "_id": "renault/z-e",
+      "label": "Renault Z.E."
+    },
+    "campus": {
+      "_id": "BSL",
+      "name": "Brest"
+    }
+  },
+  {
+    "_id": "XX-002-XX",
+    "label": "Zoé XX-002-XX",
+    "model": {
+      "_id": "renault/zoe",
+      "label": "Renault Zoe"
+    },
+    "campus": {
+      "_id": "BSL",
+      "name": "Brest"
+    }
+  },
+  {
+    "_id": "XX-003-XX",
+    "label": "Kangoo XX-003-XX",
+    "model": {
+      "_id": "renault/kangoo",
+      "label": "Renault Kangoo"
+    },
+    "campus": {
+      "_id": "BSL",
+      "name": "Brest"
+    }
+  }
+]
