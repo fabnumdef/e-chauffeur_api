@@ -16,10 +16,14 @@ const RideSchema = new Schema({
     status: { type: String, required: true },
     time: Date,
   }],
+  category: {
+    _id: { type: String, required: true, alias: 'category.id' },
+    label: String,
+  },
   start: Date,
   end: Date,
   departure: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'departure.id' },
     label: String,
     location: {
       type: {
@@ -32,7 +36,7 @@ const RideSchema = new Schema({
     },
   },
   arrival: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'arrival.id' },
     label: String,
     location: {
       type: {
@@ -45,11 +49,11 @@ const RideSchema = new Schema({
     },
   },
   driver: {
-    _id: { type: Schema.ObjectId, required: true },
+    _id: { type: Schema.ObjectId, required: true, alias: 'driver.id' },
     name: String,
   },
   car: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'car.id' },
     label: String,
     model: {
       _id: { type: String, required: true },
@@ -57,7 +61,7 @@ const RideSchema = new Schema({
     },
   },
   campus: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'campus.id' },
   },
   comments: String,
   passengersCount: Number,
@@ -79,46 +83,6 @@ RideSchema.pre('validate', async function beforeSave() {
     })(mongoose.model('Poi')),
   ]);
 });
-
-RideSchema.virtual('campus.id')
-  .get(function get() {
-    return this.campus._id;
-  })
-  .set(function set(id) {
-    this.campus._id = id;
-  });
-
-RideSchema.virtual('departure.id')
-  .get(function get() {
-    return this.departure._id;
-  })
-  .set(function set(id) {
-    this.departure._id = id;
-  });
-
-RideSchema.virtual('arrival.id')
-  .get(function get() {
-    return this.arrival._id;
-  })
-  .set(function set(id) {
-    this.arrival._id = id;
-  });
-
-RideSchema.virtual('car.id')
-  .get(function get() {
-    return this.car._id;
-  })
-  .set(function set(id) {
-    this.car._id = id;
-  });
-
-RideSchema.virtual('driver.id')
-  .get(function get() {
-    return this.driver._id;
-  })
-  .set(function set(id) {
-    this.driver._id = id;
-  });
 
 RideSchema.statics.castId = (v) => {
   try {
