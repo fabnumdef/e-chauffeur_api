@@ -77,7 +77,7 @@ UserSchema.methods.emitJWT = function emitJWT() {
   return jwt.sign(
     u,
     config.get('token:secret'),
-    { expiresIn: config.get('token:duration') },
+    { expiresIn: parseInt(config.get('token:duration'), 10) },
   );
 };
 

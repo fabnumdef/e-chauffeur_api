@@ -11,7 +11,7 @@ const modelsPath = path.join(__dirname, '..', 'models');
 (async () => {
   await import('../services');
 
-  await Promise.all((await readDir(modelsPath)).map(async f => import(`${modelsPath}/${f}`)));
+  await Promise.all((await readDir(modelsPath)).map(async f => import(`../models/${f}`)));
 
   await Promise.all((await readDir(__dirname))
     .filter(f => f !== CURRENT_FILE)
