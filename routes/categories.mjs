@@ -1,13 +1,14 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 import addFilter from '../middlewares/add-filter';
-
+import checkRights from '../middlewares/check-rights';
 import Category from '../models/category';
 
 const router = new Router();
 
 router.post(
   '/',
+  checkRights('canCreateCategory'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -22,6 +23,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights('canListCategory'),
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
@@ -36,6 +38,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights('canGetCategory'),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -45,6 +48,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights('canEditCategory'),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -58,6 +62,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights('canRemoveCategory'),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Category.remove({ _id: id });

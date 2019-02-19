@@ -10,7 +10,7 @@ RUN apk add python make g++
 
 COPY . /usr/src/app/
 COPY ./config.json.dist /usr/src/app/config.json
-RUN npm install
+RUN npm install --only=production
 
 EXPOSE 3000
 

@@ -5,3 +5,6 @@ services:
   - mongodb
 before_install:
   - cp config.json.dist config.json
+script:
+  - npm run lint
+  - npm test

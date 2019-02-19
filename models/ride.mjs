@@ -1,31 +1,67 @@
 import mongoose from 'mongoose';
+import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
-import stateMachine from './status';
+import stateMachine, { CREATED } from './status';
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 
 const RideSchema = new Schema({
-  status: String,
+  token: {
+    type: String,
+    default: () => nanoid(48),
+  },
+  status: { type: String, default: CREATED },
+  statusChanges: [{
+    _id: false,
+    status: { type: String, required: true },
+    time: Date,
+  }],
+  category: {
+    _id: { type: String, required: true, alias: 'category.id' },
+    label: String,
+  },
   start: Date,
   end: Date,
   departure: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'departure.id' },
     label: String,
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
   },
   arrival: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'arrival.id' },
     label: String,
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
   },
   driver: {
-    _id: { type: Schema.ObjectId, required: true, alias: 'id' },
+    _id: { type: Schema.ObjectId, required: true, alias: 'driver.id' },
     name: String,
   },
   car: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'car.id' },
     label: String,
+    model: {
+      _id: { type: String, required: true },
+      label: { type: String, required: true },
+    },
   },
   campus: {
-    _id: { type: String, required: true },
+    _id: { type: String, required: true, alias: 'campus.id' },
   },
   comments: String,
   passengersCount: Number,
@@ -34,45 +70,27 @@ const RideSchema = new Schema({
 
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
-RideSchema.virtual('campus.id')
-  .get(function get() {
-    return this.campus._id;
-  })
-  .set(function set(id) {
-    this.campus._id = id;
-  });
+RideSchema.pre('validate', async function beforeSave() {
+  await Promise.all([
+    (async (Car) => {
+      const carId = this.car._id;
+      this.car = await Car.findById(carId).lean();
+    })(mongoose.model('Car')),
+    (async (Poi) => {
+      const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
+      this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
+      this.departure = pois.find(({ _id }) => _id === this.departure._id);
+    })(mongoose.model('Poi')),
+  ]);
+});
 
-RideSchema.virtual('departure.id')
-  .get(function get() {
-    return this.departure._id;
-  })
-  .set(function set(id) {
-    this.departure._id = id;
-  });
-
-RideSchema.virtual('arrival.id')
-  .get(function get() {
-    return this.arrival._id;
-  })
-  .set(function set(id) {
-    this.arrival._id = id;
-  });
-
-RideSchema.virtual('car.id')
-  .get(function get() {
-    return this.car._id;
-  })
-  .set(function set(id) {
-    this.car._id = id;
-  });
-
-RideSchema.virtual('driver.id')
-  .get(function get() {
-    return this.driver._id;
-  })
-  .set(function set(id) {
-    this.driver._id = id;
-  });
+RideSchema.statics.castId = (v) => {
+  try {
+    return new Types.ObjectId(v);
+  } catch (e) {
+    return new Types.ObjectId(Buffer.from(v, 'base64').toString('hex'));
+  }
+};
 
 RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
   const filters = f;
@@ -129,6 +147,27 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, e
     this.filtersWithin(start, end, filters),
     ...rest,
   );
+};
+
+RideSchema.methods.isAccessibleByAnonymous = function isAccessibleByAnonymous(token) {
+  return this.token === token;
+};
+
+RideSchema.methods.findDriverPosition = async function findDriverPosition() {
+  const GeoTracking = mongoose.model('GeoTracking');
+  const [position = null] = await GeoTracking.aggregate([
+    { $unwind: '$positions' },
+    {
+      $project: {
+        driver: '$driver._id',
+        position: '$positions.location',
+        date: '$positions._id',
+      },
+    },
+    { $sort: { date: -1 } },
+    { $limit: 1 },
+  ]);
+  return position;
 };
 
 export default mongoose.model('Ride', RideSchema);

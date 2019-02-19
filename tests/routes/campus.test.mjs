@@ -1,5 +1,5 @@
 import chai from 'chai';
-import request from '../request';
+import request, { generateUserJWTHeader } from '../request';
 
 const { expect } = chai;
 
@@ -13,7 +13,9 @@ describe('Test the campus route', () => {
   // });
 
   it('It should response the GET method', async () => {
-    const response = await request().get('/campuses');
+    const response = await request()
+      .get('/campuses')
+      .set(...generateUserJWTHeader('canListCampus'));
     expect(response.statusCode).to.equal(200);
   });
 });

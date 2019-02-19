@@ -9,12 +9,12 @@ const RoleSchema = new Schema({
     _id: {
       type: String,
       required: true,
-      alias: 'id',
       validate: {
         validator(v) {
           return this.parent()._id !== v; // @todo: Add more resilient cycle checking
         },
       },
+      alias: 'id',
     },
   }],
   rights: [{
