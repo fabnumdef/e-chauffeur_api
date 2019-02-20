@@ -178,4 +178,9 @@ CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(dr
     });
 };
 
+CampusSchema.statics.countRides = async function countRides(campus, start, end) {
+  const Ride = mongoose.model('Ride');
+  return Ride.count(Ride.filtersWithin(start, end));
+};
+
 export default mongoose.model('Campus', CampusSchema, 'campuses');
