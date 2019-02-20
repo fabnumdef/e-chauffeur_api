@@ -8,7 +8,7 @@ const { Schema, Types } = mongoose;
 const RideSchema = new Schema({
   token: {
     type: String,
-    default: () => nanoid(48),
+    default: () => nanoid(12),
   },
   status: { type: String, default: CREATED },
   statusChanges: [{
