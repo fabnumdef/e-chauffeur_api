@@ -35,7 +35,8 @@
     "nconf": "^0.10.0",
     "opening_hours": "^3.5.0",
     "qs": "^6.6.0",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "twilio": "^3.28.1"
   },
   "devDependencies": {
     "@std/esm": "^0.26.0",
