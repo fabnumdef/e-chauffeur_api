@@ -21,6 +21,21 @@ router.post(
   },
 );
 
+router.patch(
+  '/:id',
+  maskOutput,
+  async (ctx) => {
+    const { request: { body } } = ctx;
+
+    const { params: { id } } = ctx;
+    const ride = await Ride.findById(id);
+
+    ride.set(body);
+    ctx.body = await ride.save();
+    ctx.app.io.emit('rideUpdate', cleanObject(ctx.body));
+  },
+);
+
 router.get(
   '/',
   maskOutput,
