@@ -1,3 +1,8 @@
+import Luxon from 'luxon';
+import get from 'lodash.get';
+
+const { DateTime } = Luxon;
+
 export const CREATED = 'created';
 export const VALIDATED = 'validated'; // Regulation validation
 export const REJECTED_BOUNDARY = 'rejected_boundary'; // Regulation validation
@@ -46,12 +51,44 @@ export default {
   ],
 
   methods: {
-    onEnterState({ from, to }) {
+    async onEnterState({ from, to }) {
       if (from === this.status) {
         this.statusChanges.push({
           status: to,
           time: new Date(),
         });
+        const show = path => get(this, path, '');
+        switch (to) {
+          case ACCEPTED:
+            await this.sendSMS(
+              'Bonjour, '
+              + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
+              + `${DateTime.fromJSDate(this.start).setLocale('fr-fr').toLocaleString(DateTime.DATETIME_SHORT)} `
+              + 'est prise en compte. '
+              + `Pour l'annuler, appelez le ${show('campus.phone.everybody')}.`,
+            );
+            break;
+          case STARTED:
+            await this.sendSMS(
+              `Votre chauffeur ${show('driver.name')} est en route au volant de `
+              + `sa ${show('car.model.label')} immatriculée ${show('car.id')}.`
+              + `Vous pouvez suivre sa position : ${this.getRideClientURL()}`,
+            );
+            break;
+          case WAITING:
+            await this.sendSMS(
+              `Votre chauffeur ${show('driver.name')} est arrivé au point de rencontre.`,
+            );
+            break;
+          case DELIVERED:
+            await this.sendSMS(
+              'Merci d’avoir fait appel à notre offre de mobilité. '
+              + `Vous pouvez évaluer le service e-Chauffeur : ${this.getSatisfactionQuestionnaireURL()}`,
+            );
+            break;
+          default:
+            break;
+        }
       }
     },
   },
