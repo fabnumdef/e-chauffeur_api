@@ -195,11 +195,11 @@ RideSchema.methods.sendSMS = async function sendUserSMS(body) {
 
 RideSchema.methods.getRideClientURL = function getRideClientURL() {
   const shortedId = Buffer.from(new mongoose.mongo.ObjectID().toString(), 'hex').toString('base64');
-  return `${config.get('userWebsiteURL')}/${shortedId}?token=${this.token}`;
+  return `${config.get('user_website_url')}/${shortedId}?token=${this.token}`;
 };
 
 RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
-  return `${config.get('satisfactionQuestionnaireURL')}`;
+  return `${config.get('satisfaction_questionnaire_url')}`;
 };
 
 export default mongoose.model('Ride', RideSchema);

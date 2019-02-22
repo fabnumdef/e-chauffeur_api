@@ -4,11 +4,11 @@
     "duration": 3600
   },
   "mongodb": "mongodb://localhost/e-chauffeur",
-  "userWebsiteURL": "",
-  "satisfactionQuestionnaireURL": "",
+  "user_website_url": "",
+  "satisfaction_questionnaire_url": "",
   "twilio": {
     "sid": "",
     "token": "",
-    "messagingServiceSid": ""
+    "messaging_service_sid": ""
   }
 }

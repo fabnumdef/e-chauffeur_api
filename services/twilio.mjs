@@ -3,7 +3,7 @@ import config from './config';
 
 const sid = config.get('twilio:sid');
 const token = config.get('twilio:token');
-const messagingServiceSid = config.get('twilio:messagingServiceSid');
+const messagingServiceSid = config.get('twilio:messaging_service_sid');
 
 // eslint-disable-next-line import/prefer-default-export
 export async function sendSMS(to, body) {
