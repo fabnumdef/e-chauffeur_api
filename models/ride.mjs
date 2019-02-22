@@ -194,8 +194,7 @@ RideSchema.methods.sendSMS = async function sendUserSMS(body) {
 };
 
 RideSchema.methods.getRideClientURL = function getRideClientURL() {
-  const shortedId = Buffer.from(new mongoose.mongo.ObjectID().toString(), 'hex').toString('base64');
-  return `${config.get('user_website_url')}/${shortedId}?token=${this.token}`;
+  return `${config.get('user_website_url')}/${this.id}?token=${this.token}`;
 };
 
 RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
