@@ -25,7 +25,14 @@ router.get(
   async (ctx) => {
     const searchParams = {};
     if (ctx.query && ctx.query.search) {
-      searchParams.$text = { $search: ctx.query.search };
+      searchParams.$or = [
+        {
+          _id: new RegExp(ctx.query.search, 'i'),
+        },
+        {
+          name: new RegExp(ctx.query.search, 'i'),
+        },
+      ];
     }
     const { offset, limit } = ctx.parseRangePagination(Poi);
     const total = await Poi.countDocuments(searchParams);
