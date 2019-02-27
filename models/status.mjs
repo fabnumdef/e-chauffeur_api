@@ -8,30 +8,35 @@ export const VALIDATED = 'validated'; // Regulation validation
 export const REJECTED_BOUNDARY = 'rejected_boundary'; // Regulation validation
 export const REJECTED_CAPACITY = 'rejected_capacity'; // Regulation validation
 export const ACCEPTED = 'accepted'; // Driver acceptance
-export const DECLINED_DAMAGE = 'declined_damage'; // Driver rejection
-export const DECLINED_TRAFFIC = 'declined_traffic'; // Driver rejection
-export const DECLINED_NOBODY = 'declined_nobody'; // Driver rejection
+export const DECLINED = 'declined'; // Driver rejection
 export const STARTED = 'started';
 export const WAITING = 'waiting';
 export const IN_PROGRESS = 'progress';
 export const DELIVERED = 'delivered';
 export const DONE = 'done';
 export const CANCELED = 'canceled';
+export const CANCELED_TECHNICAL = 'canceled_technical';
+export const CANCELED_REQUESTED_CUSTOMER = 'canceled_requested_customer';
+export const CANCELED_CUSTOMER_OVERLOAD = 'canceled_customer_overload';
+export const CANCELED_CUSTOMER_MISSING = 'canceled_customer_missing';
 
 export const VALIDATE = 'validation';
 export const REJECT_BOUNDARY = 'rejection_boundary';
 export const REJECT_CAPACITY = 'rejection_capacity';
 export const ACCEPT = 'accept';
-export const DECLINE_DAMAGE = 'decline_damage';
-export const DECLINE_TRAFFIC = 'decline_traffic';
-export const DECLINE_NOBODY = 'decline_nobody';
+export const DECLINE = 'decline';
 export const START = 'start-up';
 export const WAIT = 'stay';
 export const PROGRESS = 'progress';
 export const DELIVER = 'deliver';
 export const FINISH = 'finish';
 export const CANCEL = 'void';
+export const CANCEL_TECHNICAL = 'cancel_technical';
+export const CANCEL_REQUESTED_CUSTOMER = 'cancel_requested_by_customer';
+export const CANCEL_CUSTOMER_OVERLOAD = 'cancel_customer_overload';
+export const CANCEL_CUSTOMER_MISSING = 'cancel_customer_missing';
 
+const CANCELABLE = [ACCEPTED, STARTED, WAITING, IN_PROGRESS, DELIVERED];
 export default {
   init: CREATED,
   transitions: [
@@ -39,15 +44,17 @@ export default {
     { name: REJECT_BOUNDARY, from: CREATED, to: REJECTED_BOUNDARY },
     { name: REJECT_CAPACITY, from: CREATED, to: REJECTED_CAPACITY },
     { name: ACCEPT, from: VALIDATED, to: ACCEPTED },
-    { name: DECLINE_DAMAGE, from: VALIDATED, to: DECLINED_DAMAGE },
-    { name: DECLINE_TRAFFIC, from: VALIDATED, to: DECLINED_TRAFFIC },
-    { name: DECLINE_NOBODY, from: VALIDATED, to: DECLINED_NOBODY },
+    { name: DECLINE, from: VALIDATED, to: DECLINED },
     { name: START, from: ACCEPTED, to: STARTED },
     { name: WAIT, from: STARTED, to: WAITING },
     { name: PROGRESS, from: WAITING, to: IN_PROGRESS },
     { name: DELIVER, from: IN_PROGRESS, to: DELIVERED },
     { name: FINISH, from: DELIVERED, to: DONE },
-    { name: CANCEL, from: [ACCEPTED, STARTED, WAITING, IN_PROGRESS, DELIVERED], to: CANCELED },
+    { name: CANCEL, from: CANCELABLE, to: CANCELED },
+    { name: CANCEL_TECHNICAL, from: CANCELABLE, to: CANCELED_TECHNICAL },
+    { name: CANCEL_REQUESTED_CUSTOMER, from: CANCELABLE, to: CANCELED_REQUESTED_CUSTOMER },
+    { name: CANCEL_CUSTOMER_OVERLOAD, from: CANCELABLE, to: CANCELED_CUSTOMER_OVERLOAD },
+    { name: CANCEL_CUSTOMER_MISSING, from: CANCELABLE, to: CANCELED_CUSTOMER_MISSING },
   ],
 
   methods: {
@@ -63,16 +70,15 @@ export default {
             await this.sendSMS(
               'Bonjour, '
               + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
-              + `${DateTime.fromJSDate(this.start).setLocale('fr-fr').toLocaleString(DateTime.DATETIME_SHORT)} `
+              + `${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)} `
               + 'est prise en compte. '
               + `Pour l'annuler, appelez le ${show('campus.phone.everybody')}.`,
             );
             break;
           case STARTED:
             await this.sendSMS(
-              `Votre chauffeur ${show('driver.name')} est en route au volant de `
-              + `sa ${show('car.model.label')} immatriculée ${show('car.id')}.`
-              + `Vous pouvez suivre sa position : ${this.getRideClientURL()}`,
+              `Votre chauffeur est en route (${show('car.model.label')} / ${show('car.id')}). `
+              + `Suivez son arrivée : ${this.getRideClientURL()}`,
             );
             break;
           case WAITING:
@@ -82,8 +88,26 @@ export default {
             break;
           case DELIVERED:
             await this.sendSMS(
-              'Merci d’avoir fait appel à notre offre de mobilité. '
+              'Merci d\'avoir fait appel à notre offre de mobilité. '
               + `Vous pouvez évaluer le service e-Chauffeur : ${this.getSatisfactionQuestionnaireURL()}`,
+            );
+            break;
+          case CANCEL_TECHNICAL:
+            await this.sendSMS(
+              `Un problème technique nous oblige à annuler votre course vers ${show('arrival.label')} `
+              + `le ${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)}.`,
+            );
+            break;
+          case CANCEL_REQUESTED_CUSTOMER:
+            await this.sendSMS(
+              `Nous confirmons l'annulation de la course vers ${show('arrival.label')} `
+              + `le ${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)}.`,
+            );
+            break;
+          case CANCEL_CUSTOMER_MISSING:
+            await this.sendSMS(
+              `Suite à votre absence, votre course vers ${show('arrival.label')} `
+              + `le ${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)} a été annulée.`,
             );
             break;
           default:
