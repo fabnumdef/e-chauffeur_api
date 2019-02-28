@@ -1,16 +1,18 @@
 import mongoose from 'mongoose';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
-import stateMachine, { CREATED } from './status';
+import stateMachine, { VALIDATED } from './status';
+import config from '../services/config';
+import { sendSMS } from '../services/twilio';
 
 const { Schema, Types } = mongoose;
 
 const RideSchema = new Schema({
   token: {
     type: String,
-    default: () => nanoid(48),
+    default: () => nanoid(12),
   },
-  status: { type: String, default: CREATED },
+  status: { type: String, default: VALIDATED },
   statusChanges: [{
     _id: false,
     status: { type: String, required: true },
@@ -62,6 +64,10 @@ const RideSchema = new Schema({
   },
   campus: {
     _id: { type: String, required: true, alias: 'campus.id' },
+    phone: {
+      drivers: String,
+      everybody: String,
+    },
   },
   comments: String,
   passengersCount: Number,
@@ -72,6 +78,10 @@ RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
   await Promise.all([
+    (async (Campus) => {
+      const campusId = this.campus._id;
+      this.campus = await Campus.findById(campusId).lean();
+    })(mongoose.model('Campus')),
     (async (Car) => {
       const carId = this.car._id;
       this.car = await Car.findById(carId).lean();
@@ -168,6 +178,27 @@ RideSchema.methods.findDriverPosition = async function findDriverPosition() {
     { $limit: 1 },
   ]);
   return position;
+};
+
+RideSchema.methods.sendSMS = async function sendUserSMS(body) {
+  try {
+    if (this.phone) {
+      return await sendSMS(this.phone, body);
+    }
+  } catch (e) {
+    // Silent error
+    // eslint-disable-next-line no-console
+    console.error(e);
+  }
+  return null;
+};
+
+RideSchema.methods.getRideClientURL = function getRideClientURL() {
+  return `${config.get('user_website_url')}/${this.id}?token=${this.token}`;
+};
+
+RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
+  return `${config.get('satisfaction_questionnaire_url')}`;
 };
 
 export default mongoose.model('Ride', RideSchema);

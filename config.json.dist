@@ -3,5 +3,12 @@
     "secret": "json web token secret",
     "duration": 3600
   },
-  "mongodb": "mongodb://localhost/e-chauffeur"
+  "mongodb": "mongodb://localhost/e-chauffeur",
+  "user_website_url": "",
+  "satisfaction_questionnaire_url": "",
+  "twilio": {
+    "sid": "",
+    "token": "",
+    "messaging_service_sid": ""
+  }
 }

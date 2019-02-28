@@ -1,5 +1,6 @@
 {
   "name": "e-chauffeur_api",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -20,33 +21,35 @@
     "joi": "^14.3.1",
     "json-mask": "^0.3.8",
     "json2csv": "^4.3.5",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^8.5.0",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-jwt": "^3.5.1",
     "koa-qs": "^2.0.0",
     "koa-router": "^7.4.0",
     "lodash.camelcase": "^4.3.0",
+    "lodash.get": "^4.4.2",
     "lodash.isplainobject": "^4.0.6",
     "lodash.omit": "^4.5.0",
     "lodash.transform": "^4.6.0",
-    "luxon": "^1.11.2",
-    "mongoose": "^5.4.12",
+    "luxon": "^1.11.3",
+    "mongoose": "^5.4.14",
     "nanoid": "^2.0.1",
     "nconf": "^0.10.0",
     "opening_hours": "^3.5.0",
     "qs": "^6.6.0",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "twilio": "^3.28.1"
   },
   "devDependencies": {
     "@std/esm": "^0.26.0",
     "acorn": "^6.1.0",
     "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
-    "eslint": "^5.13.0",
+    "eslint": "^5.14.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.16.0",
-    "mocha": "^6.0.0-1",
+    "mocha": "^6.0.0",
     "supertest": "^3.4.2"
   },
   "peerDependencies": {
