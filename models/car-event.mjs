@@ -7,10 +7,10 @@ const CarEventSchema = new Schema({
   start: Date,
   end: Date,
   car: {
-    _id: { type: String, required: true, alias: 'car.id' },
+    _id: { type: String, required: true },
     label: { type: String, required: true },
     campus: {
-      _id: { type: String, required: true, alias: 'car.campus.id' },
+      _id: { type: String, required: true },
     },
   },
 });
@@ -27,12 +27,12 @@ CarEventSchema.virtual('car.id')
   .set(function set(id) {
     this.car._id = id;
   });
-// CarEventSchema.virtual('car.campus.id')
-//   .get(function get() {
-//     return this.car.campus._id;
-//   })
-//   .set(function set(id) {
-//     this.car.campus._id = id;
-//   });
+CarEventSchema.virtual('car.campus.id')
+  .get(function get() {
+    return this.car.campus._id;
+  })
+  .set(function set(id) {
+    this.car.campus._id = id;
+  });
 
 export default mongoose.model('CarEvent', CarEventSchema, 'car-events');
