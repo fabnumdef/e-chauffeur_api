@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
-import stateMachine, { VALIDATED } from './status';
+import stateMachine, { CREATED } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 
@@ -12,7 +12,7 @@ const RideSchema = new Schema({
     type: String,
     default: () => nanoid(12),
   },
-  status: { type: String, default: VALIDATED },
+  status: { type: String, default: CREATED },
   statusChanges: [{
     _id: false,
     status: { type: String, required: true },
