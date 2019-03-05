@@ -194,7 +194,7 @@ RideSchema.methods.sendSMS = async function sendUserSMS(body) {
 };
 
 RideSchema.methods.getRideClientURL = function getRideClientURL() {
-  return `${config.get('user_website_url')}/${this.id}?token=${this.token}`;
+  return `https://${config.get('user_website_url')}/${this.id}?token=${this.token}`;
 };
 
 RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
