@@ -23,7 +23,7 @@ router.post(
 router.get(
   '/',
   maskOutput,
-  addFilter('campus', 'campus._id'),
+  addFilter('user', 'user._id'),
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(UserEvent);
     const total = await UserEvent.countDocuments(ctx.filters);
