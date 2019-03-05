@@ -4,7 +4,9 @@ import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import stateMachine, { CREATED } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
+import gliphone from 'google-libphonenumber';
 
+const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
 
 const RideSchema = new Schema({
@@ -77,6 +79,9 @@ const RideSchema = new Schema({
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
+  const phoneUtil = PhoneNumberUtil.getInstance()
+  this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
+
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
