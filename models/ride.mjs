@@ -79,8 +79,12 @@ const RideSchema = new Schema({
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
-  const phoneUtil = PhoneNumberUtil.getInstance();
-  this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
+  try {
+    const phoneUtil = PhoneNumberUtil.getInstance();
+    this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
+  } catch (e) {
+    // Silent error
+  }
 
   await Promise.all([
     (async (Campus) => {
