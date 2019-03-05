@@ -10,7 +10,7 @@ const UserEventSchema = new Schema({
   start: Date,
   end: Date,
   user: {
-    _id: { type: Schema.ObjectId, required: true, alias: 'user.id' },
+    _id: { type: Schema.ObjectId, required: true },
     name: String,
   },
 });
