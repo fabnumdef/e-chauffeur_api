@@ -16,8 +16,13 @@ router.post(
     if (await Ride.findById(body.id)) {
       throw new Error('Ride already exists.');
     }
-    ctx.body = await Ride.create(body);
-    ctx.app.io.emit('rideUpdate', cleanObject(ctx.body));
+    const ride = await Ride.create(body);
+    ctx.body = ride;
+    ctx.app.io
+      .in(`ride/${ride.id}`)
+      .in(`campus/${ride.campus.id}`)
+      .in(`driver/${ride.driver.id}`)
+      .emit('rideUpdate', cleanObject(ctx.body));
   },
 );
 
@@ -31,8 +36,13 @@ router.patch(
     const ride = await Ride.findById(id);
 
     ride.set(body);
-    ctx.body = await ride.save();
-    ctx.app.io.emit('rideUpdate', cleanObject(ctx.body));
+    await ride.save();
+    ctx.body = ride;
+    ctx.app.io
+      .in(`ride/${ride.id}`)
+      .in(`campus/${ride.campus.id}`)
+      .in(`driver/${ride.driver.id}`)
+      .emit('rideUpdate', cleanObject(ctx.body));
   },
 );
 
@@ -127,7 +137,11 @@ router.post(
 
     ride[camelCase(action)]();
     ctx.body = await ride.save();
-    ctx.app.io.emit('rideUpdate', cleanObject(ctx.body));
+    ctx.app.io
+      .in(`ride/${ride.id}`)
+      .in(`campus/${ride.campus.id}`)
+      .in(`driver/${ride.driver.id}`)
+      .emit('rideUpdate', cleanObject(ctx.body));
   },
 );
 
