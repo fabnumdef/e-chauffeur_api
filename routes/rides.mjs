@@ -1,8 +1,8 @@
 import Router from 'koa-router';
 import camelCase from 'lodash.camelcase';
-import Json2csv from 'json2csv';
 
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
+import contentNegociation from '../middlewares/content-negociation';
 
 import Ride from '../models/ride';
 import addFilter from '../middlewares/add-filter';
@@ -50,6 +50,7 @@ router.patch(
 
 router.get(
   '/',
+  contentNegociation,
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
@@ -67,29 +68,6 @@ router.get(
     ctx.setRangePagination(Ride, { total, offset, count: data.length });
 
     ctx.body = data;
-  },
-);
-
-router.get(
-  '/export',
-  maskOutput,
-  addFilter('campus', 'campus._id'),
-  async (ctx) => {
-    const { filters } = ctx.query;
-    const start = new Date(filters.start);
-    const end = new Date(filters.end);
-    const data = await Ride.findWithin(start, end, ctx.filters).lean();
-    const Json2csvParser = Json2csv.Parser;
-
-    try {
-      const parser = new Json2csvParser( { flatten: true });
-      const csv = parser.parse(data);
-      ctx.type = 'csv';
-      ctx.body = csv;
-    } catch (err) {
-      ctx.status = 500;
-      throw new Error('An error was occured : ' + err.message);
-    }
   },
 );
 
