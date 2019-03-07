@@ -13,7 +13,6 @@ export const STARTED = 'started';
 export const WAITING = 'waiting';
 export const IN_PROGRESS = 'progress';
 export const DELIVERED = 'delivered';
-export const DONE = 'done';
 export const CANCELED = 'canceled';
 export const CANCELED_TECHNICAL = 'canceled_technical';
 export const CANCELED_REQUESTED_CUSTOMER = 'canceled_requested_customer';
@@ -29,14 +28,13 @@ export const START = 'start-up';
 export const WAIT = 'stay';
 export const PROGRESS = 'progress';
 export const DELIVER = 'deliver';
-export const FINISH = 'finish';
 export const CANCEL = 'void';
 export const CANCEL_TECHNICAL = 'cancel_technical';
 export const CANCEL_REQUESTED_CUSTOMER = 'cancel_requested_by_customer';
 export const CANCEL_CUSTOMER_OVERLOAD = 'cancel_customer_overload';
 export const CANCEL_CUSTOMER_MISSING = 'cancel_customer_missing';
 
-const CANCELABLE = [ACCEPTED, STARTED, WAITING, IN_PROGRESS, DELIVERED];
+const CANCELABLE = [VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS];
 export default {
   init: CREATED,
   transitions: [
@@ -49,7 +47,6 @@ export default {
     { name: WAIT, from: STARTED, to: WAITING },
     { name: PROGRESS, from: WAITING, to: IN_PROGRESS },
     { name: DELIVER, from: IN_PROGRESS, to: DELIVERED },
-    { name: FINISH, from: DELIVERED, to: DONE },
     { name: CANCEL, from: CANCELABLE, to: CANCELED },
     { name: CANCEL_TECHNICAL, from: CANCELABLE, to: CANCELED_TECHNICAL },
     { name: CANCEL_REQUESTED_CUSTOMER, from: CANCELABLE, to: CANCELED_REQUESTED_CUSTOMER },

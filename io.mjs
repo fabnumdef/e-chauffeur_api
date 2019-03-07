@@ -1,9 +1,9 @@
-import joinDriverRoom from './websocket/room/driver';
+import joinRoom from './websocket/room/join';
 import positionUpdate from './websocket/position/update';
 
 export default (io) => {
   io.on('connection', (socket) => {
-    joinDriverRoom(socket);
+    joinRoom(socket);
     positionUpdate(socket);
   });
 };

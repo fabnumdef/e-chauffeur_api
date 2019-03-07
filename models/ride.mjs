@@ -1,10 +1,12 @@
 import mongoose from 'mongoose';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
-import stateMachine, { VALIDATED } from './status';
+import gliphone from 'google-libphonenumber';
+import stateMachine, { CREATED } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 
+const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
 
 const RideSchema = new Schema({
@@ -12,7 +14,7 @@ const RideSchema = new Schema({
     type: String,
     default: () => nanoid(12),
   },
-  status: { type: String, default: VALIDATED },
+  status: { type: String, default: CREATED },
   statusChanges: [{
     _id: false,
     status: { type: String, required: true },
@@ -77,6 +79,13 @@ const RideSchema = new Schema({
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
+  try {
+    const phoneUtil = PhoneNumberUtil.getInstance();
+    this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
+  } catch (e) {
+    // Silent error
+  }
+
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
