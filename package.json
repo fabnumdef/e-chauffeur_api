@@ -33,24 +33,24 @@
     "lodash.isplainobject": "^4.0.6",
     "lodash.omit": "^4.5.0",
     "lodash.transform": "^4.6.0",
-    "luxon": "^1.11.3",
-    "mongoose": "^5.4.14",
+    "luxon": "^1.11.4",
+    "mongoose": "^5.4.17",
     "nanoid": "^2.0.1",
     "nconf": "^0.10.0",
     "opening_hours": "^3.5.0",
     "qs": "^6.6.0",
     "socket.io": "^2.2.0",
-    "twilio": "^3.28.1"
+    "twilio": "^3.29.1"
   },
   "devDependencies": {
     "@std/esm": "^0.26.0",
-    "acorn": "^6.1.0",
+    "acorn": "^6.1.1",
     "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
-    "eslint": "^5.14.1",
+    "eslint": "^5.15.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.16.0",
-    "mocha": "^6.0.0",
+    "mocha": "^6.0.2",
     "supertest": "^3.4.2"
   },
   "peerDependencies": {
