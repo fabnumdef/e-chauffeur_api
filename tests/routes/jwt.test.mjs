@@ -1,8 +1,8 @@
 import chai from 'chai';
 import jwt from 'jsonwebtoken';
 import request from '../request';
-import { createDummyUser } from '../models/user';
-import config from "../../services/config";
+import User, { createDummyUser, generateDummyUser } from '../models/user';
+import config from '../../services/config';
 
 const { expect } = chai;
 
@@ -60,6 +60,59 @@ describe('Test the JWT route', () => {
             email: user.email,
             password: PASSWORD,
           });
+        expect(statusCode).to.equal(200);
+        expect(
+          jwt.decode(token, { secret: config.get('token:secret') }),
+        )
+          .to.deep.include({ email: user.email, id: user.id });
+      } finally {
+        await user.remove();
+      }
+    });
+  });
+
+  describe('Test the renew route', () => {
+    it('It should return an error on renew when token is invalid', async () => {
+      const token = jwt.sign(
+        {},
+        'bad token secret',
+        { expiresIn: parseInt(config.get('token:duration'), 10) },
+      );
+
+      const { statusCode } = await request()
+        .post('/jwt/renew')
+        .query({ mask: '*' })
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(statusCode).to.equal(401);
+    });
+
+    it('It should return a 404 error on renew when token user not exists', async () => {
+      const PASSWORD = 'foobar';
+      const user = new User(generateDummyUser({ password: PASSWORD }));
+      const token = user.emitJWT();
+
+      try {
+        const { statusCode } = await request()
+          .post('/jwt/renew')
+          .query({ mask: '*' })
+          .set('Authorization', `Bearer ${token}`);
+        expect(statusCode).to.equal(404);
+      } finally {
+        await user.remove();
+      }
+    });
+
+    it('It should return a valid new token on renew', async () => {
+      const PASSWORD = 'foobar';
+      const user = await createDummyUser({ password: PASSWORD });
+      const authToken = user.emitJWT();
+
+      try {
+        const { body: { token }, statusCode } = await request()
+          .post('/jwt/renew')
+          .query({ mask: '*' })
+          .set('Authorization', `Bearer ${authToken}`);
         expect(statusCode).to.equal(200);
         expect(
           jwt.decode(token, { secret: config.get('token:secret') }),

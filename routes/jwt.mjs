@@ -28,7 +28,7 @@ router.post(
   async (ctx) => {
     const user = await User.findById(ctx.state.user.id);
     if (!user) {
-      throw new Error('User not found.');
+      ctx.throw(404, 'User not found.');
     }
     ctx.body = { token: user.emitJWT() };
   },

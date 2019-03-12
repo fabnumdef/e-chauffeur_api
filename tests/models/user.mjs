@@ -14,3 +14,5 @@ export const createDummyUser = async (params) => {
   const dummyCampus = generateDummyUser(params);
   return User.create(dummyCampus);
 };
+
+export default User;
