@@ -6,19 +6,19 @@ import maskOutput from '../middlewares/mask-output';
 
 const router = new Router();
 
-router.post('/generate', async (ctx) => {
+router.post('/generate', maskOutput, async (ctx) => {
   const { request: { body } } = ctx;
   const user = await User.findOne({ email: body.email });
 
   if (!user) {
-    throw new Error('User not found.');
+    ctx.throw(404, 'User not found.');
   }
 
-  if (await user.comparePassword(body.password)) {
-    ctx.body = { token: user.emitJWT() };
-  } else {
-    throw new Error('Username and password do not match.');
+  if (!(await user.comparePassword(body.password))) {
+    ctx.throw(403, 'Username and password do not match.');
   }
+
+  ctx.body = { token: user.emitJWT() };
 });
 
 router.post(
