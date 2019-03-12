@@ -39,7 +39,11 @@ router.get(
   maskOutput,
   jwt({ secret: config.get('token:secret') }),
   async (ctx) => {
-    ctx.body = User.cleanObject(await User.findById(ctx.state.user.id).lean());
+    const user = await User.findById(ctx.state.user.id).lean();
+    if (!user) {
+      ctx.throw(404, 'User not found.');
+    }
+    ctx.body = User.cleanObject(user);
   },
 );
 

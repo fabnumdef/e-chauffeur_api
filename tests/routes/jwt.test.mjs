@@ -81,7 +81,6 @@ describe('Test the JWT route', () => {
 
       const { statusCode } = await request()
         .post('/jwt/renew')
-        .query({ mask: '*' })
         .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).to.equal(401);
@@ -95,7 +94,6 @@ describe('Test the JWT route', () => {
       try {
         const { statusCode } = await request()
           .post('/jwt/renew')
-          .query({ mask: '*' })
           .set('Authorization', `Bearer ${token}`);
         expect(statusCode).to.equal(404);
       } finally {
@@ -111,7 +109,7 @@ describe('Test the JWT route', () => {
       try {
         const { body: { token }, statusCode } = await request()
           .post('/jwt/renew')
-          .query({ mask: '*' })
+          .query({ mask: 'token' })
           .set('Authorization', `Bearer ${authToken}`);
         expect(statusCode).to.equal(200);
         expect(
@@ -120,6 +118,41 @@ describe('Test the JWT route', () => {
           .to.deep.include({ email: user.email, id: user.id });
       } finally {
         await user.remove();
+      }
+    });
+  });
+
+  describe('Test the GET user route', () => {
+    it('It should return a 404 error on get user when user not exists', async () => {
+      const PASSWORD = 'foobar';
+      const user = new User(generateDummyUser({ password: PASSWORD }));
+      const token = user.emitJWT();
+
+      try {
+        const { statusCode } = await request()
+          .get('/jwt/user')
+          .set('Authorization', `Bearer ${token}`);
+        expect(statusCode).to.equal(404);
+      } finally {
+        await user.remove();
+      }
+    });
+
+    it('It should return the user', async () => {
+      const PASSWORD = 'foobar';
+      const u = await createDummyUser({ password: PASSWORD });
+      const authToken = u.emitJWT();
+
+      try {
+        const { body: user, statusCode } = await request()
+          .get('/jwt/user')
+          .query({ mask: 'id,email' })
+          .set('Authorization', `Bearer ${authToken}`);
+        expect(statusCode).to.equal(200);
+        expect(user)
+          .to.deep.equal({ email: u.email, id: u.id });
+      } finally {
+        await u.remove();
       }
     });
   });
