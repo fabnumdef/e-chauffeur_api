@@ -1,16 +1,10 @@
 import chai from 'chai';
-import nanoid from 'nanoid';
 import request, { generateUserJWTHeader } from '../request';
 import CarModel from '../../models/car-model';
 import { cleanObject } from '../../middlewares/mask-output';
+import { generateDummyCarModel } from '../models/car-model';
 
 const { expect } = chai;
-
-// eslint-disable-next-line import/prefer-default-export
-export const generateDummyCarModel = () => ({
-  _id: nanoid(10),
-  label: 'Renault Zoé',
-});
 
 describe('Test the car models API endpoint', () => {
   it('POST API endpoint should create a new car-model', async () => {
