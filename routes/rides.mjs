@@ -1,6 +1,8 @@
 import Router from 'koa-router';
 import camelCase from 'lodash.camelcase';
+
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
+import contentNegociation from '../middlewares/content-negociation';
 
 import Ride from '../models/ride';
 import addFilter from '../middlewares/add-filter';
@@ -48,6 +50,7 @@ router.patch(
 
 router.get(
   '/',
+  contentNegociation,
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
