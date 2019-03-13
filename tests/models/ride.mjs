@@ -1,4 +1,7 @@
-// eslint-disable-next-line import/prefer-default-export
+import Ride from '../../models/ride';
+
 export const generateDummyRide = params => ({
   ...params,
 });
+
+export default Ride;

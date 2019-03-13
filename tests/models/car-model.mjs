@@ -10,3 +10,5 @@ export const createDummyCarModel = async (...params) => {
   const dummyCarModel = generateDummyCarModel(...params);
   return CarModel.create(dummyCarModel);
 };
+
+export default CarModel;

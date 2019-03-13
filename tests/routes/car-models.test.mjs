@@ -1,8 +1,7 @@
 import chai from 'chai';
 import request, { generateUserJWTHeader } from '../request';
-import CarModel from '../../models/car-model';
 import { cleanObject } from '../../middlewares/mask-output';
-import { generateDummyCarModel } from '../models/car-model';
+import CarModel, { generateDummyCarModel } from '../models/car-model';
 
 const { expect } = chai;
 
