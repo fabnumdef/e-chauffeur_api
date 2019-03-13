@@ -10,16 +10,25 @@ describe('Test the car models API endpoint', () => {
   it('POST API endpoint should create a new car-model', async () => {
     const dummyCarModel = generateDummyCarModel();
     try {
-      const response = await request()
-        .post('/car-models')
-        .set(...generateUserJWTHeader('canCreateCarModel'))
-        .send(cleanObject(dummyCarModel));
-      expect(response.statusCode).to.equal(200);
+      {
+        const response = await request()
+          .post('/car-models')
+          .set(...generateUserJWTHeader('canCreateCarModel'))
+          .send(cleanObject(dummyCarModel));
+        expect(response.statusCode).to.equal(200);
 
-      const carModel = await CarModel
-        .find(dummyCarModel)
-        .lean();
-      expect(carModel).to.not.be.null;
+        const carModel = await CarModel
+          .find(dummyCarModel)
+          .lean();
+        expect(carModel).to.not.be.null;
+      }
+      {
+        const { statusCode } = await request()
+          .post('/car-models')
+          .set(...generateUserJWTHeader('canCreateCarModel'))
+          .send(cleanObject(dummyCarModel));
+        expect(statusCode).to.equal(409);
+      }
     } finally {
       await CarModel.deleteOne({ _id: dummyCarModel._id });
     }
