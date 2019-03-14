@@ -76,7 +76,7 @@ router.get(
     const ride = await Ride.findById(Ride.castId(id));
 
     if (!ride.isAccessibleByAnonymous(token)) {
-      throw new Error('User not authorized to fetch this ride');
+      ctx.throw(401, 'User not authorized to fetch this ride');
     }
     if (!ride) {
       ctx.status = 404;
@@ -98,7 +98,7 @@ router.get(
     const ride = await Ride.findById(Ride.castId(id));
 
     if (!ride.isAccessibleByAnonymous(token)) {
-      throw new Error('User not authorized to fetch this ride');
+      ctx.throw(401, 'User not authorized to fetch this ride');
     }
 
     if (!ride) {
@@ -125,10 +125,10 @@ router.post(
     const { params: { id, action } } = ctx;
     const ride = await Ride.findById(id);
     if (!ride) {
-      throw new Error('Ride not found');
+      ctx.throw(404, 'Ride not found');
     }
     if (!ride.can(action)) {
-      throw new Error(`State violation : ride cannot switch to "${action}"`);
+      ctx.throw(400, `State violation : ride cannot switch to "${action}"`);
     }
 
     ride[camelCase(action)]();
