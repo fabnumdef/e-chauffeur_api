@@ -1,9 +1,11 @@
 import Router from 'koa-router';
-import moment from 'moment';
+import _get from 'lodash.get';
+import Luxon from 'luxon';
 import config from '../services/config';
 import checkRights from '../middlewares/check-rights';
 import sendMail from '../services/mail';
 
+const { DateTime } = Luxon;
 const router = new Router();
 
 router.post(
@@ -14,12 +16,12 @@ router.post(
       request: { body: { message, type } },
       state: { user: { name } },
     } = ctx;
-    const base = ctx.state.user.cachedRights[0].campuses[0].name;
+    const base = _get(ctx.state.user, 'cachedRights[0].campuses[0].name', 'NC');
     const to = config.get('mail:feedback_mail');
     if (!message || !type) {
       ctx.throw(400);
     }
-    const date = moment().format('DD/MM-HH:mm');
+    const date = DateTime.local().setLocale('fr').toFormat('dd/LL-HH:mm');
     const subject = `[${date}][${type}][${base}] ${name}`;
     await sendMail(to, {
       subject,

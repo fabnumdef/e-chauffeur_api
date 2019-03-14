@@ -21,7 +21,7 @@
         "pass": ""
       }
     },
-    "default_from": "\"E-Chauffeur\" <contact@e-chauffeur.com>",
+    "default_from": "\"name\" <name@localhost>",
     "feedback_mail": "feedback@mail.com"
   }
 }
