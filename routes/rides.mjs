@@ -15,10 +15,6 @@ router.post(
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
-
-    if (await Ride.findById(body.id)) {
-      throw new Error('Ride already exists.');
-    }
     const ride = await Ride.create(body);
     ctx.body = ride;
     ctx.app.io
