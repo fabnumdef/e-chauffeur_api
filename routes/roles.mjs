@@ -13,7 +13,7 @@ router.post(
     const { request: { body } } = ctx;
 
     if (await Role.findById(body.id)) {
-      throw new Error('Role already exists.');
+      ctx.throw(409, 'Role already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await Role.create(body);
