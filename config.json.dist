@@ -12,6 +12,7 @@
     "messaging_service_sid": ""
   },
   "mail": {
+    "transporter": {
       "host": "",
       "port": 1025,
       "secure": false,
@@ -19,5 +20,8 @@
         "user": "",
         "pass": ""
       }
-    }
+    },
+    "default_from": "\"E-Chauffeur\" <contact@e-chauffeur.com>",
+    "feedback_mail": "feedback@mail.com"
+  }
 }

@@ -2,12 +2,12 @@ import Nodemailer from 'nodemailer';
 import config from './config';
 
 export default async function sendMail(to, options = {}) {
-  const conf = config.get('mail');
+  const conf = config.get('mail:transporter');
   if (!conf.auth || (!conf.auth.user && !conf.auth.pass)) {
     delete conf.auth;
   }
   const opts = Object.assign({
-    from: '"E-Chauffer" <contact@e-chauffer.com>',
+    from: config.get('mail:default_from'),
     subject: '',
     text: '',
     html: '',

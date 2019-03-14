@@ -11,6 +11,7 @@ import carEvents from './car-events';
 import userEvents from './user-events';
 import jwt from './jwt';
 import campus from './campuses';
+import feedback from './feedback';
 
 const router = new Router();
 
@@ -26,5 +27,6 @@ router.use('/car-events', carEvents);
 router.use('/user-events', userEvents);
 router.use('/jwt', jwt);
 router.use('/campuses', campus);
+router.use('/feedback', feedback);
 
 export default router.routes();

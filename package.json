@@ -34,6 +34,7 @@
     "lodash.omit": "^4.5.0",
     "lodash.transform": "^4.6.0",
     "luxon": "^1.11.3",
+    "moment": "^2.24.0",
     "mongoose": "^5.4.14",
     "nanoid": "^2.0.1",
     "nconf": "^0.10.0",
