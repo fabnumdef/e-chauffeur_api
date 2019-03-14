@@ -48,6 +48,31 @@ router.get(
 );
 
 router.get(
+  '/infos',
+  maskOutput,
+  async (ctx) => {
+    const maskAuthorized = ['id', 'informations'];
+    let execQuery = false;
+    let masks = [];
+
+    if (ctx.query && ctx.query.mask) {
+      masks = ctx.query.mask.split(',');
+      maskAuthorized.forEach((m) => {
+        if (masks.indexOf(m) !== -1) {
+          execQuery = true;
+        }
+      });
+    }
+
+    if (execQuery) {
+      ctx.body = await Campus.find({ _id: 'BSL' }).lean();
+    } else {
+      throw new Error('Mask forbidden given.');
+    }
+  }
+);
+
+router.get(
   '/:id',
   checkRights('canGetCampus'),
   maskOutput,

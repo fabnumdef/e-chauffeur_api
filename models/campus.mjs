@@ -22,6 +22,7 @@ const CampusSchema = new Schema({
     drivers: String,
     everybody: String,
   },
+  informations: String,
 });
 
 CampusSchema.index({
