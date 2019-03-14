@@ -23,7 +23,7 @@ describe('Test the rides route', () => {
       toDropLater.push(dummyCampus);
 
 
-      const dummyCarModel = await createDummyCarModel(dummyCampus);
+      const dummyCarModel = await createDummyCarModel();
       toDropLater.push(dummyCarModel);
 
       const dummyCar = await createDummyCar({ model: dummyCarModel, campus: dummyCampus });
