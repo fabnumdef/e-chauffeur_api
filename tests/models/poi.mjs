@@ -10,3 +10,5 @@ export const createDummyPoi = async (...params) => {
   const dummyPoi = generateDummyPoi(...params);
   return Poi.create(dummyPoi);
 };
+
+export default Poi;

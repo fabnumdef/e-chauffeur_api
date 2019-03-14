@@ -12,7 +12,7 @@ router.post(
     const { request: { body } } = ctx;
 
     if (await Poi.findById(body.id)) {
-      throw new Error('Poi already exists.');
+      ctx.throw(409, 'Poi already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await Poi.create(body);
