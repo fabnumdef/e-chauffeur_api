@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import mask from 'json-mask';
 import maskOutput from '../../middlewares/mask-output';
 import Campus from '../../models/campus';
-import { extractStartEndFilters } from '../../middlewares/query-helper';
+import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 
 const router = new Router();
 const REQUESTABLE = ['total'];
@@ -10,8 +10,11 @@ const REQUESTABLE = ['total'];
 router.get(
   '/',
   maskOutput,
+  ensureThatFiltersExists('start', 'end'),
   async (ctx) => {
-    const { start, end } = extractStartEndFilters(ctx);
+    const start = new Date(ctx.query.filters.start);
+    const end = new Date(ctx.query.filters.end);
+
     const requested = Object.keys(mask(
       REQUESTABLE.reduce((acc, curr) => Object.assign(acc, { [curr]: null }), {}),
       (ctx.query || {}).mask || ',',
