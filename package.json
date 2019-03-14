@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha --experimental-modules --exit --require @std/esm tests/**/*.mjs",
     "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.js",
+    "nodemon": "nodemon --experimental-modules $NODE_DEBUG_OPTION --inspect server.js",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules tests/generate-state-schema.js",
@@ -37,6 +38,7 @@
     "mongoose": "^5.4.17",
     "nanoid": "^2.0.1",
     "nconf": "^0.10.0",
+    "nodemailer": "^5.1.1",
     "opening_hours": "^3.5.0",
     "qs": "^6.6.0",
     "socket.io": "^2.2.0",
