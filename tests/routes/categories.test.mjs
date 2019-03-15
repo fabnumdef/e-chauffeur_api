@@ -2,6 +2,7 @@ import chai from 'chai';
 import request, { generateUserJWTHeader } from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import Category, { generateDummyCategory } from '../models/category';
+import { CAN_CREATE_CATEGORY } from '../../models/rights';
 
 const { expect } = chai;
 
@@ -12,7 +13,7 @@ describe('Test the category API endpoint', () => {
       {
         const response = await request()
           .post('/categories')
-          .set(...generateUserJWTHeader('canCreateCategory'))
+          .set(...generateUserJWTHeader(CAN_CREATE_CATEGORY))
           .send(cleanObject(dummyCategory));
         expect(response.statusCode).to.equal(200);
 
@@ -24,7 +25,7 @@ describe('Test the category API endpoint', () => {
       {
         const { statusCode } = await request()
           .post('/categories')
-          .set(...generateUserJWTHeader('canCreateCategory'))
+          .set(...generateUserJWTHeader(CAN_CREATE_CATEGORY))
           .send(cleanObject(dummyCategory));
         expect(statusCode).to.equal(409);
       }

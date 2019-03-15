@@ -2,6 +2,7 @@ import chai from 'chai';
 import request, { generateUserJWTHeader } from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import Role, { generateDummyRole } from '../models/role';
+import { CAN_CREATE_ROLE } from '../../models/rights';
 
 const { expect } = chai;
 
@@ -12,7 +13,7 @@ describe('Test the role API endpoint', () => {
       {
         const response = await request()
           .post('/roles')
-          .set(...generateUserJWTHeader('canCreateRole'))
+          .set(...generateUserJWTHeader(CAN_CREATE_ROLE))
           .send(cleanObject(dummyRole));
         expect(response.statusCode).to.equal(200);
 
@@ -24,7 +25,7 @@ describe('Test the role API endpoint', () => {
       {
         const { statusCode } = await request()
           .post('/roles')
-          .set(...generateUserJWTHeader('canCreateRole'))
+          .set(...generateUserJWTHeader(CAN_CREATE_ROLE))
           .send(cleanObject(dummyRole));
         expect(statusCode).to.equal(409);
       }

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import rights from './rights.json';
+import rights from './rights';
 
 const { Schema } = mongoose;
 

@@ -4,13 +4,14 @@ import Luxon from 'luxon';
 import config from '../services/config';
 import checkRights from '../middlewares/check-rights';
 import sendMail from '../services/mail';
+import { CAN_SEND_FEEDBACK } from '../models/rights';
 
 const { DateTime } = Luxon;
 const router = new Router();
 
 router.post(
   '/',
-  checkRights('canSendFeedback'),
+  checkRights(CAN_SEND_FEEDBACK),
   async (ctx) => {
     const {
       request: { body: { message, type } },
