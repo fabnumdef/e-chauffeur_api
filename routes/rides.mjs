@@ -33,6 +33,7 @@ router.patch(
 
     const { params: { id } } = ctx;
     const ride = await Ride.findById(id);
+    const previousDriverId = ride.driver.id.toString();
 
     ride.set(body);
     await ride.save();
@@ -40,8 +41,11 @@ router.patch(
     ctx.app.io
       .in(`ride/${ride.id}`)
       .in(`campus/${ride.campus.id}`)
-      .in(`driver/${ride.driver.id}`)
-      .emit('rideUpdate', cleanObject(ctx.body));
+      .in(`driver/${ride.driver.id}`);
+    if (body.driver.id !== previousDriverId) {
+      ctx.app.io.in(`driver/${previousDriverId}`);
+    }
+    ctx.app.io.emit('rideUpdate', cleanObject(ctx.body));
   },
 );
 
