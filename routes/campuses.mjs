@@ -69,7 +69,7 @@ router.get(
     } else {
       throw new Error('Mask forbidden given.');
     }
-  }
+  },
 );
 
 router.get(
