@@ -5,7 +5,7 @@ import Campus, { generateDummyCampus } from '../models/campus';
 const { expect } = chai;
 
 describe('Test the campus route', () => {
-  it('Same ID should be saved once', async () => {
+  it('POST API endpoint should return an error when the campus already exists', async () => {
     const dummyCampus = new Campus(generateDummyCampus());
     try {
       {
