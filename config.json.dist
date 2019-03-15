@@ -10,5 +10,18 @@
     "sid": "",
     "token": "",
     "messaging_service_sid": ""
+  },
+  "mail": {
+    "transporter": {
+      "host": "",
+      "port": 1025,
+      "secure": false,
+      "auth": {
+        "user": "",
+        "pass": ""
+      }
+    },
+    "default_from": "\"name\" <name@localhost>",
+    "feedback_mail": "feedback@mail.com"
   }
 }

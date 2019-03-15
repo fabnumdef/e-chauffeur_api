@@ -29,5 +29,7 @@
   "canCreateCategory",
   "canListCategory",
   "canGetCategory",
-  "canRemoveCategory"
+  "canRemoveCategory",
+
+  "canSendFeedback"
 ]
