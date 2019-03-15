@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 
-import rights from '../models/rights.json';
+import rights from '../models/rights';
 
 const router = new Router();
 

@@ -1,5 +1,5 @@
 import chai from 'chai';
-import request, { generateUserJWTHeader } from '../request';
+import request from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import { createDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
@@ -22,7 +22,6 @@ describe('Test the car API endpoint', () => {
       {
         const response = await request()
           .post('/cars')
-          .set(...generateUserJWTHeader('canCreateCar'))
           .send(cleanObject(dummyCar));
         expect(response.statusCode).to.equal(200);
 
@@ -34,7 +33,6 @@ describe('Test the car API endpoint', () => {
       {
         const { statusCode } = await request()
           .post('/cars')
-          .set(...generateUserJWTHeader('canCreateCar'))
           .send(cleanObject(dummyCar));
         expect(statusCode).to.equal(409);
       }

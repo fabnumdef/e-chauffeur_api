@@ -1,6 +1,7 @@
 import chai from 'chai';
 import request, { generateUserJWTHeader } from '../request';
 import Campus, { generateDummyCampus } from '../models/campus';
+import { CAN_CREATE_CAMPUS, CAN_LIST_CAMPUS } from '../../models/rights';
 
 const { expect } = chai;
 
@@ -11,7 +12,7 @@ describe('Test the campus route', () => {
       {
         const { body: campus, statusCode } = await request()
           .post('/campuses')
-          .set(...generateUserJWTHeader('canCreateCampus'))
+          .set(...generateUserJWTHeader(CAN_CREATE_CAMPUS))
           .query({ mask: 'id,name' })
           .send({
             id: dummyCampus._id,
@@ -28,7 +29,7 @@ describe('Test the campus route', () => {
       {
         const { statusCode } = await request()
           .post('/campuses')
-          .set(...generateUserJWTHeader('canCreateCampus'))
+          .set(...generateUserJWTHeader(CAN_CREATE_CAMPUS))
           .send({
             id: dummyCampus._id,
             name: dummyCampus.name,
@@ -43,7 +44,7 @@ describe('Test the campus route', () => {
   it('It should response the GET method', async () => {
     const { body: list, statusCode } = await request()
       .get('/campuses')
-      .set(...generateUserJWTHeader('canListCampus'));
+      .set(...generateUserJWTHeader(CAN_LIST_CAMPUS));
     expect(statusCode).to.equal(200);
     expect(Array.isArray(list)).to.be.true;
   });

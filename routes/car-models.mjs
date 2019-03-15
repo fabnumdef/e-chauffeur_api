@@ -3,12 +3,19 @@ import maskOutput from '../middlewares/mask-output';
 import checkRights from '../middlewares/check-rights';
 
 import CarModel from '../models/car-model';
+import {
+  CAN_CREATE_CAR_MODEL,
+  CAN_EDIT_CAR_MODEL,
+  CAN_GET_CAR_MODEL,
+  CAN_LIST_CAR_MODEL,
+  CAN_REMOVE_CAR_MODEL,
+} from '../models/rights';
 
 const router = new Router();
 
 router.post(
   '/',
-  checkRights('canCreateCarModel'),
+  checkRights(CAN_CREATE_CAR_MODEL),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -23,7 +30,7 @@ router.post(
 
 router.get(
   '/',
-  checkRights('canListCarModel'),
+  checkRights(CAN_LIST_CAR_MODEL),
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(CarModel);
@@ -37,7 +44,7 @@ router.get(
 
 router.get(
   '/:id',
-  checkRights('canGetCarModel'),
+  checkRights(CAN_GET_CAR_MODEL),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -47,7 +54,7 @@ router.get(
 
 router.patch(
   '/:id',
-  checkRights('canEditCarModel'),
+  checkRights(CAN_EDIT_CAR_MODEL),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -61,7 +68,7 @@ router.patch(
 
 router.del(
   '/:id',
-  checkRights('canRemoveCarModel'),
+  checkRights(CAN_REMOVE_CAR_MODEL),
   async (ctx) => {
     const { params: { id } } = ctx;
     await CarModel.deleteOne({ _id: id });
