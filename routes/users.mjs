@@ -17,7 +17,7 @@ router.post(
     }
 
     if (await User.findOne({ email: body.email })) {
-      throw new Error('User already exists.');
+      ctx.throw(409, 'User email already existing.');
     }
 
     ctx.body = await User.create(body);

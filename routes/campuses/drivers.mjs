@@ -2,23 +2,17 @@ import Router from 'koa-router';
 import maskOutput from '../../middlewares/mask-output';
 
 import Campus from '../../models/campus';
+import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 
 const router = new Router();
 
 router.get(
   '/',
   maskOutput,
+  ensureThatFiltersExists('start', 'end'),
   async (ctx) => {
-    if (!ctx.query || !ctx.query.filters) {
-      throw new Error('`filters` are required');
-    }
-    const { filters } = ctx.query;
-    if (!filters.start || !filters.end) {
-      throw new Error('`start` and `end` filters are required');
-    }
-
-    const start = new Date(filters.start);
-    const end = new Date(filters.end);
+    const start = new Date(ctx.query.filters.start);
+    const end = new Date(ctx.query.filters.end);
 
     ctx.body = await Campus.findDrivers(ctx.params.campus_id, start, end);
   },
@@ -27,11 +21,8 @@ router.get(
 router.get(
   '/:driver_id/rides',
   maskOutput,
+  ensureThatFiltersExists('status'),
   async (ctx) => {
-    if (!ctx.query || !ctx.query.filters) {
-      throw new Error('`filters` are required');
-    }
-
     const { filters } = ctx.query;
 
     ctx.body = await Campus.findRidesWithStatus(ctx.params.driver_id, filters.status);

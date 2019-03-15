@@ -6,6 +6,7 @@ import contentNegociation from '../middlewares/content-negociation';
 
 import Ride from '../models/ride';
 import addFilter from '../middlewares/add-filter';
+import { ensureThatFiltersExists } from '../middlewares/query-helper';
 
 const router = new Router();
 
@@ -14,10 +15,6 @@ router.post(
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
-
-    if (await Ride.findById(body.id)) {
-      throw new Error('Ride already exists.');
-    }
     const ride = await Ride.create(body);
     ctx.body = ride;
     ctx.app.io
@@ -52,16 +49,12 @@ router.get(
   '/',
   contentNegociation,
   maskOutput,
+  ensureThatFiltersExists('start', 'end'),
   addFilter('campus', 'campus._id'),
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(Ride);
-    const { filters } = ctx.query;
-    if (!filters.start || !filters.end) {
-      throw new Error('`start` and `end` filters are required');
-    }
-
-    const start = new Date(filters.start);
-    const end = new Date(filters.end);
+    const start = new Date(ctx.query.filters.start);
+    const end = new Date(ctx.query.filters.end);
 
     const total = await Ride.countDocumentsWithin(start, end, ctx.filters);
     const data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
@@ -83,7 +76,7 @@ router.get(
     const ride = await Ride.findById(Ride.castId(id));
 
     if (!ride.isAccessibleByAnonymous(token)) {
-      throw new Error('User not authorized to fetch this ride');
+      ctx.throw(401, 'User not authorized to fetch this ride');
     }
     if (!ride) {
       ctx.status = 404;
@@ -105,7 +98,7 @@ router.get(
     const ride = await Ride.findById(Ride.castId(id));
 
     if (!ride.isAccessibleByAnonymous(token)) {
-      throw new Error('User not authorized to fetch this ride');
+      ctx.throw(401, 'User not authorized to fetch this ride');
     }
 
     if (!ride) {
@@ -132,10 +125,10 @@ router.post(
     const { params: { id, action } } = ctx;
     const ride = await Ride.findById(id);
     if (!ride) {
-      throw new Error('Ride not found');
+      ctx.throw(404, 'Ride not found');
     }
     if (!ride.can(action)) {
-      throw new Error(`State violation : ride cannot switch to "${action}"`);
+      ctx.throw(400, `State violation : ride cannot switch to "${action}"`);
     }
 
     ride[camelCase(action)]();

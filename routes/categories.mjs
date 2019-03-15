@@ -14,7 +14,7 @@ router.post(
     const { request: { body } } = ctx;
 
     if (await Category.findById(body.id)) {
-      throw new Error('Category already exists.');
+      ctx.throw(409, 'Category already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await Category.create(body);

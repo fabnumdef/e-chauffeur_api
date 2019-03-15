@@ -14,7 +14,7 @@ router.post(
     const { request: { body } } = ctx;
 
     if (await CarModel.findById(body.id)) {
-      throw new Error('CarModel already exists.');
+      ctx.throw(409, 'CarModel already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await CarModel.create(body);

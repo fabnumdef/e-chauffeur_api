@@ -22,7 +22,7 @@ router.post(
     const { request: { body } } = ctx;
 
     if (await Campus.findById(body.id)) {
-      throw new Error('Campus already exists.');
+      ctx.throw(409, 'Campus already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await Campus.create(body);
