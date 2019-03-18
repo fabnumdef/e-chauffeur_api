@@ -14,6 +14,7 @@ router.get(
     const start = new Date(ctx.query.filters.start);
     const end = new Date(ctx.query.filters.end);
     let lastRidedCar = null;
+    // @todo: Refactor this to sort the whole array of cars, by usage
     if (ctx.query.sort && ctx.query.sort['last-driver-ride']) {
       const rides = await Ride.find({ 'driver._id': ctx.query.sort['last-driver-ride'] })
         .sort({ $natural: -1 }).limit(1);
