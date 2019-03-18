@@ -10,6 +10,14 @@ import { ensureThatFiltersExists } from '../middlewares/query-helper';
 
 const router = new Router();
 
+function ioEmit(ctx, data, eventName = '', rooms = []) {
+  let { app: { io } } = ctx;
+  rooms.forEach((room) => {
+    io = io.in(room);
+  });
+  io.emit(eventName, data);
+}
+
 router.post(
   '/',
   maskOutput,
@@ -17,11 +25,11 @@ router.post(
     const { request: { body } } = ctx;
     const ride = await Ride.create(body);
     ctx.body = ride;
-    ctx.app.io
-      .in(`ride/${ride.id}`)
-      .in(`campus/${ride.campus.id}`)
-      .in(`driver/${ride.driver.id}`)
-      .emit('rideUpdate', cleanObject(ctx.body));
+    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
+      `ride/${ride.id}`,
+      `campus/${ride.campus.id}`,
+      `driver/${ride.driver.id}`,
+    ]);
   },
 );
 
@@ -38,14 +46,15 @@ router.patch(
     ride.set(body);
     await ride.save();
     ctx.body = ride;
-    ctx.app.io
-      .in(`ride/${ride.id}`)
-      .in(`campus/${ride.campus.id}`)
-      .in(`driver/${ride.driver.id}`);
+    const rooms = [
+      `ride/${ride.id}`,
+      `campus/${ride.campus.id}`,
+      `driver/${ride.driver.id}`,
+    ];
     if (body.driver.id !== previousDriverId) {
-      ctx.app.io.in(`driver/${previousDriverId}`);
+      rooms.push(`driver/${previousDriverId}`);
     }
-    ctx.app.io.emit('rideUpdate', cleanObject(ctx.body));
+    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
   },
 );
 
@@ -137,11 +146,11 @@ router.post(
 
     ride[camelCase(action)]();
     ctx.body = await ride.save();
-    ctx.app.io
-      .in(`ride/${ride.id}`)
-      .in(`campus/${ride.campus.id}`)
-      .in(`driver/${ride.driver.id}`)
-      .emit('rideUpdate', cleanObject(ctx.body));
+    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
+      `ride/${ride.id}`,
+      `campus/${ride.campus.id}`,
+      `driver/${ride.driver.id}`,
+    ]);
   },
 );
 
