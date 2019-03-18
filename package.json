@@ -1,7 +1,7 @@
 {
   "name": "e-chauffeur_api",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "scripts": {
     "test": "mocha --experimental-modules --exit --require @std/esm tests/**/*.mjs",
