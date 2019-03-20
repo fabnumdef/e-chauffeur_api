@@ -5,12 +5,12 @@
   "description": "",
   "scripts": {
     "test": "mocha --experimental-modules --exit --require @std/esm tests/**/*.mjs",
-    "serve": "node --icu-data-dir=./node_modules/full-icu --experimental-modules $NODE_DEBUG_OPTION server.js",
-    "nodemon": "nodemon --experimental-modules $NODE_DEBUG_OPTION --inspect server.js",
+    "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.mjs",
+    "nodemon": "nodemon --experimental-modules $NODE_DEBUG_OPTION --inspect server.mjs",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules tests/generate-state-schema.js",
-    "import-fixtures": "node --icu-data-dir=./node_modules/full-icu --experimental-modules $NODE_DEBUG_OPTION fixtures"
+    "import-fixtures": "node --experimental-modules $NODE_DEBUG_OPTION fixtures"
   },
   "author": "Gaël",
   "license": "ISC",
@@ -18,7 +18,6 @@
     "@koa/cors": "^2.2.3",
     "@rentspree/mongoose-state-machine": "^0.1.0",
     "bcrypt": "^3.0.4",
-    "full-icu": "^1.2.1",
     "google-libphonenumber": "^3.2.2",
     "javascript-state-machine": "^3.1.0",
     "joi": "^14.3.1",
