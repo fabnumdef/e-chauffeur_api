@@ -8,6 +8,10 @@ WORKDIR /usr/src/app
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y git python make g++ locales
 
+# Add full-icu
+RUN npm install --unsafe-perm -g full-icu > /dev/null 2>&1
+ENV NODE_ICU_DATA="/usr/local/lib/node_modules/full-icu"
+
 # Set timezone
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
