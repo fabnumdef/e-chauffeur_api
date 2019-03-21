@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-import checkRights from '../middlewares/check-rights';
+import checkRights, { restrictedFieldsInAnonymous } from '../middlewares/check-rights';
 import Campus from '../models/campus';
 import driversRoutes from './campuses/drivers';
 import driversPositionsRoutes from './campuses/drivers-positions';
@@ -31,7 +31,7 @@ router.post(
 
 router.get(
   '/',
-  checkRights('canListCampus'),
+  restrictedFieldsInAnonymous('id,information', 'canListCampus'),
   maskOutput,
   async (ctx) => {
     const searchParams = {};
@@ -44,31 +44,6 @@ router.get(
     ctx.setRangePagination(Campus, { total, offset, count: data.length });
 
     ctx.body = data;
-  },
-);
-
-router.get(
-  '/infos',
-  maskOutput,
-  async (ctx) => {
-    const maskAuthorized = ['id', 'informations'];
-    let execQuery = false;
-    let masks = [];
-
-    if (ctx.query && ctx.query.mask) {
-      masks = ctx.query.mask.split(',');
-      maskAuthorized.forEach((m) => {
-        if (masks.indexOf(m) !== -1) {
-          execQuery = true;
-        }
-      });
-    }
-
-    if (execQuery) {
-      ctx.body = await Campus.find({ _id: 'BSL' }).lean();
-    } else {
-      throw new Error('Mask forbidden given.');
-    }
   },
 );
 

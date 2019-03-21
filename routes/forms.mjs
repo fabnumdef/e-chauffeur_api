@@ -1,6 +1,7 @@
 import Router from 'koa-router';
-import mailer from '../services/mailer';
-import validator from '../services/validator';
+import sprintf from 'sprintf-lite';
+import validator from '../helpers/validator';
+import sendMail from '../services/mail';
 import config from '../services/config';
 
 const router = new Router();
@@ -8,7 +9,6 @@ const router = new Router();
 router.post(
   '/contact',
   async (ctx) => {
-    const mailerConfig = config.get('mailer:mail');
     const formFields = ctx.request.body;
     const match = await validator.check(formFields, {
       firstname: 'required',
@@ -19,27 +19,27 @@ router.post(
       message: 'required',
     });
 
-    if (!match.matched) {
-      ctx.status = 422;
-      ctx.body = 'One or more fields are not valid.';
-      return;
-    }
-    // Parse line breaker
-    formFields.message = formFields.message.replace(/(?:\r\n|\r|\n|\\r\\n|\\r|\\n)/g, '<br>');
+    ctx.assert(match.matched, 422, 'One or more fields are not valid.');
 
     const mailOptions = {
-      from: mailerConfig.from,
-      to: mailerConfig.to,
-      subject: mailer.replace(mailerConfig.subject, formFields),
-      html: mailer.replace(mailerConfig.body, formFields),
+      subject: sprintf.default(config.get('mail:subject'), formFields),
+      text: sprintf.default(config.get('mail:text'), formFields),
     };
 
-    const isSend = await mailer.sendMail(mailOptions);
-    if (!isSend) {
-      ctx.status = 500;
-      throw new Error('Not available to send a mail.');
-    } else {
-      ctx.status = 200;
+    // Parse line breaker of textarea
+    if (config.get('mail:html') && formFields.message) {
+      const htmlParseLB = formFields.message.replace(/(\r\n|\n\r|\r|\n)/g, '<br>');
+      Object.assign(mailOptions,
+        {
+          html: sprintf.default(config.get('mail:html'), { message: htmlParseLB }),
+        });
+    }
+
+    try {
+      await sendMail(config.get('mail:contact_mail'), mailOptions);
+      ctx.status = 204;
+    } catch (e) {
+      ctx.throw(500, `Not available to send a mail (Err : ${e.message}).`);
     }
   },
 );
