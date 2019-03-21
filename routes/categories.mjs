@@ -3,18 +3,25 @@ import maskOutput from '../middlewares/mask-output';
 import addFilter from '../middlewares/add-filter';
 import checkRights from '../middlewares/check-rights';
 import Category from '../models/category';
+import {
+  CAN_CREATE_CATEGORY,
+  CAN_EDIT_CATEGORY,
+  CAN_GET_CATEGORY,
+  CAN_LIST_CATEGORY,
+  CAN_REMOVE_CATEGORY,
+} from '../models/rights';
 
 const router = new Router();
 
 router.post(
   '/',
-  checkRights('canCreateCategory'),
+  checkRights(CAN_CREATE_CATEGORY),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
 
     if (await Category.findById(body.id)) {
-      throw new Error('Category already exists.');
+      ctx.throw(409, 'Category already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await Category.create(body);
@@ -23,7 +30,7 @@ router.post(
 
 router.get(
   '/',
-  checkRights('canListCategory'),
+  checkRights(CAN_LIST_CATEGORY),
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
@@ -38,7 +45,7 @@ router.get(
 
 router.get(
   '/:id',
-  checkRights('canGetCategory'),
+  checkRights(CAN_GET_CATEGORY),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -48,7 +55,7 @@ router.get(
 
 router.patch(
   '/:id',
-  checkRights('canEditCategory'),
+  checkRights(CAN_EDIT_CATEGORY),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -62,7 +69,7 @@ router.patch(
 
 router.del(
   '/:id',
-  checkRights('canRemoveCategory'),
+  checkRights(CAN_REMOVE_CATEGORY),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Category.remove({ _id: id });

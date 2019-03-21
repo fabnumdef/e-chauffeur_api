@@ -1,11 +1,10 @@
 import chai from 'chai';
 import Luxon from 'luxon';
 import request from '../request';
-import RideModel from '../../models/ride';
 import { createDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
 import { createDummyCar } from '../models/car';
-import { generateDummyRide } from '../models/ride';
+import Ride, { generateDummyRide } from '../models/ride';
 import { generateDummyUser } from '../models/user';
 import { createDummyPoi } from '../models/poi';
 import { generateDummyCategory } from '../models/category';
@@ -24,7 +23,7 @@ describe('Test the rides route', () => {
       toDropLater.push(dummyCampus);
 
 
-      const dummyCarModel = await createDummyCarModel(dummyCampus);
+      const dummyCarModel = await createDummyCarModel();
       toDropLater.push(dummyCarModel);
 
       const dummyCar = await createDummyCar({ model: dummyCarModel, campus: dummyCampus });
@@ -48,7 +47,7 @@ describe('Test the rides route', () => {
         start: date.minus(tenMinutes).toJSDate(),
         end: date.plus(tenMinutes).toJSDate(),
       });
-      const rideModel = new RideModel(dummyRide);
+      const rideModel = new Ride(dummyRide);
       await rideModel.save();
 
       const query = {

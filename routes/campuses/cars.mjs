@@ -1,25 +1,34 @@
 import Router from 'koa-router';
 import maskOutput from '../../middlewares/mask-output';
 import Campus from '../../models/campus';
+import Ride from '../../models/ride';
+import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 
 const router = new Router();
 
 router.get(
   '/',
   maskOutput,
+  ensureThatFiltersExists('start', 'end'),
   async (ctx) => {
-    if (!ctx.query || !ctx.query.filters) {
-      throw new Error('`filters` are required');
+    const start = new Date(ctx.query.filters.start);
+    const end = new Date(ctx.query.filters.end);
+    let lastRidedCar = null;
+    // @todo: Refactor this to sort the whole array of cars, by usage
+    if (ctx.query.sort && ctx.query.sort['last-driver-ride']) {
+      const rides = await Ride.find({ 'driver._id': ctx.query.sort['last-driver-ride'] })
+        .sort({ $natural: -1 }).limit(1);
+      lastRidedCar = rides[0] && rides[0].car ? rides[0].car : null;
     }
-    const { filters } = ctx.query;
-    if (!filters.start || !filters.end) {
-      throw new Error('`start` and `end` filters are required');
+    let sortedCars = [];
+    const cars = await Campus.findCars(ctx.params.campus_id, start, end);
+    if (lastRidedCar) {
+      sortedCars.push(lastRidedCar);
+      cars.forEach(car => car._id !== lastRidedCar._id && sortedCars.push(car));
+    } else {
+      sortedCars = cars;
     }
-
-    const start = new Date(filters.start);
-    const end = new Date(filters.end);
-
-    ctx.body = await Campus.findCars(ctx.params.campus_id, start, end);
+    ctx.body = sortedCars;
   },
 );
 

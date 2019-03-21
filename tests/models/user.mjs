@@ -1,8 +1,19 @@
 import mongoose from 'mongoose';
+import nanoid from 'nanoid';
+import User from '../../models/user';
 
 const { Types: { ObjectId } } = mongoose;
 
-// eslint-disable-next-line import/prefer-default-export
-export const generateDummyUser = () => ({
+export const generateDummyUser = params => ({
   _id: new ObjectId(),
+  email: `${nanoid()}@localhost`,
+  password: nanoid(),
+  ...params,
 });
+
+export const createDummyUser = async (params) => {
+  const dummyCampus = generateDummyUser(params);
+  return User.create(dummyCampus);
+};
+
+export default User;

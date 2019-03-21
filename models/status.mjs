@@ -62,12 +62,13 @@ export default {
           time: new Date(),
         });
         const show = path => get(this, path, '');
+        const start = DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT);
         switch (to) {
           case ACCEPTED:
             await this.sendSMS(
               'Bonjour, '
               + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
-              + `${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)} `
+              + `${start} `
               + 'est prise en compte. '
               + `Pour l'annuler, appelez le ${show('campus.phone.everybody')}.`,
             );
@@ -92,19 +93,19 @@ export default {
           case CANCEL_TECHNICAL:
             await this.sendSMS(
               `Un problème technique nous oblige à annuler votre course vers ${show('arrival.label')} `
-              + `le ${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)}.`,
+              + `le ${start}.`,
             );
             break;
           case CANCEL_REQUESTED_CUSTOMER:
             await this.sendSMS(
               `Nous confirmons l'annulation de la course vers ${show('arrival.label')} `
-              + `le ${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)}.`,
+              + `le ${start}.`,
             );
             break;
           case CANCEL_CUSTOMER_MISSING:
             await this.sendSMS(
               `Suite à votre absence, votre course vers ${show('arrival.label')} `
-              + `le ${DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT)} a été annulée.`,
+              + `le ${start} a été annulée.`,
             );
             break;
           default:

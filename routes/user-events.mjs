@@ -13,7 +13,7 @@ router.post(
     const { request: { body } } = ctx;
 
     if (await UserEvent.findById(body.id)) {
-      throw new Error('UserEvent already exists.');
+      ctx.throw(409, 'UserEvent already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await UserEvent.create(body);

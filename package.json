@@ -1,12 +1,12 @@
 {
   "name": "e-chauffeur_api",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "scripts": {
     "test": "mocha --experimental-modules --exit --require @std/esm tests/**/*.mjs",
-    "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.js",
-    "nodemon": "nodemon --experimental-modules $NODE_DEBUG_OPTION --inspect server.js",
+    "serve": "node --experimental-modules $NODE_DEBUG_OPTION server.mjs",
+    "nodemon": "nodemon --experimental-modules $NODE_DEBUG_OPTION --inspect server.mjs",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules tests/generate-state-schema.js",

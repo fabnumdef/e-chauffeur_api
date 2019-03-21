@@ -6,6 +6,9 @@ import driversRoutes from './campuses/drivers';
 import driversPositionsRoutes from './campuses/drivers-positions';
 import carsRoutes from './campuses/cars';
 import statsRoutes from './campuses/stats';
+import {
+  CAN_CREATE_CAMPUS, CAN_EDIT_CAMPUS, CAN_GET_CAMPUS, CAN_LIST_CAMPUS, CAN_REMOVE_CAMPUS,
+} from '../models/rights';
 
 const router = new Router();
 
@@ -16,13 +19,13 @@ router.use('/:campus_id/stats', statsRoutes);
 
 router.post(
   '/',
-  checkRights('canCreateCampus'),
+  checkRights(CAN_CREATE_CAMPUS),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
 
     if (await Campus.findById(body.id)) {
-      throw new Error('Campus already exists.');
+      ctx.throw(409, 'Campus already exists.');
     }
     Object.assign(body, { _id: body.id });
     ctx.body = await Campus.create(body);
@@ -31,7 +34,7 @@ router.post(
 
 router.get(
   '/',
-  restrictedFieldsInAnonymous('id,information', 'canListCampus'),
+  restrictedFieldsInAnonymous('id,information', CAN_LIST_CAMPUS),
   maskOutput,
   async (ctx) => {
     const searchParams = {};
@@ -49,7 +52,7 @@ router.get(
 
 router.get(
   '/:id',
-  checkRights('canGetCampus'),
+  checkRights(CAN_GET_CAMPUS),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -64,7 +67,7 @@ router.get(
 
 router.patch(
   '/:id',
-  checkRights('canEditCampus'),
+  checkRights(CAN_EDIT_CAMPUS),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -77,7 +80,7 @@ router.patch(
 
 router.del(
   '/:id',
-  checkRights('canRemoveCampus'),
+  checkRights(CAN_REMOVE_CAMPUS),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Campus.remove({ _id: id });

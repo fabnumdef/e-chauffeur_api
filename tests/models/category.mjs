@@ -1,5 +1,9 @@
-// eslint-disable-next-line import/prefer-default-export
+import nanoid from 'nanoid';
+import Category from '../../models/category';
+
 export const generateDummyCategory = () => ({
-  _id: 'TEST',
+  _id: nanoid(),
   label: 'Test',
 });
+
+export default Category;

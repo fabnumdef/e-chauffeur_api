@@ -2,12 +2,15 @@ import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 import checkRights from '../middlewares/check-rights';
 import User from '../models/user';
+import {
+  CAN_CREATE_USER, CAN_EDIT_USER, CAN_GET_USER, CAN_LIST_USER, CAN_REMOVE_USER,
+} from '../models/rights';
 
 const router = new Router();
 
 router.post(
   '/',
-  checkRights('canCreateUser'),
+  checkRights(CAN_CREATE_USER),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -17,7 +20,7 @@ router.post(
     }
 
     if (await User.findOne({ email: body.email })) {
-      throw new Error('User already exists.');
+      ctx.throw(409, 'User email already existing.');
     }
 
     ctx.body = await User.create(body);
@@ -26,7 +29,7 @@ router.post(
 
 router.get(
   '/',
-  checkRights('canGetUser'),
+  checkRights(CAN_GET_USER),
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(User);
@@ -40,7 +43,7 @@ router.get(
 
 router.get(
   '/:id',
-  checkRights('canListUser'),
+  checkRights(CAN_LIST_USER),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -52,7 +55,7 @@ router.get(
 
 router.patch(
   '/:id',
-  checkRights('canEditUser'),
+  checkRights(CAN_EDIT_USER),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -70,7 +73,7 @@ router.patch(
 
 router.del(
   '/:id',
-  checkRights('canRemoveUser'),
+  checkRights(CAN_REMOVE_USER),
   async (ctx) => {
     const { params: { id } } = ctx;
     await User.remove({ _id: id });
