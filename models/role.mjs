@@ -1,12 +1,11 @@
 import * as rights from './rights';
 
-export const ROLE_ANONYMOUS = [];
+export const ROLE_ANONYMOUS = [
+  rights.CAN_LOGIN,
+];
 
 export const ROLE_USER = [
   ...ROLE_ANONYMOUS,
-
-  rights.CAN_LOGIN,
-
 ];
 
 export const ROLE_DRIVER = [
@@ -28,6 +27,11 @@ export const ROLE_REGULATOR = [
   rights.CAN_GET_USER,
   rights.CAN_EDIT_USER,
   rights.CAN_CREATE_USER,
+
+  rights.CAN_EDIT_CAR_EVENT,
+  rights.CAN_CREATE_CAR_EVENT,
+  rights.CAN_REMOVE_CAR_EVENT,
+  rights.CAN_REMOVE_CAMPUS,
 
   rights.CAN_SEND_FEEDBACK,
 ];

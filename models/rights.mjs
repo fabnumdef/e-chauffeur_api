@@ -6,6 +6,12 @@ export const CAN_LIST_CAR_MODEL = 'canListCarModel';
 export const CAN_GET_CAR_MODEL = 'canGetCarModel';
 export const CAN_REMOVE_CAR_MODEL = 'canRemoveCarModel';
 
+export const CAN_EDIT_CAR_EVENT = 'canEditCarEvent';
+export const CAN_CREATE_CAR_EVENT = 'canCreateCarEvent';
+export const CAN_LIST_CAR_EVENT = 'canListCarEvent';
+export const CAN_GET_CAR_EVENT = 'canGetCarEvent';
+export const CAN_REMOVE_CAR_EVENT = 'canRemoveCarEvent';
+
 export const CAN_EDIT_USER = 'canEditUser';
 export const CAN_CREATE_USER = 'canCreateUser';
 export const CAN_LIST_USER = 'canListUser';
@@ -34,6 +40,12 @@ export default [
   CAN_LIST_CAR_MODEL,
   CAN_GET_CAR_MODEL,
   CAN_REMOVE_CAR_MODEL,
+
+  CAN_EDIT_CAR_EVENT,
+  CAN_CREATE_CAR_EVENT,
+  CAN_LIST_CAR_EVENT,
+  CAN_GET_CAR_EVENT,
+  CAN_REMOVE_CAR_EVENT,
 
   CAN_EDIT_USER,
   CAN_CREATE_USER,
