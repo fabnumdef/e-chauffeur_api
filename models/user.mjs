@@ -37,8 +37,12 @@ const UserSchema = new Schema({
   }],
   workingHours: {
     type: String,
+    default: '',
     validate: {
       validator(v) {
+        if (!v || v.length === 0) {
+          return true;
+        }
         try {
           return !!(new OpeningHours(v));
         } catch (e) {
