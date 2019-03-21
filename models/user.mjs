@@ -62,10 +62,6 @@ UserSchema.pre('save', function preSave(next) {
     .catch(err => next(err));
 });
 
-UserSchema.pre('save', function beforeSave() {
-  return this.updateRightsCache();
-});
-
 UserSchema.methods.toCleanObject = function toCleanObject(...params) {
   return omit(this.toObject ? this.toObject(...params) : this, ['password']);
 };
@@ -87,24 +83,8 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
 
 UserSchema.statics.cleanObject = o => UserSchema.methods.toCleanObject.call(o);
 
-// @todo: Defer update + batch process
-UserSchema.methods.updateRightsCache = async function updateRightsCache() {
-  const Role = mongoose.model('Role');
-
-  const lookup = async (toLookUp = [], previouslyLookedUp = []) => {
-    const roles = await Role.find({ _id: { $in: toLookUp } });
-    const nextLoopLookUp = roles.map(role => role.inherit.map(i => i._id)).reduce((a, b) => a.concat(b), []);
-    if (nextLoopLookUp.length) {
-      return roles.concat(await lookup(nextLoopLookUp, previouslyLookedUp.concat(roles.map(r => r._id))));
-    }
-    return roles;
-  };
-  this.cachedRights = (await lookup(this.roles.map(i => i._id)));
-  return this;
-};
-
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
-  const campuses = this.cachedRights
+  const campuses = this.roles
     .map(r => r.campuses)
     .reduce((a, b) => a.concat(b), []);
   const Campus = mongoose.model('Campus');
