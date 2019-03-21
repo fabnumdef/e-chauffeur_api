@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import config from '../../services/config';
+import Ride from '../../models/ride';
 
 export default (socket) => {
   socket.on('roomJoinDriver', async (token) => {
@@ -17,8 +18,11 @@ export default (socket) => {
   });
 
   socket.on('roomJoinRide', async (ride) => {
-    if (ride.id) {
-      socket.join(`ride/${ride.id}`);
+    if (ride.id && ride.token) {
+      const rde = await Ride.findById(Ride.castId(ride.id));
+      if (rde.token === ride.token) {
+        socket.join(`ride/${ride.id}`);
+      }
     }
   });
 
