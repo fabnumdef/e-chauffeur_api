@@ -1,3 +1,5 @@
+import * as roles from '../models/role';
+
 export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) => {
   const { user } = ctx.state;
   let campus = cps;
@@ -10,13 +12,13 @@ export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) =
   if (
     !user
     || !rights.reduce(
-      (acc, right) => acc || user.cachedRights.reduce(
-        (cachedAcc, cachedRow) => cachedAcc || (
-          cachedRow.rights.find(
+      (acc, right) => acc || user.roles.reduce(
+        (ruleAcc, ruleRow) => ruleAcc || (
+          (roles[ruleRow.role] || []).find(
             r => right === r,
           )
           && (
-            !campus || cachedRow.campuses.find(
+            !campus || ruleRow.campuses.find(
               c => c._id === campus,
             )
           )

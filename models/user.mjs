@@ -16,22 +16,10 @@ const UserSchema = new Schema({
   name: String,
   password: { type: String, required: true },
   roles: [{
-    _id: {
-      type: String,
-      required: true,
-      alias: 'id',
-      validate: {
-        validator(v) {
-          return this.parent()._id !== v; // @todo: Add more resilient cycle checking
-        },
-      },
-    },
-  }],
-  cachedRights: [{
     _id: false,
-    rights: [String],
+    role: { type: String, required: true },
     campuses: [{
-      _id: { type: String, required: true },
+      _id: { type: String, required: true, alias: 'id' },
       name: { type: String, required: true },
     }],
   }],
