@@ -30,6 +30,12 @@ export const CAN_LIST_CATEGORY = 'canListCategory';
 export const CAN_GET_CATEGORY = 'canGetCategory';
 export const CAN_REMOVE_CATEGORY = 'canRemoveCategory';
 
+export const CAN_EDIT_POI = 'canEditPoi';
+export const CAN_CREATE_POI = 'canCreatePoi';
+export const CAN_LIST_POI = 'canListPoi';
+export const CAN_GET_POI = 'canGetPoi';
+export const CAN_REMOVE_POI = 'canRemovePoi';
+
 export const CAN_SEND_FEEDBACK = 'canSendFeedback';
 
 export default [
@@ -64,6 +70,12 @@ export default [
   CAN_LIST_CATEGORY,
   CAN_GET_CATEGORY,
   CAN_REMOVE_CATEGORY,
+
+  CAN_EDIT_POI,
+  CAN_CREATE_POI,
+  CAN_LIST_POI,
+  CAN_GET_POI,
+  CAN_REMOVE_POI,
 
   CAN_SEND_FEEDBACK,
 ];

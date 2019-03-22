@@ -2,11 +2,14 @@ import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 
 import Poi from '../models/poi';
+import checkRights from "../middlewares/check-rights";
+import {CAN_CREATE_POI, CAN_EDIT_POI, CAN_GET_POI, CAN_LIST_POI, CAN_REMOVE_POI} from "../models/rights";
 
 const router = new Router();
 
 router.post(
   '/',
+  checkRights(CAN_CREATE_POI),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -21,6 +24,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights(CAN_LIST_POI),
   maskOutput,
   async (ctx) => {
     const searchParams = {};
@@ -45,6 +49,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights(CAN_GET_POI),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -54,6 +59,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights(CAN_EDIT_POI),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -68,6 +74,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights(CAN_REMOVE_POI),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Poi.remove({ _id: id });

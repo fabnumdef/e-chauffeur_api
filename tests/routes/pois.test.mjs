@@ -1,5 +1,5 @@
 import chai from 'chai';
-import request from '../request';
+import request, {generateSuperAdminJWTHeader} from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import Poi, { generateDummyPoi } from '../models/poi';
 
@@ -12,6 +12,7 @@ describe('Test the poi API endpoint', () => {
       {
         const response = await request()
           .post('/pois')
+          .set(...generateSuperAdminJWTHeader())
           .send(cleanObject(dummyPoi));
         expect(response.statusCode).to.equal(200);
 
@@ -23,6 +24,7 @@ describe('Test the poi API endpoint', () => {
       {
         const { statusCode } = await request()
           .post('/pois')
+          .set(...generateSuperAdminJWTHeader())
           .send(cleanObject(dummyPoi));
         expect(statusCode).to.equal(409);
       }

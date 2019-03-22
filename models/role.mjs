@@ -58,4 +58,9 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_CREATE_CATEGORY,
   rights.CAN_GET_CATEGORY,
   rights.CAN_REMOVE_CATEGORY,
+
+  rights.CAN_EDIT_POI,
+  rights.CAN_CREATE_POI,
+  rights.CAN_GET_POI,
+  rights.CAN_REMOVE_POI,
 ];
