@@ -175,6 +175,9 @@ RideSchema.methods.isAccessibleByAnonymous = function isAccessibleByAnonymous(to
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {
   const GeoTracking = mongoose.model('GeoTracking');
   const [position = null] = await GeoTracking.aggregate([
+    {
+      $match: { 'driver._id': this.driver._id },
+    },
     { $unwind: '$positions' },
     {
       $project: {
