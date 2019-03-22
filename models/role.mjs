@@ -33,6 +33,12 @@ export const ROLE_REGULATOR = [
   rights.CAN_EDIT_USER,
   rights.CAN_CREATE_USER,
 
+  rights.CAN_LIST_CAR,
+  rights.CAN_EDIT_CAR,
+  rights.CAN_CREATE_CAR,
+  rights.CAN_GET_CAR,
+  rights.CAN_REMOVE_CAR,
+
   rights.CAN_EDIT_CAR_EVENT,
   rights.CAN_CREATE_CAR_EVENT,
   rights.CAN_REMOVE_CAR_EVENT,
