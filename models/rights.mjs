@@ -30,6 +30,8 @@ export const CAN_LIST_CAMPUS = 'canListCampus';
 export const CAN_GET_CAMPUS = 'canGetCampus';
 export const CAN_REMOVE_CAMPUS = 'canRemoveCampus';
 
+export const CAN_GET_CAMPUS_STATS = 'canGetCampusStats';
+
 export const CAN_LIST_CAMPUS_CAR = 'canListCampusCar';
 export const CAN_LIST_CAMPUS_DRIVER = 'canListCampusDriver';
 export const CAN_LIST_CAMPUS_DRIVER_RIDE = 'canListCampusDriverRide';
@@ -105,6 +107,8 @@ export default [
   CAN_LIST_CAR,
   CAN_GET_CAR,
   CAN_REMOVE_CAR,
+
+  CAN_GET_CAMPUS_STATS,
 
   CAN_LIST_CAMPUS_CAR,
   CAN_LIST_CAMPUS_DRIVER,

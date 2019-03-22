@@ -42,6 +42,8 @@ export const ROLE_REGULATOR = [
   rights.CAN_GET_CAR,
   rights.CAN_REMOVE_CAR,
 
+  rights.CAN_GET_CAMPUS_STATS,
+
   rights.CAN_LIST_CAMPUS_CAR,
   rights.CAN_LIST_CAMPUS_DRIVER,
   rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
