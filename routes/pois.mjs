@@ -2,8 +2,10 @@ import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 
 import Poi from '../models/poi';
-import checkRights from "../middlewares/check-rights";
-import {CAN_CREATE_POI, CAN_EDIT_POI, CAN_GET_POI, CAN_LIST_POI, CAN_REMOVE_POI} from "../models/rights";
+import checkRights from '../middlewares/check-rights';
+import {
+  CAN_CREATE_POI, CAN_EDIT_POI, CAN_GET_POI, CAN_LIST_POI, CAN_REMOVE_POI,
+} from '../models/rights';
 
 const router = new Router();
 

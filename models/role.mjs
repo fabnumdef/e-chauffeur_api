@@ -2,6 +2,8 @@ import * as rights from './rights';
 
 export const ROLE_ANONYMOUS = [
   rights.CAN_LOGIN,
+  rights.CAN_GET_RIDE,
+  rights.CAN_GET_RIDE_POSITION,
 ];
 
 export const ROLE_USER = [
@@ -18,6 +20,9 @@ export const ROLE_DRIVER = [
   rights.CAN_GET_CAR_MODEL,
 
   rights.CAN_LIST_CATEGORY,
+
+  rights.CAN_LIST_RIDE,
+  rights.CAN_EDIT_RIDE_STATUS,
 ];
 
 export const ROLE_REGULATOR = [
@@ -34,6 +39,11 @@ export const ROLE_REGULATOR = [
   rights.CAN_REMOVE_CAMPUS,
 
   rights.CAN_SEND_FEEDBACK,
+
+  rights.CAN_LIST_POI,
+
+  rights.CAN_CREATE_RIDE,
+  rights.CAN_EDIT_RIDE,
 ];
 
 export const ROLE_ADMIN = [

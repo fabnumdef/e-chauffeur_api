@@ -1,5 +1,5 @@
 import chai from 'chai';
-import request, {generateSuperAdminJWTHeader} from '../request';
+import request, { generateSuperAdminJWTHeader } from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import Poi, { generateDummyPoi } from '../models/poi';
 

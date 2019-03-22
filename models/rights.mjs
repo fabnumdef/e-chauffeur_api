@@ -36,6 +36,13 @@ export const CAN_LIST_POI = 'canListPoi';
 export const CAN_GET_POI = 'canGetPoi';
 export const CAN_REMOVE_POI = 'canRemovePoi';
 
+export const CAN_EDIT_RIDE = 'canEditRide';
+export const CAN_EDIT_RIDE_STATUS = 'canEditRideStatus';
+export const CAN_CREATE_RIDE = 'canCreateRide';
+export const CAN_LIST_RIDE = 'canListRide';
+export const CAN_GET_RIDE = 'canGetRide';
+export const CAN_GET_RIDE_POSITION = 'canGetRidePosition';
+
 export const CAN_SEND_FEEDBACK = 'canSendFeedback';
 
 export default [
@@ -76,6 +83,13 @@ export default [
   CAN_LIST_POI,
   CAN_GET_POI,
   CAN_REMOVE_POI,
+
+  CAN_EDIT_RIDE,
+  CAN_CREATE_RIDE,
+  CAN_LIST_RIDE,
+  CAN_GET_RIDE,
+  CAN_GET_RIDE_POSITION,
+  CAN_EDIT_RIDE_STATUS,
 
   CAN_SEND_FEEDBACK,
 ];

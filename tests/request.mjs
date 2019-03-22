@@ -15,10 +15,11 @@ MongooseService(`${config.get('mongodb')}-test`);
 
 export default () => request(app.listen());
 
-export const generateRoleJWTHeader = (role) => {
+export const generateRoleJWTHeader = (role, ...campuses) => {
   const user = new User({
     roles: [{
       role,
+      campuses,
     }],
   });
   const token = user.emitJWT();
@@ -26,4 +27,5 @@ export const generateRoleJWTHeader = (role) => {
 };
 
 export const generateRegulatorJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_REGULATOR, ...params);
+export const generateDriverJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_DRIVER, ...params);
 export const generateSuperAdminJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_SUPERADMIN, ...params);
