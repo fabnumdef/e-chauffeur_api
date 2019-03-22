@@ -1,6 +1,6 @@
 import * as roles from '../models/role';
 
-export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) => {
+const checkRights = (cps, ...rights) => async (ctx, next) => {
   const { user } = ctx.state;
   let campus = cps;
   if (campus) {
@@ -9,9 +9,8 @@ export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) =
     }
     campus = ctx.params.campus_id;
   }
-  if (
-    !user
-    || !rights.reduce(
+  if (user) {
+    if (!rights.reduce(
       (acc, right) => acc || user.roles.reduce(
         (ruleAcc, ruleRow) => ruleAcc || (
           (roles[ruleRow.role] || []).find(
@@ -26,11 +25,19 @@ export const checkCampusRights = (cps = false, ...rights) => async (ctx, next) =
         false,
       ),
       false,
-    )
-  ) {
-    throw new Error('Current user not authorized to do this');
+    )) {
+      throw new Error('Current user not authorized to do this');
+    }
+  } else if (!rights.reduce(
+    (acc, right) => acc || roles.ROLE_ANONYMOUS.find(
+      r => right === r,
+    ),
+    false,
+  )) {
+    throw new Error('Anonymous user not authorized to do this');
   }
   await next();
 };
 
-export default (...rights) => checkCampusRights(false, ...rights);
+export default (...rights) => checkRights(false, ...rights);
+export const checkCampusRights = (...rights) => checkRights(true, ...rights);
