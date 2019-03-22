@@ -30,6 +30,8 @@ export const CAN_LIST_CAMPUS = 'canListCampus';
 export const CAN_GET_CAMPUS = 'canGetCampus';
 export const CAN_REMOVE_CAMPUS = 'canRemoveCampus';
 
+export const CAN_LIST_CAMPUS_CAR = 'canListCampusCar';
+
 export const CAN_EDIT_CATEGORY = 'canEditCategory';
 export const CAN_CREATE_CATEGORY = 'canCreateCategory';
 export const CAN_LIST_CATEGORY = 'canListCategory';
@@ -101,6 +103,8 @@ export default [
   CAN_LIST_CAR,
   CAN_GET_CAR,
   CAN_REMOVE_CAR,
+
+  CAN_LIST_CAMPUS_CAR,
 
   CAN_EDIT_POI,
   CAN_CREATE_POI,

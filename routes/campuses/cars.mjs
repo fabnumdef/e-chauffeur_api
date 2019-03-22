@@ -1,13 +1,16 @@
 import Router from 'koa-router';
 import maskOutput from '../../middlewares/mask-output';
+import { checkCampusRights } from '../../middlewares/check-rights';
 import Campus from '../../models/campus';
 import Ride from '../../models/ride';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { CAN_LIST_CAMPUS_CAR } from '../../models/rights';
 
 const router = new Router();
 
 router.get(
   '/',
+  checkCampusRights(CAN_LIST_CAMPUS_CAR),
   maskOutput,
   ensureThatFiltersExists('start', 'end'),
   async (ctx) => {
