@@ -3,11 +3,14 @@ import maskOutput from '../../middlewares/mask-output';
 
 import Campus from '../../models/campus';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { checkCampusRights } from '../../middlewares/check-rights';
+import { CAN_LIST_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER_RIDE } from '../../models/rights';
 
 const router = new Router();
 
 router.get(
   '/',
+  checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
   ensureThatFiltersExists('start', 'end'),
   async (ctx) => {
@@ -20,6 +23,7 @@ router.get(
 
 router.get(
   '/:driver_id/rides',
+  checkCampusRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
   maskOutput,
   ensureThatFiltersExists('status'),
   async (ctx) => {
