@@ -18,6 +18,12 @@ export const CAN_LIST_USER = 'canListUser';
 export const CAN_GET_USER = 'canGetUser';
 export const CAN_REMOVE_USER = 'canRemoveUser';
 
+export const CAN_EDIT_USER_EVENT = 'canEditUserEvent';
+export const CAN_CREATE_USER_EVENT = 'canCreateUserEvent';
+export const CAN_LIST_USER_EVENT = 'canListUserEvent';
+export const CAN_GET_USER_EVENT = 'canGetUserEvent';
+export const CAN_REMOVE_USER_EVENT = 'canRemoveUserEvent';
+
 export const CAN_EDIT_CAMPUS = 'canEditCampus';
 export const CAN_CREATE_CAMPUS = 'canCreateCampus';
 export const CAN_LIST_CAMPUS = 'canListCampus';
@@ -71,6 +77,12 @@ export default [
   CAN_LIST_USER,
   CAN_GET_USER,
   CAN_REMOVE_USER,
+
+  CAN_EDIT_USER_EVENT,
+  CAN_CREATE_USER_EVENT,
+  CAN_LIST_USER_EVENT,
+  CAN_GET_USER_EVENT,
+  CAN_REMOVE_USER_EVENT,
 
   CAN_EDIT_CAMPUS,
   CAN_CREATE_CAMPUS,
