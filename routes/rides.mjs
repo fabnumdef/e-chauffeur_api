@@ -1,5 +1,6 @@
 import Router from 'koa-router';
 import camelCase from 'lodash.camelcase';
+import { CANCELED_STATUSES, DELIVERED } from '../models/status';
 
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
@@ -131,6 +132,10 @@ router.get(
     if (!ride) {
       ctx.status = 404;
       return;
+    }
+
+    if (ride.status === DELIVERED || CANCELED_STATUSES.indexOf(ride.status) !== -1) {
+      ctx.throw(417, 'Ride cancelled or delivred');
     }
 
     const position = await ride.findDriverPosition(new Date());
