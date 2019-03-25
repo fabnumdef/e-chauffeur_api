@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../../services/config';
 import Ride from '../../models/ride';
+import { CANCELED_STATUSES, DELIVERED } from '../../models/status';
 
 export default (socket) => {
   socket.on('roomJoinDriver', async (token) => {
@@ -20,7 +21,7 @@ export default (socket) => {
   socket.on('roomJoinRide', async (ride) => {
     if (ride.id && ride.token) {
       const rde = await Ride.findById(Ride.castId(ride.id));
-      if (rde.token === ride.token) {
+      if (rde.token === ride.token && rde.status !== DELIVERED && CANCELED_STATUSES.indexOf(rde.status) === -1) {
         socket.join(`ride/${ride.id}`);
       }
     }
