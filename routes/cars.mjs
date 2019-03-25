@@ -3,11 +3,16 @@ import maskOutput from '../middlewares/mask-output';
 import addFilter from '../middlewares/add-filter';
 
 import Car from '../models/car';
+import checkRights from '../middlewares/check-rights';
+import {
+  CAN_CREATE_CAR, CAN_EDIT_CAR, CAN_GET_CAR, CAN_LIST_CAR, CAN_REMOVE_CAR,
+} from '../models/rights';
 
 const router = new Router();
 
 router.post(
   '/',
+  checkRights(CAN_CREATE_CAR),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -23,6 +28,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights(CAN_LIST_CAR),
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
@@ -37,6 +43,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights(CAN_GET_CAR),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -46,6 +53,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights(CAN_EDIT_CAR),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -59,6 +67,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights(CAN_REMOVE_CAR),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Car.remove({ _id: id });

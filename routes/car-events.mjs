@@ -3,11 +3,20 @@ import maskOutput from '../middlewares/mask-output';
 import addFilter from '../middlewares/add-filter';
 
 import CarEvent from '../models/car-event';
+import checkRights from '../middlewares/check-rights';
+import {
+  CAN_CREATE_CAR_EVENT,
+  CAN_EDIT_CAR_EVENT,
+  CAN_GET_CAR_EVENT,
+  CAN_LIST_CAR_EVENT,
+  CAN_REMOVE_CAR_EVENT,
+} from '../models/rights';
 
 const router = new Router();
 
 router.post(
   '/',
+  checkRights(CAN_CREATE_CAR_EVENT),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -22,6 +31,7 @@ router.post(
 
 router.get(
   '/',
+  checkRights(CAN_LIST_CAR_EVENT),
   maskOutput,
   addFilter('car', 'car._id'),
   async (ctx) => {
@@ -36,6 +46,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights(CAN_GET_CAR_EVENT),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -45,6 +56,7 @@ router.get(
 
 router.patch(
   '/:id',
+  checkRights(CAN_EDIT_CAR_EVENT),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -58,6 +70,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights(CAN_REMOVE_CAR_EVENT),
   async (ctx) => {
     const { params: { id } } = ctx;
     await CarEvent.remove({ _id: id });

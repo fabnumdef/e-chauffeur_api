@@ -1,5 +1,5 @@
 import chai from 'chai';
-import request from '../../request';
+import request, { generateRegulatorJWTHeader } from '../../request';
 import { createDummyCampus } from '../../models/campus';
 import { createDummyUser } from '../../models/user';
 
@@ -12,13 +12,15 @@ describe('Test the campuses/drivers route', () => {
     await Promise.all([
       async () => {
         const { text, statusCode } = await request()
-          .get(`/campuses/${campus._id}/drivers`);
+          .get(`/campuses/${campus._id}/drivers`)
+          .set(...generateRegulatorJWTHeader(campus));
         expect(statusCode).to.equal(400);
         expect(text).to.contains('filters');
       },
       async () => {
         const { text, statusCode } = await request()
           .get(`/campuses/${campus._id}/drivers`)
+          .set(...generateRegulatorJWTHeader(campus))
           .query({ filters: true });
         expect(statusCode).to.equal(400);
         expect(text).to.contains('filter is required');
@@ -26,6 +28,7 @@ describe('Test the campuses/drivers route', () => {
       async () => {
         const { body, statusCode } = await request()
           .get(`/campuses/${campus._id}/drivers`)
+          .set(...generateRegulatorJWTHeader(campus))
           .query({
             filters: {
               start: new Date(),
@@ -39,19 +42,21 @@ describe('Test the campuses/drivers route', () => {
   });
 
   it('/driver_id/rides should response the GET method', async () => {
-    const campus = createDummyCampus();
+    const campus = await createDummyCampus();
     const user = await createDummyUser();
 
     await Promise.all([
       async () => {
         const { text, statusCode } = await request()
-          .get(`/campuses/${campus._id}/drivers/${user._id}/rides`);
+          .get(`/campuses/${campus._id}/drivers/${user._id}/rides`)
+          .set(...generateRegulatorJWTHeader(campus));
         expect(statusCode).to.equal(400);
         expect(text).to.contains('filters');
       },
       async () => {
         const { text, statusCode } = await request()
           .get(`/campuses/${campus._id}/drivers/${user._id}/rides`)
+          .set(...generateRegulatorJWTHeader(campus))
           .query({ filters: true });
         expect(statusCode).to.equal(400);
         expect(text).to.contains('filter is required');
@@ -59,6 +64,7 @@ describe('Test the campuses/drivers route', () => {
       async () => {
         const { statusCode } = await request()
           .get(`/campuses/${campus._id}/drivers/${user._id}/rides`)
+          .set(...generateRegulatorJWTHeader(campus))
           .query({
             filters: {
               status: true,
