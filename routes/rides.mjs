@@ -3,10 +3,19 @@ import camelCase from 'lodash.camelcase';
 
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
+import checkRights from '../middlewares/check-rights';
 
 import Ride from '../models/ride';
 import addFilter from '../middlewares/add-filter';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import {
+  CAN_CREATE_RIDE,
+  CAN_EDIT_RIDE,
+  CAN_EDIT_RIDE_STATUS,
+  CAN_GET_RIDE,
+  CAN_GET_RIDE_POSITION,
+  CAN_LIST_RIDE,
+} from '../models/rights';
 
 const router = new Router();
 
@@ -20,6 +29,7 @@ function ioEmit(ctx, data, eventName = '', rooms = []) {
 
 router.post(
   '/',
+  checkRights(CAN_CREATE_RIDE),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -35,6 +45,7 @@ router.post(
 
 router.patch(
   '/:id',
+  checkRights(CAN_EDIT_RIDE),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -60,6 +71,7 @@ router.patch(
 
 router.get(
   '/',
+  checkRights(CAN_LIST_RIDE),
   contentNegociation,
   maskOutput,
   ensureThatFiltersExists('start', 'end'),
@@ -83,6 +95,7 @@ router.get(
  */
 router.get(
   '/:id',
+  checkRights(CAN_GET_RIDE),
   maskOutput,
   async (ctx) => {
     const { params: { id }, query: { token } } = ctx;
@@ -105,6 +118,7 @@ router.get(
  */
 router.get(
   '/:id/position',
+  checkRights(CAN_GET_RIDE_POSITION),
   maskOutput,
   async (ctx) => {
     const { params: { id }, query: { token } } = ctx;
@@ -131,6 +145,7 @@ router.get(
 
 router.post(
   '/:id/:action',
+  checkRights(CAN_EDIT_RIDE_STATUS),
   maskOutput,
   async (ctx) => {
     // @todo: rights - driver should be able to update status

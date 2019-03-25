@@ -35,12 +35,12 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus, start, end
   const UserEvent = mongoose.model('UserEvent');
   const userIds = (await User.aggregate([
     {
-      $unwind: '$cachedRights',
+      $unwind: '$roles',
     },
     {
       $match: {
-        // 'cachedRights.rights': 'login', @todo: Add match on role that match with
-        'cachedRights.campuses._id': campus,
+        // 'roles.rights': 'login', @todo: Add match on role that match with
+        'roles.campuses._id': campus,
       },
     },
     {

@@ -3,12 +3,15 @@ import mask from 'json-mask';
 import maskOutput from '../../middlewares/mask-output';
 import Campus from '../../models/campus';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { checkCampusRights } from '../../middlewares/check-rights';
+import { CAN_GET_CAMPUS_STATS } from '../../models/rights';
 
 const router = new Router();
 const REQUESTABLE = ['total'];
 
 router.get(
   '/',
+  checkCampusRights(CAN_GET_CAMPUS_STATS),
   maskOutput,
   ensureThatFiltersExists('start', 'end'),
   async (ctx) => {

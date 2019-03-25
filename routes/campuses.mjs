@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-import checkRights, { restrictedFieldsInAnonymous } from '../middlewares/check-rights';
+import checkRights from '../middlewares/check-rights';
 import Campus from '../models/campus';
 import driversRoutes from './campuses/drivers';
 import driversPositionsRoutes from './campuses/drivers-positions';
@@ -34,7 +34,7 @@ router.post(
 
 router.get(
   '/',
-  restrictedFieldsInAnonymous('id,information', CAN_LIST_CAMPUS),
+  checkRights(CAN_LIST_CAMPUS),
   maskOutput,
   async (ctx) => {
     const searchParams = {};

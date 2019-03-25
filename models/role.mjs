@@ -1,84 +1,95 @@
-import mongoose from 'mongoose';
-import rights from './rights';
+import * as rights from './rights';
 
-const { Schema } = mongoose;
+export const ROLE_ANONYMOUS = [
+  rights.CAN_LOGIN,
+  rights.CAN_GET_RIDE,
+  rights.CAN_GET_RIDE_POSITION,
+  rights.CAN_LIST_CAMPUS,
+];
 
-const RoleSchema = new Schema({
-  _id: String,
-  inherit: [{
-    _id: {
-      type: String,
-      required: true,
-      validate: {
-        validator(v) {
-          return this.parent()._id !== v; // @todo: Add more resilient cycle checking
-        },
-      },
-      alias: 'id',
-    },
-  }],
-  rights: [{
-    type: String,
-    required: true,
-    validate: {
-      validator: a => rights.includes(a),
-    },
-  }],
-  campuses: [{
-    _id: { type: String, required: true, alias: 'id' },
-    name: { type: String, required: true },
-  }],
-  // @todo: Add caching system
-  cached: [{
-    _id: false,
-    rights: [String],
-    campuses: [{
-      _id: { type: String, required: true, alias: 'id' },
-      name: { type: String, required: true },
-    }],
-  }],
-});
+export const ROLE_USER = [
+  ...ROLE_ANONYMOUS,
+];
 
-RoleSchema.pre('save', function beforeSave() {
-  return this.updateCache();
-});
+export const ROLE_DRIVER = [
+  ...ROLE_USER,
 
-RoleSchema.post('save', async (doc) => {
-  const Role = mongoose.model('Role');
-  const roles = await Role.find({
-    'inherit._id': doc._id,
-  });
-  const rolesUpdated = await Promise.all(roles.map(async r => (await r.updateCache()).save()));
-  const usersUpdated = await Promise.all((await doc.updateUserRights()).map(u => u.save()));
-  return Promise.all(
-    [
-      rolesUpdated,
-      usersUpdated,
-    ],
-  );
-});
+  rights.CAN_LIST_CAMPUS,
+  rights.CAN_GET_CAMPUS,
 
-// @todo: Defer update + batch process
-RoleSchema.methods.updateCache = async function updateCache() { // @todo: Optimize duplicates
-  const Role = mongoose.model('Role');
+  rights.CAN_LIST_CAR_MODEL,
+  rights.CAN_GET_CAR_MODEL,
 
-  const lookup = async (toLookUp = [], previouslyLookedUp = []) => {
-    const roles = await Role.find({ _id: { $in: toLookUp } });
-    const nextLoopLookUp = roles.map(role => role.inherit.map(i => i._id)).reduce((a, b) => a.concat(b), []);
-    if (nextLoopLookUp.length) {
-      return roles.concat(await lookup(nextLoopLookUp, previouslyLookedUp.concat(roles.map(r => r._id))));
-    }
-    return roles;
-  };
-  this.cached = (await lookup(this.inherit.map(i => i._id)));
-  return this;
-};
+  rights.CAN_LIST_USER_EVENT,
+  rights.CAN_GET_USER_EVENT,
 
-// @todo: Defer update + batch process
-RoleSchema.methods.updateUserRights = async function updateUserRights() {
-  const User = mongoose.model('User');
-  const users = await User.find({ 'roles._id': this._id });
-  return Promise.all(users.map(async u => u.updateRightsCache()));
-};
+  rights.CAN_LIST_CATEGORY,
 
-export default mongoose.model('Role', RoleSchema);
+  rights.CAN_LIST_RIDE,
+  rights.CAN_EDIT_RIDE_STATUS,
+];
+
+export const ROLE_REGULATOR = [
+  ...ROLE_DRIVER,
+
+  rights.CAN_LIST_USER,
+  rights.CAN_GET_USER,
+  rights.CAN_EDIT_USER,
+  rights.CAN_CREATE_USER,
+
+  rights.CAN_LIST_CAR,
+  rights.CAN_EDIT_CAR,
+  rights.CAN_CREATE_CAR,
+  rights.CAN_GET_CAR,
+  rights.CAN_REMOVE_CAR,
+
+  rights.CAN_GET_CAMPUS_STATS,
+
+  rights.CAN_LIST_CAMPUS_CAR,
+  rights.CAN_LIST_CAMPUS_DRIVER,
+  rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
+
+  rights.CAN_EDIT_CAR_EVENT,
+  rights.CAN_CREATE_CAR_EVENT,
+  rights.CAN_REMOVE_CAR_EVENT,
+
+  rights.CAN_EDIT_USER_EVENT,
+  rights.CAN_CREATE_USER_EVENT,
+  rights.CAN_REMOVE_USER_EVENT,
+
+  rights.CAN_SEND_FEEDBACK,
+
+  rights.CAN_LIST_POI,
+
+  rights.CAN_CREATE_RIDE,
+  rights.CAN_EDIT_RIDE,
+];
+
+export const ROLE_ADMIN = [
+  ...ROLE_REGULATOR,
+];
+
+export const ROLE_SUPERADMIN = [
+  ...ROLE_ADMIN,
+
+  rights.CAN_EDIT_CAR_MODEL,
+  rights.CAN_CREATE_CAR_MODEL,
+  rights.CAN_REMOVE_CAR_MODEL,
+  rights.CAN_REMOVE_CAMPUS,
+
+  rights.CAN_REMOVE_USER,
+
+  rights.CAN_EDIT_CAMPUS,
+  rights.CAN_CREATE_CAMPUS,
+  rights.CAN_REMOVE_CAMPUS,
+
+  rights.CAN_EDIT_CATEGORY,
+  rights.CAN_CREATE_CATEGORY,
+  rights.CAN_GET_CATEGORY,
+  rights.CAN_REMOVE_CATEGORY,
+
+  rights.CAN_EDIT_POI,
+  rights.CAN_CREATE_POI,
+  rights.CAN_GET_POI,
+  rights.CAN_REMOVE_POI,
+];

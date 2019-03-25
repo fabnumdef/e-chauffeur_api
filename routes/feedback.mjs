@@ -17,7 +17,7 @@ router.post(
       request: { body: { message, type } },
       state: { user: { name } },
     } = ctx;
-    const base = _get(ctx.state.user, 'cachedRights[0].campuses[0].name', 'NC');
+    const base = _get(ctx.state.user, 'roles[0].campuses[0].name', 'NC');
     const to = config.get('mail:feedback_mail');
     if (!message || !type) {
       ctx.throw(400, 'Feedback message and type should be set');

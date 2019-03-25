@@ -1,14 +1,7 @@
 import chai from 'chai';
-import request, { generateUserJWTHeader } from '../request';
+import request, { generateRegulatorJWTHeader, generateSuperAdminJWTHeader } from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import CarModel, { generateDummyCarModel } from '../models/car-model';
-import {
-  CAN_CREATE_CAR_MODEL,
-  CAN_EDIT_CAR_MODEL,
-  CAN_GET_CAR_MODEL,
-  CAN_LIST_CAR_MODEL,
-  CAN_REMOVE_CAR_MODEL,
-} from '../../models/rights';
 
 const { expect } = chai;
 
@@ -19,7 +12,7 @@ describe('Test the car models API endpoint', () => {
       {
         const response = await request()
           .post('/car-models')
-          .set(...generateUserJWTHeader(CAN_CREATE_CAR_MODEL))
+          .set(...generateSuperAdminJWTHeader())
           .send(cleanObject(dummyCarModel));
         expect(response.statusCode).to.equal(200);
 
@@ -31,7 +24,7 @@ describe('Test the car models API endpoint', () => {
       {
         const { statusCode } = await request()
           .post('/car-models')
-          .set(...generateUserJWTHeader(CAN_CREATE_CAR_MODEL))
+          .set(...generateSuperAdminJWTHeader())
           .send(cleanObject(dummyCarModel));
         expect(statusCode).to.equal(409);
       }
@@ -48,7 +41,7 @@ describe('Test the car models API endpoint', () => {
 
       const response = await request()
         .patch(`/car-models/${encodeURIComponent(carModel.id)}`)
-        .set(...generateUserJWTHeader(CAN_EDIT_CAR_MODEL))
+        .set(...generateSuperAdminJWTHeader())
         .send({ label: NEW_LABEL });
       expect(response.statusCode).to.equal(200);
 
@@ -65,7 +58,7 @@ describe('Test the car models API endpoint', () => {
       await CarModel.create(dummyCarModel);
       const response = await request()
         .get('/car-models/?mask=*')
-        .set(...generateUserJWTHeader(CAN_LIST_CAR_MODEL));
+        .set(...generateRegulatorJWTHeader());
       expect(response.statusCode).to.equal(200);
       const found = response.body.find(({ id }) => id === dummyCarModel._id);
       expect(found).to.deep.equal(cleanObject(dummyCarModel));
@@ -80,7 +73,7 @@ describe('Test the car models API endpoint', () => {
       const carModel = await CarModel.create(dummyCarModel);
       const response = await request()
         .get(`/car-models/${encodeURIComponent(carModel.id)}?mask=*`)
-        .set(...generateUserJWTHeader(CAN_GET_CAR_MODEL));
+        .set(...generateRegulatorJWTHeader());
       expect(response.statusCode).to.equal(200);
 
       expect(response.body).to.deep.equal(cleanObject(dummyCarModel));
@@ -95,7 +88,7 @@ describe('Test the car models API endpoint', () => {
       const carModel = await CarModel.create(dummyCarModel);
       const response = await request()
         .delete(`/car-models/${encodeURIComponent(carModel.id)}`)
-        .set(...generateUserJWTHeader(CAN_REMOVE_CAR_MODEL));
+        .set(...generateSuperAdminJWTHeader());
       expect(response.statusCode).to.equal(204);
 
       const objectReturn = await CarModel.findById(dummyCarModel._id).lean();

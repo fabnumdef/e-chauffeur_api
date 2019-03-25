@@ -1,4 +1,6 @@
-const checkRights = (cps = false, ctx, ...rights) => {
+import * as roles from '../models/role';
+
+const checkRights = (cps, ...rights) => async (ctx, next) => {
   const { user } = ctx.state;
   let campus = cps;
   if (campus) {
@@ -7,45 +9,35 @@ const checkRights = (cps = false, ctx, ...rights) => {
     }
     campus = ctx.params.campus_id;
   }
-
-  if (
-    !user
-    || !rights.reduce(
-      (acc, right) => acc || user.cachedRights.reduce(
-        (cachedAcc, cachedRow) => cachedAcc || (
-          cachedRow.rights.find(
+  if (user) {
+    if (!rights.reduce(
+      (acc, right) => acc || user.roles.reduce(
+        (ruleAcc, ruleRow) => ruleAcc || (
+          (roles[ruleRow.role] || []).find(
             r => right === r,
           )
-        && (
-          !campus || cachedRow.campuses.find(
-            c => c._id === campus,
+          && (
+            !campus || ruleRow.campuses.find(
+              c => c._id === campus,
+            )
           )
-        )
         ),
         false,
       ),
       false,
-    )
-  ) {
-    return false;
-  }
-  return true;
-};
-
-export const restrictedFieldsInAnonymous = (restrictedFields, ...rights) => async (ctx, next) => {
-  const authorized = checkRights(false, ctx, ...rights);
-  if (!authorized) {
-    ctx.query = { mask: restrictedFields };
-  }
-  await next();
-};
-
-export const checkCampusRights = (campus = false, ...rights) => async (ctx, next) => {
-  const authorized = checkRights(campus, ctx, ...rights);
-  if (!authorized) {
-    throw new Error('Current user not authorized to do this');
+    )) {
+      throw new Error('Current user not authorized to do this');
+    }
+  } else if (!rights.reduce(
+    (acc, right) => acc || roles.ROLE_ANONYMOUS.find(
+      r => right === r,
+    ),
+    false,
+  )) {
+    throw new Error('Anonymous user not authorized to do this');
   }
   await next();
 };
 
-export default (...rights) => checkCampusRights(false, ...rights);
+export default (...rights) => checkRights(false, ...rights);
+export const checkCampusRights = (...rights) => checkRights(true, ...rights);

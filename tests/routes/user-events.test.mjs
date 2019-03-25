@@ -1,5 +1,5 @@
 import chai from 'chai';
-import request from '../request';
+import request, { generateRegulatorJWTHeader } from '../request';
 import { cleanObject } from '../../middlewares/mask-output';
 import UserEvent, { generateDummyUserEvent } from '../models/user-event';
 import { createDummyUser } from '../models/user';
@@ -18,6 +18,7 @@ describe('Test the user events API endpoint', () => {
       {
         const response = await request()
           .post('/user-events')
+          .set(...generateRegulatorJWTHeader())
           .send(cleanObject(dummyUserEvent));
         expect(response.statusCode).to.equal(200);
 
@@ -29,6 +30,7 @@ describe('Test the user events API endpoint', () => {
       {
         const { statusCode } = await request()
           .post('/user-events')
+          .set(...generateRegulatorJWTHeader())
           .send(cleanObject(dummyUserEvent));
         expect(statusCode).to.equal(409);
       }
