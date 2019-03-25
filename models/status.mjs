@@ -18,6 +18,13 @@ export const CANCELED_TECHNICAL = 'canceled_technical';
 export const CANCELED_REQUESTED_CUSTOMER = 'canceled_requested_customer';
 export const CANCELED_CUSTOMER_OVERLOAD = 'canceled_customer_overload';
 export const CANCELED_CUSTOMER_MISSING = 'canceled_customer_missing';
+export const CANCELED_STATUSES = [
+  CANCELED,
+  CANCELED_TECHNICAL,
+  CANCELED_REQUESTED_CUSTOMER,
+  CANCELED_CUSTOMER_OVERLOAD,
+  CANCELED_CUSTOMER_MISSING,
+];
 
 export const VALIDATE = 'validation';
 export const REJECT_BOUNDARY = 'rejection_boundary';
