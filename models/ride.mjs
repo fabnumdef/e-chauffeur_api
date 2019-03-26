@@ -74,6 +74,7 @@ const RideSchema = new Schema({
   comments: String,
   passengersCount: Number,
   phone: String,
+  luggage: Boolean,
 });
 
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
