@@ -2,6 +2,22 @@
   {
     "email" : "foo@bar.com",
     "password" : "$2b$10$3sMxQagsGFJ62E/2A65kiOzHpeM0zi4uak.srTxxg7/Yn.rLJpDaq",
-    "name" : "Foo Bar"
+    "name" : "Foo Bar",
+    "roles" : [
+      {
+        "role" : "ROLE_SUPERADMIN",
+        "campuses" : [ ]
+      },
+      {
+        "role" : "ROLE_REGULATOR",
+        "campuses" : [
+          {
+            "_id" : "BSL",
+            "name" : "Brest"
+          }
+        ]
+      }
+    ],
+    "workingHours" : "Mo 09:50-19:20;Tu 11:00-14:00;We 13:00-17:00;We 10:00-13:30;Th 10:30-18:00;Fr 10:30-18:30"
   }
 ]
