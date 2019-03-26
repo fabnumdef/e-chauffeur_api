@@ -4,6 +4,7 @@ export const ROLE_ANONYMOUS = [
   rights.CAN_LOGIN,
   rights.CAN_GET_RIDE,
   rights.CAN_GET_RIDE_POSITION,
+  rights.CAN_LIST_CAMPUS,
 ];
 
 export const ROLE_USER = [
