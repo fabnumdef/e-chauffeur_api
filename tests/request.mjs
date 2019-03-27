@@ -1,9 +1,15 @@
 import request from 'supertest';
+import logger, { defaultMongoDBTransport, createMongoDBTransport } from '../services/logger';
 import config from '../services/config';
 import MongooseService from '../services/mongoose';
 import app from '../app';
 import User from '../models/user';
 import * as roles from '../models/role';
+
+const DATABASE = `${config.get('mongodb')}-test`;
+
+logger.remove(defaultMongoDBTransport);
+logger.add(createMongoDBTransport(DATABASE));
 
 const rolesKeys = {
   ...Object.keys(roles)
@@ -11,7 +17,7 @@ const rolesKeys = {
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
-MongooseService(`${config.get('mongodb')}-test`);
+MongooseService(DATABASE);
 
 export default () => request(app.listen());
 
