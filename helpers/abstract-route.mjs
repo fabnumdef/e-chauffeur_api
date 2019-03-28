@@ -28,7 +28,9 @@ export function addCreateToRouter(Model, { url = '/', right, main } = {}) {
   );
 }
 
-export function addListToRouter(Model, { url = '/', right, main, filters = {}, middlewares = [] } = {}) {
+export function addListToRouter(Model, {
+  url = '/', right, main, filters = {}, middlewares = [],
+} = {}) {
   if (!right) {
     throw new Error('Right should be defined');
   }
