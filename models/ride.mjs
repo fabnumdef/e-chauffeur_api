@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
-import stateMachine, { CREATED } from './status';
+import stateMachine, { CREATED, VALIDATED, VALIDATE } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 
@@ -101,6 +101,28 @@ RideSchema.pre('validate', async function beforeSave() {
       this.departure = pois.find(({ _id }) => _id === this.departure._id);
     })(mongoose.model('Poi')),
   ]);
+});
+
+// @todo : Review this when passengers could command a ride
+RideSchema.isNewAndValidated = false;
+RideSchema.pre('save', function preSave(next) {
+  RideSchema.isNewAndValidated = false;
+  if (this.isNew && this.status === VALIDATED) {
+    RideSchema.isNewAndValidated = true;
+    this.status = CREATED;
+  }
+  next();
+});
+
+// @todo : Review this when passengers could command a ride
+RideSchema.post('save', async function postSave() {
+  if (RideSchema.isNewAndValidated) {
+    const ride = await this.model('Ride').findById(this.id);
+    ride[VALIDATE]();
+    const rideUpdated = await ride.save();
+    this.status = rideUpdated.status;
+  }
+  RideSchema.isNewAndValidated = false;
 });
 
 RideSchema.statics.castId = (v) => {
