@@ -43,7 +43,12 @@ router.get(
     const { offset, limit } = ctx.parseRangePagination(Poi);
     const total = await Poi.countDocuments(searchParams);
     const data = await Poi.find(searchParams).skip(offset).limit(limit).lean();
-    ctx.setRangePagination(Poi, { total, offset, count: data.length });
+    ctx.setRangePagination(Poi, {
+      total,
+      offset,
+      count: data.length,
+      limit,
+    });
 
     ctx.body = data;
   },
