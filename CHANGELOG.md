@@ -1,6 +1,6 @@
 # Changelog
 ## Current
 ### Features
-
+* POIs per base
 ### Fix
-* Fix pagination
+* Fix POIs pagination
