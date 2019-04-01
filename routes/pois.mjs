@@ -31,7 +31,7 @@ router.get(
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
-    const searchParams = {};
+    const searchParams = { ...ctx.filters };
     if (ctx.query && ctx.query.search) {
       searchParams.$or = [
         {
