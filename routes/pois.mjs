@@ -6,6 +6,7 @@ import checkRights from '../middlewares/check-rights';
 import {
   CAN_CREATE_POI, CAN_EDIT_POI, CAN_GET_POI, CAN_LIST_POI, CAN_REMOVE_POI,
 } from '../models/rights';
+import addFilter from '../middlewares/add-filter';
 
 const router = new Router();
 
@@ -28,6 +29,7 @@ router.get(
   '/',
   checkRights(CAN_LIST_POI),
   maskOutput,
+  addFilter('campus', 'campus._id'),
   async (ctx) => {
     const searchParams = {};
     if (ctx.query && ctx.query.search) {
