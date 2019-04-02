@@ -1,6 +1,6 @@
 import chai from 'chai';
 import Luxon from 'luxon';
-import request, { generateDriverJWTHeader } from '../request';
+import request, { generateRegulatorJWTHeader } from '../request';
 import { createDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
 import { createDummyCar } from '../models/car';
@@ -62,7 +62,7 @@ describe('Test the rides route', () => {
         const response = await request()
           .get('/rides')
           .set('Accept', 'text/csv')
-          .set(...generateDriverJWTHeader())
+          .set(...generateRegulatorJWTHeader())
           .query(query);
         expect(response.statusCode).to.equal(200);
         expect(response.headers['content-type']).to.contain('text/csv');
@@ -70,7 +70,7 @@ describe('Test the rides route', () => {
       {
         const response = await request()
           .get('/rides')
-          .set(...generateDriverJWTHeader())
+          .set(...generateRegulatorJWTHeader())
           .query(query);
         expect(response.statusCode).to.equal(200);
         expect(response.headers['content-type']).to.contain('application/json');

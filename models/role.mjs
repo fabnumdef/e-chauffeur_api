@@ -25,8 +25,8 @@ export const ROLE_DRIVER = [
 
   rights.CAN_LIST_CATEGORY,
 
-  rights.CAN_LIST_RIDE,
   rights.CAN_EDIT_RIDE_STATUS,
+  rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
 ];
 
 export const ROLE_REGULATOR = [
@@ -47,7 +47,6 @@ export const ROLE_REGULATOR = [
 
   rights.CAN_LIST_CAMPUS_CAR,
   rights.CAN_LIST_CAMPUS_DRIVER,
-  rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
 
   rights.CAN_EDIT_CAR_EVENT,
   rights.CAN_CREATE_CAR_EVENT,
@@ -61,6 +60,7 @@ export const ROLE_REGULATOR = [
 
   rights.CAN_LIST_POI,
 
+  rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
 ];
