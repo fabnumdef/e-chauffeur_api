@@ -1,5 +1,7 @@
 import winston from 'winston';
 import 'winston-mongodb';
+import Transport from 'winston-transport';
+
 import config from './config';
 
 export const createMongoDBTransport = db => new winston.transports.MongoDB({ db, collection: 'logs' });
@@ -38,3 +40,33 @@ export async function loggerMiddleware(ctx, next) {
 }
 
 export default winston;
+
+Transport.prototype.normalizeQuery = (options) => {
+  /* eslint-disable no-param-reassign */
+  options = options || {};
+
+  // limit
+  options.rows = options.rows || options.limit || 10;
+
+  // starting row offset
+  options.start = options.start || 0;
+
+  // now
+  options.until = options.until || new Date();
+  if (typeof options.until !== 'object') {
+    options.until = new Date(options.until);
+  }
+
+  // now - 24
+  options.from = options.from || (options.until - (24 * 60 * 60 * 1000));
+  if (typeof options.from !== 'object') {
+    options.from = new Date(options.from);
+  }
+
+  // 'asc' or 'desc'
+  options.order = options.order || 'desc';
+
+  return options;
+};
+
+Transport.prototype.formatResults = results => results;

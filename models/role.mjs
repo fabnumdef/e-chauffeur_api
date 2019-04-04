@@ -93,4 +93,6 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_REMOVE_CATEGORY,
 
   rights.CAN_REMOVE_POI,
+
+  rights.CAN_LIST_LOG,
 ];
