@@ -50,7 +50,9 @@ export function addListToRouter(Model, {
         `Find query in ${Model.modelName}`,
         { filters: ctx.filters, offset, limit },
       );
-      ctx.setRangePagination(Model, { total, offset, count: data.length });
+      ctx.setRangePagination(Model, {
+        total, offset, count: data.length, limit,
+      });
       ctx.body = data;
     }),
   );
