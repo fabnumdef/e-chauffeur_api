@@ -25,8 +25,8 @@ export const ROLE_DRIVER = [
 
   rights.CAN_LIST_CATEGORY,
 
-  rights.CAN_LIST_RIDE,
   rights.CAN_EDIT_RIDE_STATUS,
+  rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
 ];
 
 export const ROLE_REGULATOR = [
@@ -47,7 +47,6 @@ export const ROLE_REGULATOR = [
 
   rights.CAN_LIST_CAMPUS_CAR,
   rights.CAN_LIST_CAMPUS_DRIVER,
-  rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
 
   rights.CAN_EDIT_CAR_EVENT,
   rights.CAN_CREATE_CAR_EVENT,
@@ -59,8 +58,13 @@ export const ROLE_REGULATOR = [
 
   rights.CAN_SEND_FEEDBACK,
 
+  // @todo: Create a new right, scoped on campus, for the regulator, then give theses rights to SuperAdmin
+  rights.CAN_EDIT_POI,
+  rights.CAN_CREATE_POI,
+  rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
 
+  rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
 ];
@@ -88,8 +92,5 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_GET_CATEGORY,
   rights.CAN_REMOVE_CATEGORY,
 
-  rights.CAN_EDIT_POI,
-  rights.CAN_CREATE_POI,
-  rights.CAN_GET_POI,
   rights.CAN_REMOVE_POI,
 ];

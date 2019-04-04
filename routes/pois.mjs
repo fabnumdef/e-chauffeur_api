@@ -3,6 +3,7 @@ import Poi from '../models/poi';
 import {
   CAN_CREATE_POI, CAN_EDIT_POI, CAN_GET_POI, CAN_LIST_POI, CAN_REMOVE_POI,
 } from '../models/rights';
+import addFilter from '../middlewares/add-filter';
 
 const router = generateCRUD(Poi, {
   create: {

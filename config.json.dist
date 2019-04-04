@@ -22,6 +22,10 @@
       }
     },
     "default_from": "\"name\" <name@localhost>",
-    "feedback_mail": "feedback@mail.com"
+    "feedback_mail": "feedback@mail.com",
+    "contact_mail": "contact@mail.com",
+    "text": " :message",
+    "html": "<p>:message</p>",
+    "subject": "E-chauffeur : :firstname :lastname (:email)"
   }
 }

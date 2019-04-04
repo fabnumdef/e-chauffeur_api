@@ -1,10 +1,15 @@
 import qs from 'qs';
 
 export default async (ctx, next) => {
-  ctx.setRangePagination = (entity, { total, offset, count }) => {
+  ctx.setRangePagination = (entity, {
+    total,
+    offset,
+    count,
+    limit = 30,
+  }) => {
     const name = (entity.getDashedName && entity.getDashedName()) || entity.modelName.toLowerCase();
     ctx.set('Accept-Ranges', name);
-    ctx.set('Content-Range', `${name} ${offset}-${Math.max(offset + count - 1, 0)}/${total}`);
+    ctx.set('Content-Range', `${name} ${offset}-${Math.max(offset + count - 1, 0)}/${total}#${limit}`);
   };
 
   ctx.parseRangePagination = (entity, { max = 30 } = {}) => {

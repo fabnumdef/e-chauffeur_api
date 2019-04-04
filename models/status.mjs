@@ -71,7 +71,7 @@ export default {
         const show = path => get(this, path, '');
         const start = DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT);
         switch (to) {
-          case ACCEPTED:
+          case VALIDATED:
             await this.sendSMS(
               'Bonjour, '
               + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
