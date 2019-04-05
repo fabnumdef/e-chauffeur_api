@@ -33,8 +33,13 @@ export const CAN_REMOVE_CAMPUS = 'canRemoveCampus';
 export const CAN_GET_CAMPUS_STATS = 'canGetCampusStats';
 
 export const CAN_LIST_CAMPUS_CAR = 'canListCampusCar';
-export const CAN_LIST_CAMPUS_DRIVER = 'canListCampusDriver';
 export const CAN_LIST_CAMPUS_DRIVER_RIDE = 'canListCampusDriverRide';
+
+export const CAN_LIST_CAMPUS_DRIVER = 'canListCampusDriver';
+export const CAN_GET_CAMPUS_DRIVER = 'canGetCampusDriver';
+export const CAN_CREATE_CAMPUS_DRIVER = 'canCreateCampusDriver';
+export const CAN_EDIT_CAMPUS_DRIVER = 'canEditCampusDriver';
+export const CAN_REMOVE_CAMPUS_DRIVER = 'canRemoveCampusDriver';
 
 export const CAN_EDIT_CATEGORY = 'canEditCategory';
 export const CAN_CREATE_CATEGORY = 'canCreateCategory';
@@ -111,8 +116,13 @@ export default [
   CAN_GET_CAMPUS_STATS,
 
   CAN_LIST_CAMPUS_CAR,
-  CAN_LIST_CAMPUS_DRIVER,
   CAN_LIST_CAMPUS_DRIVER_RIDE,
+
+  CAN_LIST_CAMPUS_DRIVER,
+  CAN_GET_CAMPUS_DRIVER,
+  CAN_CREATE_CAMPUS_DRIVER,
+  CAN_EDIT_CAMPUS_DRIVER,
+  CAN_REMOVE_CAMPUS_DRIVER,
 
   CAN_EDIT_POI,
   CAN_CREATE_POI,

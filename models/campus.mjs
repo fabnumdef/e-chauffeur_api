@@ -30,26 +30,33 @@ CampusSchema.index({
   name: 'text',
 });
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus, start, end) {
+CampusSchema.statics.findDrivers = async function findDrivers(campus) {
   const User = mongoose.model('User');
-  const UserEvent = mongoose.model('UserEvent');
-  const userIds = (await User.aggregate([
+  const users = (await User.aggregate([
     {
       $unwind: '$roles',
     },
     {
       $match: {
-        // 'roles.rights': 'login', @todo: Add match on role that match with
         'roles.campuses._id': campus,
+        'roles.role': 'ROLE_DRIVER',
       },
     },
-    {
-      $group: {
-        _id: '$_id',
-      },
-    },
-  ])).map(u => u._id);
+  ]));
 
+  return users;
+};
+
+CampusSchema.statics.findDriver = async function findDriver(campus, id) {
+  const driver = (await CampusSchema.statics.findDrivers(campus)).filter(d => d._id.toString() === id);
+  return (!driver.length) ? {} : driver.shift();
+};
+
+CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, start, end) {
+  const UserEvent = mongoose.model('UserEvent');
+  const User = mongoose.model('User');
+
+  const userIds = (await CampusSchema.statics.findDrivers(campus)).map(u => u._id);
   const users = await User.find({
     _id: { $in: userIds },
   });

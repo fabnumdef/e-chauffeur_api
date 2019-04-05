@@ -1,15 +1,14 @@
 import Router from 'koa-router';
-import maskOutput from '../../middlewares/mask-output';
-
 import Campus from '../../models/campus';
+import maskOutput from '../../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 import { checkCampusRights } from '../../middlewares/check-rights';
-import { CAN_LIST_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER_RIDE } from '../../models/rights';
+import { CAN_GET_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER } from '../../models/rights';
 
 const router = new Router();
 
 router.get(
-  '/',
+  '/date-interval',
   checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
   ensureThatFiltersExists('start', 'end'),
@@ -17,19 +16,25 @@ router.get(
     const start = new Date(ctx.query.filters.start);
     const end = new Date(ctx.query.filters.end);
 
-    ctx.body = await Campus.findDrivers(ctx.params.campus_id, start, end);
+    ctx.body = await Campus.findDriversInDateInterval(ctx.params.campus_id, start, end);
   },
 );
 
 router.get(
-  '/:driver_id/rides',
-  checkCampusRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
+  '/',
+  checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
-  ensureThatFiltersExists('status'),
   async (ctx) => {
-    const { filters } = ctx.query;
+    ctx.body = await Campus.findDrivers(ctx.params.campus_id);
+  },
+);
 
-    ctx.body = await Campus.findRidesWithStatus(ctx.params.driver_id, filters.status);
+router.get(
+  '/:id',
+  checkCampusRights(CAN_GET_CAMPUS_DRIVER),
+  maskOutput,
+  async (ctx) => {
+    ctx.body = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
   },
 );
 
