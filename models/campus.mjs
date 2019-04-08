@@ -32,7 +32,7 @@ CampusSchema.index({
 
 CampusSchema.statics.findDrivers = async function findDrivers(campus) {
   const User = mongoose.model('User');
-  const users = (await User.aggregate([
+  const usersIds = (await User.aggregate([
     {
       $unwind: '$roles',
     },
@@ -42,7 +42,16 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus) {
         'roles.role': 'ROLE_DRIVER',
       },
     },
+    {
+      $group: {
+        _id: '$_id',
+      },
+    },
   ]));
+
+  const users = await User.find({
+    _id: { $in: usersIds },
+  });
 
   return users;
 };
@@ -54,12 +63,8 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, start, end) {
   const UserEvent = mongoose.model('UserEvent');
-  const User = mongoose.model('User');
-
-  const userIds = (await CampusSchema.statics.findDrivers(campus)).map(u => u._id);
-  const users = await User.find({
-    _id: { $in: userIds },
-  });
+  const users = await CampusSchema.statics.findDrivers(campus);
+  const userIds = users.map(u => u._id);
 
   const events = await UserEvent.find({
     $or: [

@@ -5,7 +5,11 @@ import maskOutput from '../../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 import { checkCampusRights } from '../../middlewares/check-rights';
 import {
-  CAN_CREATE_CAMPUS_DRIVER, CAN_EDIT_CAMPUS_DRIVER, CAN_GET_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER,
+  CAN_CREATE_CAMPUS_DRIVER,
+  CAN_EDIT_CAMPUS_DRIVER,
+  CAN_GET_CAMPUS_DRIVER,
+  CAN_LIST_CAMPUS_DRIVER,
+  CAN_REMOVE_CAMPUS_DRIVER,
 } from '../../models/rights';
 import User from '../../models/user';
 
@@ -48,11 +52,13 @@ router.post(
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
-    if (!body.password) {
-      delete body.password;
-    }
+
     if (await User.findOne({ email: body.email })) {
       ctx.throw(409, 'User email already existing.');
+    }
+
+    if (!body.password) {
+      delete body.password;
     }
 
     const campus = await Campus.findById(ctx.params.campus_id, 'name').lean();
@@ -78,16 +84,43 @@ router.patch(
   async (ctx) => {
     const { request: { body } } = ctx;
 
+    const driver = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
+    ctx.assert(!isEmpty(driver), 404, 'Driver not found.');
+
     if (!body.password) {
       delete body.password;
     }
 
+    driver.set(body);
+    ctx.body = await driver.save();
+  },
+);
+
+router.del(
+  '/:id',
+  checkCampusRights(CAN_REMOVE_CAMPUS_DRIVER),
+  async (ctx) => {
     const driver = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
     ctx.assert(!isEmpty(driver), 404, 'Driver not found.');
 
-    const user = await User.findById(driver._id);
-    user.set(body);
-    ctx.body = await user.save();
+    driver.roles.forEach(
+      (role, indexRole) => {
+        if (role.role === 'ROLE_DRIVER') {
+          role.campuses.forEach(
+            (campuse, indexCampuse) => {
+              if (campuse._id === ctx.params.campus_id) {
+                driver.roles[indexRole].campuses.splice(indexCampuse, 1);
+              }
+            },
+          );
+        }
+        if (role.campuses.length === 0) {
+          driver.roles.splice(indexRole, 1);
+        }
+      },
+    );
+
+    ctx.body = await driver.save();
   },
 );
 
