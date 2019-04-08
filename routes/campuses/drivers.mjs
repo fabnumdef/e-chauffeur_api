@@ -1,10 +1,11 @@
+import isEmpty from 'lodash.isempty';
 import Router from 'koa-router';
 import Campus from '../../models/campus';
 import maskOutput from '../../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 import { checkCampusRights } from '../../middlewares/check-rights';
 import {
-  CAN_CREATE_CAMPUS_DRIVER, CAN_GET_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER,
+  CAN_CREATE_CAMPUS_DRIVER, CAN_EDIT_CAMPUS_DRIVER, CAN_GET_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER,
 } from '../../models/rights';
 import User from '../../models/user';
 
@@ -67,6 +68,26 @@ router.post(
       });
 
     ctx.body = await User.create(body);
+  },
+);
+
+router.patch(
+  '/:id',
+  checkCampusRights(CAN_EDIT_CAMPUS_DRIVER),
+  maskOutput,
+  async (ctx) => {
+    const { request: { body } } = ctx;
+
+    if (!body.password) {
+      delete body.password;
+    }
+
+    const driver = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
+    ctx.assert(!isEmpty(driver), 404, 'Driver not found.');
+
+    const user = await User.findById(driver._id);
+    user.set(body);
+    ctx.body = await user.save();
   },
 );
 
