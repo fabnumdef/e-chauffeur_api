@@ -33,7 +33,12 @@ router.get(
   checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
   async (ctx) => {
-    ctx.body = await Campus.findDrivers(ctx.params.campus_id);
+    const { offset, limit } = ctx.parseRangePagination(User);
+    const total = await Campus.countDrivers(ctx.params.campus_id);
+    const data = await Campus.findDrivers(ctx.params.campus_id, offset, limit);
+    ctx.setRangePagination(User, { total, offset, count: data.length });
+
+    ctx.body = data;
   },
 );
 

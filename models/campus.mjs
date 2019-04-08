@@ -30,9 +30,8 @@ CampusSchema.index({
   name: 'text',
 });
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus) {
-  const User = mongoose.model('User');
-  const usersIds = (await User.aggregate([
+const filterDriver = function filterDriver(campus) {
+  const filter = [
     {
       $unwind: '$roles',
     },
@@ -42,12 +41,46 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus) {
         'roles.role': 'ROLE_DRIVER',
       },
     },
+  ];
+
+  return filter;
+};
+
+CampusSchema.statics.countDrivers = async function findDrivers(campus) {
+  const User = mongoose.model('User');
+  const filter = filterDriver(campus);
+  filter.push({
+    $group: {
+      _id: '$_id',
+    },
+  });
+
+  const users = await User.aggregate(filter);
+  return users.length;
+};
+
+CampusSchema.statics.findDrivers = async function findDrivers(campus, offset, limit) {
+  const User = mongoose.model('User');
+  const filter = filterDriver(campus);
+  filter.push(
     {
       $group: {
         _id: '$_id',
       },
     },
-  ]));
+  );
+
+  if (offset && limit) {
+    filter.push(
+      {
+        $skip: offset,
+      },
+      {
+        $limit: limit,
+      },
+    );
+  }
+  const usersIds = await User.aggregate(filter);
 
   const users = await User.find({
     _id: { $in: usersIds },
