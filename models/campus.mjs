@@ -30,21 +30,18 @@ CampusSchema.index({
   name: 'text',
 });
 
-const filterDriver = function filterDriver(campus) {
-  const filter = [
-    {
-      $unwind: '$roles',
+const filterDriver = campus => [
+  {
+    $unwind: '$roles',
+  },
+  {
+    $match: {
+      'roles.campuses._id': campus,
+      'roles.role': 'ROLE_DRIVER',
     },
-    {
-      $match: {
-        'roles.campuses._id': campus,
-        'roles.role': 'ROLE_DRIVER',
-      },
-    },
-  ];
+  },
+];
 
-  return filter;
-};
 
 CampusSchema.statics.countDrivers = async function findDrivers(campus) {
   const User = mongoose.model('User');

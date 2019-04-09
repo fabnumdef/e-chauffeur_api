@@ -1,5 +1,7 @@
 # Changelog
 ## Current
+### Features
+* Improved driver management.
 ## Version 1.1.0
 ### Features
 * POIs per base
