@@ -1,5 +1,8 @@
 # Changelog
 ## Current
+### Features
+* Add POIs per base rights (local admin)
+### Fix
 ## Version 1.1.0
 ### Features
 * POIs per base
