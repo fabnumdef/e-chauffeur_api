@@ -2,7 +2,7 @@ import isEmpty from 'lodash.isempty';
 import Router from 'koa-router';
 import Campus from '../../models/campus';
 import maskOutput from '../../middlewares/mask-output';
-import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { hasFilters } from '../../middlewares/query-helper';
 import { checkCampusRights } from '../../middlewares/check-rights';
 import {
   CAN_CREATE_CAMPUS_DRIVER,
@@ -16,28 +16,30 @@ import User from '../../models/user';
 const router = new Router();
 
 router.get(
-  '/date-interval',
-  checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
-  maskOutput,
-  ensureThatFiltersExists('start', 'end'),
-  async (ctx) => {
-    const start = new Date(ctx.query.filters.start);
-    const end = new Date(ctx.query.filters.end);
-
-    ctx.body = await Campus.findDriversInDateInterval(ctx.params.campus_id, start, end);
-  },
-);
-
-router.get(
   '/',
   checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
+  hasFilters('dateInterval', 'start', 'end'),
   async (ctx) => {
+    let data;
     const { offset, limit } = ctx.parseRangePagination(User);
     const total = await Campus.countDrivers(ctx.params.campus_id);
-    const data = await Campus.findDrivers(ctx.params.campus_id, offset, limit);
-    ctx.setRangePagination(User, { total, offset, count: data.length });
 
+    switch (ctx.hasFilters) {
+      case 'dateInterval':
+        {
+          const start = new Date(ctx.query.filters.start);
+          const end = new Date(ctx.query.filters.end);
+          data = await Campus.findDriversInDateInterval(ctx.params.campus_id,
+            { start, end },
+            { offset, limit });
+        }
+        break;
+      default:
+        data = await Campus.findDrivers(ctx.params.campus_id, { offset, limit });
+    }
+
+    ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },
 );

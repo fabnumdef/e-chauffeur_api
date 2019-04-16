@@ -56,7 +56,7 @@ CampusSchema.statics.countDrivers = async function findDrivers(campus) {
   return users.length;
 };
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus, offset, limit) {
+CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
   const User = mongoose.model('User');
   const filter = filterDriver(campus);
   filter.push(
@@ -67,13 +67,13 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus, offset, li
     },
   );
 
-  if (offset && limit) {
+  if (pagination) {
     filter.push(
       {
-        $skip: offset,
+        $skip: pagination.offset,
       },
       {
-        $limit: limit,
+        $limit: pagination.limit,
       },
     );
   }
@@ -91,47 +91,47 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
   return (!driver.length) ? {} : driver.shift();
 };
 
-CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, start, end) {
+CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
   const UserEvent = mongoose.model('UserEvent');
-  const users = await CampusSchema.statics.findDrivers(campus);
+  const users = await CampusSchema.statics.findDrivers(campus, pagination);
   const userIds = users.map(u => u._id);
 
   const events = await UserEvent.find({
     $or: [
       {
         start: {
-          $lte: start,
+          $lte: date.start,
         },
         end: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
       },
       {
         start: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
         end: {
-          $gte: end,
+          $gte: date.end,
         },
       },
       {
         start: {
-          $lte: start,
+          $lte: date.start,
         },
         end: {
-          $gte: end,
+          $gte: date.end,
         },
       },
       {
         start: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
         end: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
       },
     ],
@@ -140,7 +140,7 @@ CampusSchema.statics.findDriversInDateInterval = async function findDriversInDat
 
   return users.map((u) => {
     const e = events.filter(ev => ev.user.id === u.id);
-    const availabilities = u.getAvailabilities(start, end, e);
+    const availabilities = u.getAvailabilities(date.start, date.end, e);
     const user = u.toObject({ virtuals: true });
     user.availabilities = availabilities;
     return user;

@@ -6,3 +6,19 @@ export const ensureThatFiltersExists = (...requiredFilters) => async (ctx, next)
   requiredFilters.forEach(key => ctx.assert(filters[key], 400, `"${key}" filter is required`));
   await next();
 };
+
+export const hasFilters = (groupNameFilters, ...nameFilters) => async (ctx, next) => {
+  if (!ctx.hasFilters
+    && (ctx.query && ctx.query.filters)
+  ) {
+    const queryFilters = Object.keys(ctx.query.filters);
+    const filtersExists = nameFilters.every(
+      filter => queryFilters.includes(filter),
+    );
+
+    if (filtersExists) {
+      ctx.hasFilters = groupNameFilters;
+    }
+  }
+  await next();
+};
