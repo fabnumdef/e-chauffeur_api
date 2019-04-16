@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 
 import Poi from '../models/poi';
-import { anonymousRights, userRights } from '../middlewares/check-rights';
+import { checkRightsOrLocalRights } from '../middlewares/check-rights';
 import {
   CAN_CREATE_POI,
   CAN_CREATE_POI_LOCAL,
@@ -18,24 +18,6 @@ import {
 import addFilter from '../middlewares/add-filter';
 
 const router = new Router();
-
-const checkRightsOrLocalRights = (rights, localRights) => async (ctx, next) => {
-  const { user } = ctx.state;
-  let campus = true;
-  if (ctx.params.campus_id) {
-    campus = ctx.params.campus_id;
-  } else if (ctx.query.filters && ctx.query.filters.campus) {
-    ({ query: { filters: { campus } } } = ctx);
-  }
-  if (user) {
-    if (!userRights(user, rights) && !userRights(user, localRights, campus)) {
-      throw new Error('Current user not authorized to do this');
-    }
-  } else if (!anonymousRights(rights)) {
-    throw new Error('Anonymous user not authorized to do this');
-  }
-  await next();
-};
 
 router.post(
   '/',
