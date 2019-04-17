@@ -58,11 +58,8 @@ export const ROLE_REGULATOR = [
 
   rights.CAN_SEND_FEEDBACK,
 
-  // @todo: Create a new right, scoped on campus, for the regulator, then give theses rights to SuperAdmin
-  rights.CAN_EDIT_POI,
-  rights.CAN_CREATE_POI,
-  rights.CAN_GET_POI,
-  rights.CAN_LIST_POI,
+  rights.CAN_GET_POI_LOCAL,
+  rights.CAN_LIST_POI_LOCAL,
 
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
@@ -71,6 +68,9 @@ export const ROLE_REGULATOR = [
 
 export const ROLE_ADMIN = [
   ...ROLE_REGULATOR,
+
+  rights.CAN_EDIT_POI_LOCAL,
+  rights.CAN_CREATE_POI_LOCAL,
 ];
 
 export const ROLE_SUPERADMIN = [
@@ -91,6 +91,11 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_CREATE_CATEGORY,
   rights.CAN_GET_CATEGORY,
   rights.CAN_REMOVE_CATEGORY,
+
+  rights.CAN_EDIT_POI,
+  rights.CAN_CREATE_POI,
+  rights.CAN_GET_POI,
+  rights.CAN_LIST_POI,
 
   rights.CAN_REMOVE_POI,
 

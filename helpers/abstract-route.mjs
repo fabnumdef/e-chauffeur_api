@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-import checkRights from '../middlewares/check-rights';
+import checkRights, { checkRightsOrLocalRights } from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
 
 export function addCreateToRouter(Model, { url = '/', right, main } = {}) {
@@ -10,7 +10,7 @@ export function addCreateToRouter(Model, { url = '/', right, main } = {}) {
   const autoGenId = !Model.schema.obj._id;
   this.post(
     url,
-    checkRights(right),
+    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
     maskOutput,
     main || (async (ctx) => {
       const { request: { body } } = ctx;
@@ -37,7 +37,7 @@ export function addListToRouter(Model, {
 
   this.get(
     url,
-    checkRights(right),
+    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
     maskOutput,
     ...Object.keys(filters).map(k => addFilter(k, filters[k])),
     ...middlewares,
@@ -61,7 +61,7 @@ export function addListToRouter(Model, {
 export function addGetToRouter(Model, { url = '/:id', right, main } = {}) {
   this.get(
     url,
-    checkRights(right),
+    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
     maskOutput,
     main || (async (ctx) => {
       const { params: { id } } = ctx;
@@ -81,7 +81,7 @@ export function addGetToRouter(Model, { url = '/:id', right, main } = {}) {
 export function addDeleteToRouter(Model, { url = '/:id', right, main } = {}) {
   this.del(
     url,
-    checkRights(right),
+    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
     main || (async (ctx) => {
       const { params: { id } } = ctx;
       await Model.remove({ _id: id });
@@ -97,7 +97,7 @@ export function addDeleteToRouter(Model, { url = '/:id', right, main } = {}) {
 export function addUpdateToRouter(Model, { url = '/:id', right, main } = {}) {
   this.patch(
     url,
-    checkRights(right),
+    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
     maskOutput,
     main || (async (ctx) => {
       const { request: { body } } = ctx;
