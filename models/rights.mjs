@@ -59,6 +59,12 @@ export const CAN_LIST_POI = 'canListPoi';
 export const CAN_GET_POI = 'canGetPoi';
 export const CAN_REMOVE_POI = 'canRemovePoi';
 
+export const CAN_EDIT_POI_LOCAL = 'canEditPoiLocal';
+export const CAN_CREATE_POI_LOCAL = 'canCreatePoiLocal';
+export const CAN_LIST_POI_LOCAL = 'canListPoiLocal';
+export const CAN_GET_POI_LOCAL = 'canGetPoiLocal';
+export const CAN_REMOVE_POI_LOCAL = 'canRemovePoiLocal';
+
 export const CAN_EDIT_RIDE = 'canEditRide';
 export const CAN_EDIT_RIDE_STATUS = 'canEditRideStatus';
 export const CAN_CREATE_RIDE = 'canCreateRide';
@@ -129,6 +135,12 @@ export default [
   CAN_LIST_POI,
   CAN_GET_POI,
   CAN_REMOVE_POI,
+
+  CAN_EDIT_POI_LOCAL,
+  CAN_CREATE_POI_LOCAL,
+  CAN_LIST_POI_LOCAL,
+  CAN_GET_POI_LOCAL,
+  CAN_REMOVE_POI_LOCAL,
 
   CAN_EDIT_RIDE,
   CAN_CREATE_RIDE,
