@@ -2,9 +2,18 @@ import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
 
 import Poi from '../models/poi';
-import checkRights from '../middlewares/check-rights';
+import { checkRightsOrLocalRights } from '../middlewares/check-rights';
 import {
-  CAN_CREATE_POI, CAN_EDIT_POI, CAN_GET_POI, CAN_LIST_POI, CAN_REMOVE_POI,
+  CAN_CREATE_POI,
+  CAN_CREATE_POI_LOCAL,
+  CAN_EDIT_POI,
+  CAN_EDIT_POI_LOCAL,
+  CAN_GET_POI,
+  CAN_GET_POI_LOCAL,
+  CAN_LIST_POI,
+  CAN_LIST_POI_LOCAL,
+  CAN_REMOVE_POI,
+  CAN_REMOVE_POI_LOCAL,
 } from '../models/rights';
 import addFilter from '../middlewares/add-filter';
 
@@ -12,7 +21,7 @@ const router = new Router();
 
 router.post(
   '/',
-  checkRights(CAN_CREATE_POI),
+  checkRightsOrLocalRights([CAN_CREATE_POI], [CAN_CREATE_POI_LOCAL]),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -27,7 +36,7 @@ router.post(
 
 router.get(
   '/',
-  checkRights(CAN_LIST_POI),
+  checkRightsOrLocalRights([CAN_LIST_POI], [CAN_LIST_POI_LOCAL]),
   maskOutput,
   addFilter('campus', 'campus._id'),
   async (ctx) => {
@@ -58,7 +67,7 @@ router.get(
 
 router.get(
   '/:id',
-  checkRights(CAN_GET_POI),
+  checkRightsOrLocalRights([CAN_GET_POI], [CAN_GET_POI_LOCAL]),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -68,7 +77,7 @@ router.get(
 
 router.patch(
   '/:id',
-  checkRights(CAN_EDIT_POI),
+  checkRightsOrLocalRights([CAN_EDIT_POI], [CAN_EDIT_POI_LOCAL]),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -83,7 +92,7 @@ router.patch(
 
 router.del(
   '/:id',
-  checkRights(CAN_REMOVE_POI),
+  checkRightsOrLocalRights([CAN_REMOVE_POI], [CAN_REMOVE_POI_LOCAL]),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Poi.remove({ _id: id });
