@@ -57,7 +57,7 @@ describe('Test the car models API endpoint', () => {
     try {
       await CarModel.create(dummyCarModel);
       const response = await request()
-        .get('/car-models/?mask=*')
+        .get('/car-models/?mask=id,label')
         .set(...generateRegulatorJWTHeader());
       expect(response.statusCode).to.equal(200);
       const found = response.body.find(({ id }) => id === dummyCarModel._id);
@@ -72,7 +72,7 @@ describe('Test the car models API endpoint', () => {
     try {
       const carModel = await CarModel.create(dummyCarModel);
       const response = await request()
-        .get(`/car-models/${encodeURIComponent(carModel.id)}?mask=*`)
+        .get(`/car-models/${encodeURIComponent(carModel.id)}?mask=id,label`)
         .set(...generateRegulatorJWTHeader());
       expect(response.statusCode).to.equal(200);
 
