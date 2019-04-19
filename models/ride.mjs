@@ -5,6 +5,7 @@ import gliphone from 'google-libphonenumber';
 import stateMachine, { CREATED, VALIDATED, VALIDATE } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
+import createdAtPlugin from './helpers/created-at';
 
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
@@ -77,6 +78,7 @@ const RideSchema = new Schema({
   luggage: Boolean,
 });
 
+RideSchema.plugin(createdAtPlugin);
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {

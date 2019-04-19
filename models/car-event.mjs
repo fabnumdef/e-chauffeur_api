@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import createdAtPlugin from './helpers/created-at';
 
 const { Schema } = mongoose;
 
@@ -14,6 +15,8 @@ const CarEventSchema = new Schema({
     },
   },
 });
+
+CarEventSchema.plugin(createdAtPlugin);
 
 CarEventSchema.pre('validate', async function beforeSave() {
   const Car = mongoose.model('Car');
