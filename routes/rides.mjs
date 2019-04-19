@@ -1,13 +1,10 @@
-import Router from 'koa-router';
 import camelCase from 'lodash.camelcase';
 import { CANCELED_STATUSES, DELIVERED } from '../models/status';
-
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
 import checkRights from '../middlewares/check-rights';
-
+import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
-import addFilter from '../middlewares/add-filter';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
@@ -18,8 +15,6 @@ import {
   CAN_LIST_RIDE,
 } from '../models/rights';
 
-const router = new Router();
-
 function ioEmit(ctx, data, eventName = '', rooms = []) {
   let { app: { io } } = ctx;
   rooms.forEach((room) => {
@@ -28,90 +23,95 @@ function ioEmit(ctx, data, eventName = '', rooms = []) {
   io.emit(eventName, data);
 }
 
-router.post(
-  '/',
-  checkRights(CAN_CREATE_RIDE),
-  maskOutput,
-  async (ctx) => {
-    const { request: { body } } = ctx;
-    const ride = await Ride.create(body);
-    ctx.body = ride;
-    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
-      `ride/${ride.id}`,
-      `campus/${ride.campus.id}`,
-      `driver/${ride.driver.id}`,
-    ]);
+const router = generateCRUD(Ride, {
+  create: {
+    right: CAN_CREATE_RIDE,
+    async main(ctx) {
+      const { request: { body } } = ctx;
+      const ride = await Ride.create(body);
+      ctx.body = ride;
+      ctx.log(ctx.log.INFO, `${Ride.modelName} "${ride.id}" has been created`);
+      ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
+        `ride/${ride.id}`,
+        `campus/${ride.campus.id}`,
+        `driver/${ride.driver.id}`,
+      ]);
+    },
   },
-);
+  update: {
+    right: CAN_EDIT_RIDE,
+    async main(ctx) {
+      const { request: { body } } = ctx;
 
-router.patch(
-  '/:id',
-  checkRights(CAN_EDIT_RIDE),
-  maskOutput,
-  async (ctx) => {
-    const { request: { body } } = ctx;
+      const { params: { id } } = ctx;
+      const ride = await Ride.findById(id);
+      const previousDriverId = ride.driver.id.toString();
 
-    const { params: { id } } = ctx;
-    const ride = await Ride.findById(id);
-    const previousDriverId = ride.driver.id.toString();
-
-    ride.set(body);
-    await ride.save();
-    ctx.body = ride;
-    const rooms = [
-      `ride/${ride.id}`,
-      `campus/${ride.campus.id}`,
-      `driver/${ride.driver.id}`,
-    ];
-    if (body.driver.id !== previousDriverId) {
-      rooms.push(`driver/${previousDriverId}`);
-    }
-    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
+      ride.set(body);
+      await ride.save();
+      ctx.body = ride;
+      ctx.log(
+        ctx.log.INFO,
+        `${Ride.modelName} "${id}" has been modified`,
+        { body },
+      );
+      const rooms = [
+        `ride/${ride.id}`,
+        `campus/${ride.campus.id}`,
+        `driver/${ride.driver.id}`,
+      ];
+      if (body.driver.id !== previousDriverId) {
+        rooms.push(`driver/${previousDriverId}`);
+      }
+      ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
+    },
   },
-);
+  get: {
+    right: CAN_GET_RIDE,
+    async main(ctx) {
+      const { params: { id }, query: { token } } = ctx;
+      const ride = await Ride.findById(Ride.castId(id));
 
-router.get(
-  '/',
-  checkRights(CAN_LIST_RIDE),
-  contentNegociation,
-  maskOutput,
-  ensureThatFiltersExists('start', 'end'),
-  addFilter('campus', 'campus._id'),
-  async (ctx) => {
-    const { offset, limit } = ctx.parseRangePagination(Ride);
-    const start = new Date(ctx.query.filters.start);
-    const end = new Date(ctx.query.filters.end);
-
-    const total = await Ride.countDocumentsWithin(start, end, ctx.filters);
-    const data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
-    ctx.setRangePagination(Ride, { total, offset, count: data.length });
-
-    ctx.body = data;
+      if (!ride.isAccessibleByAnonymous(token)) {
+        ctx.throw_and_log(401, `User not authorized to fetch the ride "${id}"`);
+      }
+      if (!ride) {
+        ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
+      }
+      ctx.body = ride;
+      ctx.log(
+        ctx.log.INFO,
+        `Find ${Ride.modelName} with "${id}"`,
+      );
+    },
   },
-);
+  list: {
+    right: CAN_LIST_RIDE,
+    filters: {
+      campus: 'campus._id',
+    },
+    middlewares: [
+      contentNegociation,
+      ensureThatFiltersExists('start', 'end'),
+    ],
+    async main(ctx) {
+      const { offset, limit } = ctx.parseRangePagination(Ride);
+      const start = new Date(ctx.query.filters.start);
+      const end = new Date(ctx.query.filters.end);
 
-/**
- * Rights :
- * - Il the user is not logged in, but token provided as a filter is the right one
- */
-router.get(
-  '/:id',
-  checkRights(CAN_GET_RIDE),
-  maskOutput,
-  async (ctx) => {
-    const { params: { id }, query: { token } } = ctx;
-    const ride = await Ride.findById(Ride.castId(id));
+      const total = await Ride.countDocumentsWithin(start, end, ctx.filters);
+      const data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
+      ctx.setRangePagination(Ride, { total, offset, count: data.length });
 
-    if (!ride.isAccessibleByAnonymous(token)) {
-      ctx.throw(401, 'User not authorized to fetch this ride');
-    }
-    if (!ride) {
-      ctx.status = 404;
-      return;
-    }
-    ctx.body = ride;
+      ctx.body = data;
+      ctx.log(
+        ctx.log.INFO,
+        `Find query in ${Ride.modelName}`,
+        { filters: ctx.filters, offset, limit },
+      );
+    },
   },
-);
+});
 
 /**
  * Rights :
@@ -126,16 +126,16 @@ router.get(
     const ride = await Ride.findById(Ride.castId(id));
 
     if (!ride.isAccessibleByAnonymous(token)) {
-      ctx.throw(401, 'User not authorized to fetch this ride');
+      ctx.throw_and_log(401, `User not authorized to fetch the ride "${id}"`);
     }
 
     if (!ride) {
-      ctx.status = 404;
+      ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
       return;
     }
 
     if (ride.status === DELIVERED || CANCELED_STATUSES.indexOf(ride.status) !== -1) {
-      ctx.throw(417, 'Ride cancelled or delivred');
+      ctx.throw_and_log(417, `${Ride.modelName} "${id}" already delivered or cancelled`);
     }
 
     const position = await ride.findDriverPosition(new Date());
@@ -145,6 +145,10 @@ router.get(
     }
 
     ctx.body = position;
+    ctx.log(
+      ctx.log.INFO,
+      `Find position of ${Ride.modelName} with "${id}"`,
+    );
   },
 );
 
@@ -158,14 +162,19 @@ router.post(
     const { params: { id, action } } = ctx;
     const ride = await Ride.findById(id);
     if (!ride) {
-      ctx.throw(404, 'Ride not found');
+      ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
     }
     if (!ride.can(action)) {
-      ctx.throw(400, `State violation : ride cannot switch to "${action}"`);
+      ctx.throw_and_log(400, `State violation : ride cannot switch to "${action}"`);
     }
 
     ride[camelCase(action)]();
     ctx.body = await ride.save();
+    ctx.log(
+      ctx.log.INFO,
+      `${Ride.modelName} "${id}" has been modified`,
+      { ride },
+    );
     ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
       `ride/${ride.id}`,
       `campus/${ride.campus.id}`,
