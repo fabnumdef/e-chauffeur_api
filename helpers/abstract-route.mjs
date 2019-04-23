@@ -43,13 +43,19 @@ export function addListToRouter(Model, {
     ...middlewares,
     main || (async (ctx) => {
       const { offset, limit } = ctx.parseRangePagination(Model);
-      const total = await Model.countDocuments(ctx.filters);
-      const data = await Model.find(ctx.filters).skip(offset).limit(limit).lean();
+      const [total, data] = await Promise.all([
+        Model.countDocuments(ctx.filters),
+        Model.find(ctx.filters).skip(offset).limit(limit).lean(),
+      ]);
+
       ctx.log(
         ctx.log.INFO,
         `Find query in ${Model.modelName}`,
-        { filters: ctx.filters, offset, limit },
+        {
+          filters: ctx.filters, offset, limit, total,
+        },
       );
+
       ctx.setRangePagination(Model, {
         total, offset, count: data.length, limit,
       });
@@ -100,9 +106,8 @@ export function addUpdateToRouter(Model, { url = '/:id', right, main } = {}) {
     Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
     maskOutput,
     main || (async (ctx) => {
-      const { request: { body } } = ctx;
+      const { request: { body }, params: { id } } = ctx;
 
-      const { params: { id } } = ctx;
       const model = await Model.findById(id);
 
       model.set(body);
