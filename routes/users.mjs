@@ -19,7 +19,7 @@ const router = generateCRUD(User, {
       }
 
       if (await User.findOne({ email: body.email })) {
-        ctx.throw(409, 'User email already existing.');
+        ctx.throw_and_log(409, `User email ${body.email} already existing.`);
       }
 
       ctx.body = await User.create(body);

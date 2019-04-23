@@ -39,7 +39,7 @@ router.post(
       await sendMail(config.get('mail:contact_mail'), mailOptions);
       ctx.status = 204;
     } catch (e) {
-      ctx.throw(500, `Not available to send a mail (Err : ${e.message}).`);
+      ctx.throw_and_log(500, `Not available to send a mail (Err : ${e.message}).`);
     }
   },
 );
