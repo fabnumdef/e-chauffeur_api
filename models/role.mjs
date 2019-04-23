@@ -98,4 +98,6 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_LIST_POI,
 
   rights.CAN_REMOVE_POI,
+
+  rights.CAN_LIST_LOG,
 ];

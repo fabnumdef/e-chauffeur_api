@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import Luxon from 'luxon';
 import OpeningHours from 'opening_hours';
 import config from '../services/config';
+import createdAtPlugin from './helpers/created-at';
 
 const SALT_WORK_FACTOR = 10;
 const { Schema } = mongoose;
@@ -40,6 +41,8 @@ const UserSchema = new Schema({
     },
   },
 });
+
+UserSchema.plugin(createdAtPlugin);
 
 UserSchema.pre('save', function preSave(next) {
   if (!this.isModified('password') || !this.password) {

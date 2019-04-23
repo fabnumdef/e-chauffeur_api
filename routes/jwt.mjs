@@ -11,11 +11,11 @@ router.post('/generate', maskOutput, async (ctx) => {
   const user = await User.findOne({ email: body.email });
 
   if (!user) {
-    ctx.throw(404, 'User not found.');
+    ctx.throw_and_log(404, `User "${body.email}" not found.`);
   }
 
   if (!(await user.comparePassword(body.password))) {
-    ctx.throw(403, 'Username and password do not match.');
+    ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
   }
 
   ctx.body = { token: user.emitJWT() };
@@ -28,7 +28,7 @@ router.post(
   async (ctx) => {
     const user = await User.findById(ctx.state.user.id);
     if (!user) {
-      ctx.throw(404, 'User not found.');
+      ctx.throw_and_log(404, `User "${ctx.state.user.id}" not found.`);
     }
     ctx.body = { token: user.emitJWT() };
   },
@@ -41,7 +41,7 @@ router.get(
   async (ctx) => {
     const user = await User.findById(ctx.state.user.id).lean();
     if (!user) {
-      ctx.throw(404, 'User not found.');
+      ctx.throw_and_log(404, `User "${ctx.state.user.id}" not found.`);
     }
     ctx.body = User.cleanObject(user);
   },
