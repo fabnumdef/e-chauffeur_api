@@ -11,6 +11,7 @@ import jwt from './jwt';
 import campus from './campuses';
 import feedback from './feedback';
 import forms from './forms';
+import phones from './phones';
 
 const router = new Router();
 
@@ -26,5 +27,6 @@ router.use('/jwt', jwt);
 router.use('/campuses', campus);
 router.use('/feedback', feedback);
 router.use('/forms', forms);
+router.use('/phones', phones);
 
 export default router.routes();
