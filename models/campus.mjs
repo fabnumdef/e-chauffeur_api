@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import createdAtPlugin from './helpers/created-at';
 
 const { Schema } = mongoose;
 
@@ -24,6 +25,8 @@ const CampusSchema = new Schema({
   },
   information: String,
 });
+
+CampusSchema.plugin(createdAtPlugin);
 
 CampusSchema.index({
   _id: 'text',

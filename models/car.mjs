@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Luxon from 'luxon';
+import createdAtPlugin from './helpers/created-at';
 
 const { Interval } = Luxon;
 const { Schema } = mongoose;
@@ -16,6 +17,8 @@ const CarSchema = new Schema({
     name: String,
   },
 });
+
+CarSchema.plugin(createdAtPlugin);
 
 CarSchema.virtual('campus.id')
   .get(function get() {

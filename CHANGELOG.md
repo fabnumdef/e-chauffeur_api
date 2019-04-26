@@ -3,6 +3,9 @@
 ### Features
 * Improved driver management.
 * Add POIs per base rights (local admin)
+* Add logging capabilities
+* Add createdAt mongoose plugin
+* Add genericCRUD helper
 ### Fix
 ## Version 1.1.0
 ### Features
