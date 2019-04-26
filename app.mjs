@@ -6,15 +6,17 @@ import cors from '@koa/cors';
 import rangePaginationMiddleware from './middlewares/range-pagination';
 import routes from './routes';
 import config from './services/config';
+import { loggerMiddleware } from './services/logger';
 
 const app = new Koa();
+app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
+app.use(loggerMiddleware);
 qsParser(app);
 app.use(rangePaginationMiddleware);
 app.use(cors({
   exposeHeaders: ['Content-Range', 'Accept-Ranges'],
 })); // @todo: fine tune, for security
 app.use(bodyParser());
-app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
 app
   .use(routes);
 

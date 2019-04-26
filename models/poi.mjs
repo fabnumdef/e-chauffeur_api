@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import createdAtPlugin from './helpers/created-at';
 
 const { Schema } = mongoose;
 
@@ -19,6 +20,8 @@ const PoiSchema = new Schema({
     name: String,
   },
 });
+
+PoiSchema.plugin(createdAtPlugin);
 
 PoiSchema.virtual('campus.id')
   .get(function get() {

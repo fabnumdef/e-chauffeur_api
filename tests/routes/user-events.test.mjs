@@ -15,25 +15,16 @@ describe('Test the user events API endpoint', () => {
 
     const dummyUserEvent = generateDummyUserEvent({ user });
     try {
-      {
-        const response = await request()
-          .post('/user-events')
-          .set(...generateRegulatorJWTHeader())
-          .send(cleanObject(dummyUserEvent));
-        expect(response.statusCode).to.equal(200);
+      const response = await request()
+        .post('/user-events')
+        .set(...generateRegulatorJWTHeader())
+        .send(cleanObject(dummyUserEvent));
+      expect(response.statusCode).to.equal(200);
 
-        const userEvent = await UserEvent
-          .find(dummyUserEvent)
-          .lean();
-        expect(userEvent).to.not.be.null;
-      }
-      {
-        const { statusCode } = await request()
-          .post('/user-events')
-          .set(...generateRegulatorJWTHeader())
-          .send(cleanObject(dummyUserEvent));
-        expect(statusCode).to.equal(409);
-      }
+      const userEvent = await UserEvent
+        .find(dummyUserEvent)
+        .lean();
+      expect(userEvent).to.not.be.null;
     } finally {
       await Promise.all(toDropLater.map(entity => entity.remove()));
       await UserEvent.deleteOne({ _id: dummyUserEvent._id });

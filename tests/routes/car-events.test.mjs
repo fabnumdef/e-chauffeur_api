@@ -23,25 +23,16 @@ describe('Test the car events API endpoint', () => {
 
     const dummyCarEvent = generateDummyCarEvent({ car });
     try {
-      {
-        const response = await request()
-          .post('/car-events')
-          .set(...generateRegulatorJWTHeader())
-          .send(cleanObject(dummyCarEvent));
-        expect(response.statusCode).to.equal(200);
+      const response = await request()
+        .post('/car-events')
+        .set(...generateRegulatorJWTHeader())
+        .send(cleanObject(dummyCarEvent));
+      expect(response.statusCode).to.equal(200);
 
-        const carEvent = await CarEvent
-          .find(dummyCarEvent)
-          .lean();
-        expect(carEvent).to.not.be.null;
-      }
-      {
-        const { statusCode } = await request()
-          .post('/car-events')
-          .set(...generateRegulatorJWTHeader())
-          .send(cleanObject(dummyCarEvent));
-        expect(statusCode).to.equal(409);
-      }
+      const carEvent = await CarEvent
+        .find(dummyCarEvent)
+        .lean();
+      expect(carEvent).to.not.be.null;
     } finally {
       await Promise.all(toDropLater.map(entity => entity.remove()));
       await CarEvent.deleteOne({ _id: dummyCarEvent._id });

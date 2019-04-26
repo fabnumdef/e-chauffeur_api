@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Luxon from 'luxon';
+import createdAtPlugin from './helpers/created-at';
 
 const { Schema } = mongoose;
 // @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
@@ -14,6 +15,8 @@ const UserEventSchema = new Schema({
     name: String,
   },
 });
+
+UserEventSchema.plugin(createdAtPlugin);
 
 UserEventSchema.pre('validate', async function beforeSave() {
   const User = mongoose.model('User');
