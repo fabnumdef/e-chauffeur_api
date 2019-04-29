@@ -7,10 +7,11 @@ import {
   CAN_CREATE_CAMPUS_DRIVER,
   CAN_EDIT_CAMPUS_DRIVER,
   CAN_GET_CAMPUS_DRIVER,
-  CAN_LIST_CAMPUS_DRIVER,
+  CAN_LIST_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER_RIDE,
   CAN_REMOVE_CAMPUS_DRIVER,
 } from '../../models/rights';
 import User from '../../models/user';
+import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 
 const router = new Router();
 
@@ -45,6 +46,18 @@ router.get(
   maskOutput,
   async (ctx) => {
     ctx.body = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
+  },
+);
+
+router.get(
+  '/:driver_id/rides',
+  checkCampusRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
+  maskOutput,
+  ensureThatFiltersExists('status'),
+  async (ctx) => {
+    const { filters } = ctx.query;
+
+    ctx.body = await Campus.findRidesWithStatus(ctx.params.driver_id, filters.status);
   },
 );
 
