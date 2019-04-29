@@ -33,66 +33,108 @@ CampusSchema.index({
   name: 'text',
 });
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus, start, end) {
+const filterDriver = campus => [
+  {
+    $unwind: '$roles',
+  },
+  {
+    $match: {
+      'roles.campuses._id': campus,
+      'roles.role': 'ROLE_DRIVER',
+    },
+  },
+];
+
+
+CampusSchema.statics.countDrivers = async function findDrivers(campus) {
   const User = mongoose.model('User');
-  const UserEvent = mongoose.model('UserEvent');
-  const userIds = (await User.aggregate([
-    {
-      $unwind: '$roles',
+  const filter = filterDriver(campus);
+  filter.push({
+    $group: {
+      _id: '$_id',
     },
-    {
-      $match: {
-        // 'roles.rights': 'login', @todo: Add match on role that match with
-        'roles.campuses._id': campus,
-      },
-    },
+  });
+
+  const users = await User.aggregate(filter);
+  return users.length;
+};
+
+CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
+  const User = mongoose.model('User');
+  const filter = filterDriver(campus);
+  filter.push(
     {
       $group: {
         _id: '$_id',
       },
     },
-  ])).map(u => u._id);
+  );
+
+  if (pagination) {
+    filter.push(
+      {
+        $skip: pagination.offset,
+      },
+      {
+        $limit: pagination.limit,
+      },
+    );
+  }
+  const usersIds = await User.aggregate(filter);
 
   const users = await User.find({
-    _id: { $in: userIds },
+    _id: { $in: usersIds },
   });
+
+  return users;
+};
+
+CampusSchema.statics.findDriver = async function findDriver(campus, id) {
+  const driver = (await CampusSchema.statics.findDrivers(campus)).filter(d => d._id.toString() === id);
+  return (!driver.length) ? {} : driver.shift();
+};
+
+CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
+  const UserEvent = mongoose.model('UserEvent');
+  const users = await CampusSchema.statics.findDrivers(campus, pagination);
+  const userIds = users.map(u => u._id);
 
   const events = await UserEvent.find({
     $or: [
       {
         start: {
-          $lte: start,
+          $lte: date.start,
         },
         end: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
       },
       {
         start: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
         end: {
-          $gte: end,
+          $gte: date.end,
         },
       },
       {
         start: {
-          $lte: start,
+          $lte: date.start,
         },
         end: {
-          $gte: end,
+          $gte: date.end,
         },
       },
       {
         start: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
         end: {
-          $gte: start,
-          $lte: end,
+          $gte: date.start,
+          $lte: date.end,
         },
       },
     ],
@@ -101,7 +143,7 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus, start, end
 
   return users.map((u) => {
     const e = events.filter(ev => ev.user.id === u.id);
-    const availabilities = u.getAvailabilities(start, end, e);
+    const availabilities = u.getAvailabilities(date.start, date.end, e);
     const user = u.toObject({ virtuals: true });
     user.availabilities = availabilities;
     return user;

@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Improved driver management.
 * Add POIs per base rights (local admin)
 * Add logging capabilities
 * Add createdAt mongoose plugin
