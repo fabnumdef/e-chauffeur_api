@@ -1,4 +1,4 @@
-FROM node:11-stretch-slim
+FROM node:12-stretch-slim
 
 # Create app directory
 RUN mkdir -p /usr/src/app
