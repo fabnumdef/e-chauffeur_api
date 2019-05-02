@@ -11,6 +11,10 @@ const PhoneSchema = new Schema({
     _id: Schema.ObjectId,
     email: String,
     name: String,
+    campus: {
+      _id: String,
+      name: String,
+    },
   },
   state: {
     type: String,
