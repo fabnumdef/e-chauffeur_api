@@ -7,10 +7,11 @@ import {
   CAN_CREATE_CAMPUS_DRIVER,
   CAN_EDIT_CAMPUS_DRIVER,
   CAN_GET_CAMPUS_DRIVER,
-  CAN_LIST_CAMPUS_DRIVER,
+  CAN_LIST_CAMPUS_DRIVER, CAN_LIST_CAMPUS_DRIVER_RIDE,
   CAN_REMOVE_CAMPUS_DRIVER,
 } from '../../models/rights';
 import User from '../../models/user';
+import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 
 const router = new Router();
 
@@ -48,6 +49,18 @@ router.get(
   },
 );
 
+router.get(
+  '/:driver_id/rides',
+  checkCampusRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
+  maskOutput,
+  ensureThatFiltersExists('status'),
+  async (ctx) => {
+    const { filters } = ctx.query;
+
+    ctx.body = await Campus.findRidesWithStatus(ctx.params.driver_id, filters.status);
+  },
+);
+
 router.post(
   '/',
   checkCampusRights(CAN_CREATE_CAMPUS_DRIVER),
@@ -55,15 +68,31 @@ router.post(
   async (ctx) => {
     const { request: { body } } = ctx;
 
-    if (await User.findOne({ email: body.email })) {
-      ctx.throw(409, 'User email already existing.');
+    const campus = await Campus.findById(ctx.params.campus_id, 'name').lean();
+    const user = await User.findOne({ email: body.email });
+
+    if (user) {
+      if (!Array.isArray(user.roles)) {
+        user.roles = [];
+      }
+      const roleIndex = user.roles.findIndex(({ role }) => role === 'ROLE_DRIVER');
+      if (roleIndex < 0) {
+        user.roles.push({
+          role: 'ROLE_DRIVER',
+          campuses: [campus],
+        });
+      } else {
+        user.roles[roleIndex].campuses.push(campus);
+      }
+
+      ctx.body = await user.save();
+      return;
     }
 
     if (!body.password) {
       delete body.password;
     }
 
-    const campus = await Campus.findById(ctx.params.campus_id, 'name').lean();
     Object.assign(body,
       {
         roles:
@@ -104,24 +133,17 @@ router.del(
   async (ctx) => {
     const driver = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
     ctx.assert(!isEmpty(driver), 404, 'Driver not found.');
-
-    driver.roles.forEach(
-      (role, indexRole) => {
-        if (role.role === 'ROLE_DRIVER') {
-          role.campuses.forEach(
-            (campuse, indexCampuse) => {
-              if (campuse._id === ctx.params.campus_id) {
-                driver.roles[indexRole].campuses.splice(indexCampuse, 1);
-              }
-            },
-          );
+    driver.roles = driver.roles
+      .map(({ role, campuses = [] }) => {
+        if (role !== 'ROLE_DRIVER') {
+          return { role, campuses };
         }
-        if (role.campuses.length === 0) {
-          driver.roles.splice(indexRole, 1);
-        }
-      },
-    );
-
+        return {
+          role,
+          campuses: campuses.filter(({ _id: id }) => (id !== ctx.params.campus_id)),
+        };
+      })
+      .filter(({ role, campuses }) => (role !== 'ROLE_DRIVER' || campuses.length > 0));
     ctx.body = await driver.save();
   },
 );
