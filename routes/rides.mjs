@@ -1,4 +1,5 @@
 import camelCase from 'lodash.camelcase';
+import lGet from 'lodash.get';
 import { CANCELED_STATUSES, DELIVERED } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
@@ -92,16 +93,50 @@ const router = generateCRUD(Ride, {
     },
     middlewares: [
       contentNegociation,
+      maskOutput,
+      async (ctx, next) => {
+        await next();
+        if (lGet(ctx, 'query.csv.flatten', '').toLowerCase() === 'true') {
+          ctx.body = ctx.body.map(ride => ({
+            ...ride,
+            departure: {
+              ...ride.departure,
+              location: {
+                longitude: lGet(ride, 'departure.location.coordinates.0', null),
+                latitude: lGet(ride, 'departure.location.coordinates.1', null),
+              },
+            },
+            arrival: {
+              ...ride.arrival,
+              location: {
+                longitude: lGet(ride, 'arrival.location.coordinates.0', null),
+                latitude: lGet(ride, 'arrival.location.coordinates.1', null),
+              },
+            },
+            status: {
+              latest: ride.status,
+              ...ride
+                .statusChanges
+                .sort((a, b) => a.time.getTime() - b.time.getTime())
+                .map(({ time, status }) => ({ [status]: time }))
+                .reduce((row, acc) => Object.assign(acc, row)),
+            },
+          }));
+        }
+      },
       ensureThatFiltersExists('start', 'end'),
     ],
     async main(ctx) {
-      const { offset, limit } = ctx.parseRangePagination(Ride);
+      // @todo: Add right on max
+      const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
       const start = new Date(ctx.query.filters.start);
       const end = new Date(ctx.query.filters.end);
 
       const total = await Ride.countDocumentsWithin(start, end, ctx.filters);
       const data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
-      ctx.setRangePagination(Ride, { total, offset, count: data.length });
+      ctx.setRangePagination(Ride, {
+        total, offset, count: data.length, limit,
+      });
 
       ctx.body = data;
       ctx.log(
