@@ -41,6 +41,12 @@ export const CAN_CREATE_CAMPUS_DRIVER = 'canCreateCampusDriver';
 export const CAN_EDIT_CAMPUS_DRIVER = 'canEditCampusDriver';
 export const CAN_REMOVE_CAMPUS_DRIVER = 'canRemoveCampusDriver';
 
+export const CAN_LIST_PHONE = 'canListPhone';
+export const CAN_GET_PHONE = 'canGetPhone';
+export const CAN_CREATE_PHONE = 'canCreatePhone';
+export const CAN_EDIT_PHONE = 'canEditPhone';
+export const CAN_REMOVE_PHONE = 'canRemovePhone';
+
 export const CAN_EDIT_CATEGORY = 'canEditCategory';
 export const CAN_CREATE_CATEGORY = 'canCreateCategory';
 export const CAN_LIST_CATEGORY = 'canListCategory';

@@ -1,12 +1,22 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
+import checkRights from '../middlewares/check-rights';
 
 import Phone from '../models/phone';
+
+import {
+  CAN_CREATE_PHONE,
+  CAN_EDIT_PHONE,
+  CAN_GET_PHONE,
+  CAN_LIST_PHONE,
+  CAN_REMOVE_PHONE,
+} from '../models/rights';
 
 const router = new Router();
 
 router.get(
   '/',
+  checkRights(CAN_LIST_PHONE),
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(Phone);
@@ -20,6 +30,7 @@ router.get(
 
 router.get(
   '/:id',
+  checkRights(CAN_GET_PHONE),
   maskOutput,
   async (ctx) => {
     const { params: { id } } = ctx;
@@ -29,6 +40,7 @@ router.get(
 
 router.post(
   '/',
+  checkRights(CAN_CREATE_PHONE),
   maskOutput,
   async (ctx) => {
     const { params: { id }, request: { body } } = ctx;
@@ -44,6 +56,7 @@ router.post(
 
 router.patch(
   '/:id',
+  checkRights(CAN_EDIT_PHONE),
   maskOutput,
   async (ctx) => {
     const { params: { id }, request: { body } } = ctx;
@@ -63,6 +76,7 @@ router.patch(
 
 router.del(
   '/:id',
+  checkRights(CAN_REMOVE_PHONE),
   async (ctx) => {
     const { params: { id } } = ctx;
     await Phone.remove({ _id: id });
