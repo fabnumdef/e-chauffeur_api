@@ -119,7 +119,7 @@ const router = generateCRUD(Ride, {
                 .statusChanges
                 .sort((a, b) => a.time.getTime() - b.time.getTime())
                 .map(({ time, status }) => ({ [status]: time }))
-                .reduce((row, acc) => Object.assign(acc, row)),
+                .reduce((row, acc) => Object.assign(acc, row), {}),
             },
           }));
         }
