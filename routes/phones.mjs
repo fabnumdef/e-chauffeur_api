@@ -21,7 +21,7 @@ router.get(
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(Phone);
     const total = await Phone.countDocuments();
-    const data = await Phone.find({}).skip(offset).limit(limit).lean();
+    const data = await Phone.find({}).skip(offset).limit(limit);
     ctx.setRangePagination(Phone, { total, offset, count: data.length });
 
     ctx.body = data;

@@ -13,6 +13,7 @@ import campus from './campuses';
 import feedback from './feedback';
 import forms from './forms';
 import phones from './phones';
+import phoneModels from './phone-models';
 
 const router = new Router();
 
@@ -30,5 +31,6 @@ router.use('/campuses', campus);
 router.use('/feedback', feedback);
 router.use('/forms', forms);
 router.use('/phones', phones);
+router.use('/phone-models', phoneModels);
 
 export default router.routes();

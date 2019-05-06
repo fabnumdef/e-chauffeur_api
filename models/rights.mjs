@@ -47,6 +47,12 @@ export const CAN_CREATE_PHONE = 'canCreatePhone';
 export const CAN_EDIT_PHONE = 'canEditPhone';
 export const CAN_REMOVE_PHONE = 'canRemovePhone';
 
+export const CAN_LIST_PHONE_MODEL = 'canListPhoneModel';
+export const CAN_GET_PHONE_MODEL = 'canGetPhoneModel';
+export const CAN_CREATE_PHONE_MODEL = 'canCreatePhoneModel';
+export const CAN_EDIT_PHONE_MODEL = 'canEditPhoneModel';
+export const CAN_REMOVE_PHONE_MODEL = 'canRemovePhoneModel';
+
 export const CAN_EDIT_CATEGORY = 'canEditCategory';
 export const CAN_CREATE_CATEGORY = 'canCreateCategory';
 export const CAN_LIST_CATEGORY = 'canListCategory';
