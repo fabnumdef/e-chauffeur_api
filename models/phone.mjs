@@ -40,9 +40,13 @@ const PhoneSchema = new Schema({
   comments: String,
 }, schemaOptions);
 
-PhoneSchema.virtual('labelModel')
+PhoneSchema.virtual('driverNameEmail')
   .get(function get() {
-    return this.model.label;
+    let driverNameEmail = '';
+    if (this.driver.name && this.driver.email) {
+      driverNameEmail = `${this.driver.name} (${this.driver.email})`;
+    }
+    return driverNameEmail;
   });
 
 PhoneSchema.plugin(createdAtPlugin);
