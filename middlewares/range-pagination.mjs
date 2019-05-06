@@ -18,7 +18,7 @@ export default async (ctx, next) => {
     const [lower, higher] = range.split('-').map(n => parseInt(n, 10));
     return {
       offset: lower || 0,
-      limit: Math.min(higher ? higher - lower + 1 : max) || max,
+      limit: Math.min(!Number.isNaN(higher) ? higher - lower + 1 : max) || max,
     };
   };
 
