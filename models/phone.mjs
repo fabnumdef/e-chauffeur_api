@@ -18,11 +18,11 @@ const PhoneSchema = new Schema({
   },
   phone: { type: String, required: true },
   driver: {
-    _id: Schema.ObjectId,
+    _id: { type: Schema.ObjectId, alias: 'driver.id' },
     email: String,
     name: String,
     campus: {
-      _id: String,
+      _id: { type: String, alias: 'driver.campus.id' },
       name: String,
     },
   },
