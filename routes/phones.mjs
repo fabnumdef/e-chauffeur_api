@@ -69,6 +69,11 @@ router.patch(
       phone.driver = undefined;
     }
 
+    if (!body.state) {
+      delete body.state;
+      phone.state = undefined;
+    }
+
     phone.set(body);
     ctx.body = await phone.save();
   },
