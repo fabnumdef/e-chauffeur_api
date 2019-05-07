@@ -1,5 +1,7 @@
 # Changelog
 ## Current
+### Features
+* Add phone management.
 ## Version 1.2.0
 ### Features
 * Improved driver management.
