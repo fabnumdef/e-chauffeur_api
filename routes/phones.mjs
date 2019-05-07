@@ -64,7 +64,7 @@ router.patch(
     const phone = await Phone.findById(id);
     ctx.assert(phone, 404, 'Phone not found.');
 
-    if (body.driver && (!body.driver._id || !body.driver.campus)) {
+    if (body.driver && (!body.driver.id || !body.driver.campus)) {
       delete body.driver;
       phone.driver = undefined;
     }
