@@ -3,12 +3,6 @@ import createdAtPlugin from './helpers/created-at';
 
 const { Schema } = mongoose;
 
-const schemaOptions = {
-  toObject: {
-    virtuals: true,
-  },
-};
-
 const PhoneSchema = new Schema({
   _id: { type: String, required: true, alias: 'id' },
   imei: { type: String, required: true },
@@ -38,16 +32,7 @@ const PhoneSchema = new Schema({
     ],
   },
   comments: String,
-}, schemaOptions);
-
-PhoneSchema.virtual('driverNameEmail')
-  .get(function get() {
-    let driverNameEmail = '';
-    if (this.driver.name && this.driver.email) {
-      driverNameEmail = `${this.driver.name} (${this.driver.email})`;
-    }
-    return driverNameEmail;
-  });
+});
 
 PhoneSchema.plugin(createdAtPlugin);
 
