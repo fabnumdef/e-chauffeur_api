@@ -9,13 +9,12 @@ const router = generateCRUD(fakeModel, {
   list: {
     right: CAN_LIST_LOG,
     async main(ctx) {
-      const { offset, limit } = ctx.parseRangePagination(fakeModel);
+      const limit = 100;
 
       const { mongodb: data } = await new Promise(
         (resolve, reject) => logger.query(
           {
             limit,
-            start: offset,
             order: 'desc',
           },
           (err, r) => (err ? reject(err) : resolve(r)),
@@ -26,14 +25,9 @@ const router = generateCRUD(fakeModel, {
         ctx.log.INFO,
         `Find query in ${fakeModel.modelName}`,
         {
-          filters: ctx.filters, offset, limit,
+          filters: ctx.filters, limit,
         },
       );
-
-      ctx.setRangePagination(fakeModel, {
-        offset,
-        limit,
-      });
 
       ctx.body = data;
     },
