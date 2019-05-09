@@ -30,7 +30,7 @@ const router = generateCRUD(Phone, {
 
       const phone = await Phone.findById(id);
       if (!phone) {
-        ctx.throw_and_log(409, `The phone with serial number ${id} has not been finded.`);
+        ctx.throw_and_log(404, `The phone with serial number ${id} has not been finded.`);
       }
 
       if (body.driver && (!body.driver.id || !body.driver.campus)) {
