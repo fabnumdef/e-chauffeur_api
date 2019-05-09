@@ -1,6 +1,4 @@
-import Router from 'koa-router';
-import maskOutput from '../middlewares/mask-output';
-import checkRights from '../middlewares/check-rights';
+import generateCRUD from '../helpers/abstract-route';
 
 import Phone from '../models/phone';
 
@@ -12,81 +10,44 @@ import {
   CAN_REMOVE_PHONE,
 } from '../models/rights';
 
-const router = new Router();
-
-router.get(
-  '/',
-  checkRights(CAN_LIST_PHONE),
-  maskOutput,
-  async (ctx) => {
-    const { offset, limit } = ctx.parseRangePagination(Phone);
-    const total = await Phone.countDocuments();
-    const data = await Phone.find({}).skip(offset).limit(limit);
-    ctx.setRangePagination(Phone, { total, offset, count: data.length });
-
-    ctx.body = data;
+const router = generateCRUD(Phone, {
+  create: {
+    right: CAN_CREATE_PHONE,
   },
-);
-
-router.get(
-  '/:id',
-  checkRights(CAN_GET_PHONE),
-  maskOutput,
-  async (ctx) => {
-    const { params: { id } } = ctx;
-    ctx.body = await Phone.findById(id).lean();
+  list: {
+    right: CAN_LIST_PHONE,
   },
-);
-
-router.post(
-  '/',
-  checkRights(CAN_CREATE_PHONE),
-  maskOutput,
-  async (ctx) => {
-    const { params: { id }, request: { body } } = ctx;
-
-    if (await Phone.findById(id)) {
-      ctx.throw(409, 'Phone already existing.');
-    }
-
-    ctx.body = await Phone.create(body);
+  get: {
+    right: CAN_GET_PHONE,
   },
-);
-
-
-router.patch(
-  '/:id',
-  checkRights(CAN_EDIT_PHONE),
-  maskOutput,
-  async (ctx) => {
-    const { params: { id }, request: { body } } = ctx;
-
-    const phone = await Phone.findById(id);
-    ctx.assert(phone, 404, 'Phone not found.');
-
-    if (body.driver && (!body.driver.id || !body.driver.campus)) {
-      delete body.driver;
-      phone.driver = undefined;
-    }
-
-    if (!body.state) {
-      delete body.state;
-      phone.state = undefined;
-    }
-
-    phone.set(body);
-    ctx.body = await phone.save();
+  delete: {
+    right: CAN_REMOVE_PHONE,
   },
-);
+  update: {
+    right: CAN_EDIT_PHONE,
+    main: async (ctx) => {
+      const { params: { id }, request: { body } } = ctx;
 
-router.del(
-  '/:id',
-  checkRights(CAN_REMOVE_PHONE),
-  async (ctx) => {
-    const { params: { id } } = ctx;
-    await Phone.remove({ _id: id });
-    ctx.status = 204;
+      const phone = await Phone.findById(id);
+      if (!phone) {
+        ctx.throw_and_log(409, `The phone with serial number ${id} has not been finded.`);
+      }
+
+      if (body.driver && (!body.driver.id || !body.driver.campus)) {
+        delete body.driver;
+        phone.driver = undefined;
+      }
+
+      if (!body.state) {
+        delete body.state;
+        phone.state = undefined;
+      }
+
+      phone.set(body);
+      ctx.body = await phone.save();
+      ctx.log(ctx.log.INFO, `${Phone.modelName} "${body.id}" has been updated.`);
+    },
   },
-);
+});
 
 export default router.routes();
