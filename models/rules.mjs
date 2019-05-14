@@ -18,3 +18,15 @@ export const campusRule = id => ({
     return campus && !!campuses.find(c => c._id === campus);
   },
 });
+
+/**
+ * @return {symbol}
+ */
+export const selfEditingUserRule = id => ({
+  id: Symbol(id),
+  rule: (_, ctx) => {
+    const userParam = lGet(ctx, 'params.user_id', null);
+    const loggedUser = lGet(ctx, 'state.user.id', null);
+    return userParam && loggedUser && userParam === loggedUser;
+  },
+});

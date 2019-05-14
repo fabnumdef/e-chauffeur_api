@@ -73,7 +73,7 @@ export function addListToRouter(Model, {
 }
 
 export function addGetToRouter(Model, {
-  url = '/:id', right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
 } = {}) {
   this.get(
     url,
@@ -83,7 +83,8 @@ export function addGetToRouter(Model, {
       .map(r => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
-      const { params: { id } } = ctx;
+      const { params } = ctx;
+      const id = params[paramId];
       try {
         ctx.body = await Model.findById(id).lean();
         ctx.log(
@@ -98,7 +99,7 @@ export function addGetToRouter(Model, {
 }
 
 export function addDeleteToRouter(Model, {
-  url = '/:id', right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
 } = {}) {
   this.del(
     url,
@@ -107,7 +108,8 @@ export function addDeleteToRouter(Model, {
       .filter(r => !!r)
       .map(r => resolveRights(...[].concat(r))),
     main || (async (ctx) => {
-      const { params: { id } } = ctx;
+      const { params } = ctx;
+      const id = params[paramId];
       await Model.remove({ _id: id });
       ctx.log(
         ctx.log.INFO,
@@ -119,7 +121,7 @@ export function addDeleteToRouter(Model, {
 }
 
 export function addUpdateToRouter(Model, {
-  url = '/:id', right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
 } = {}) {
   this.patch(
     url,
@@ -129,8 +131,8 @@ export function addUpdateToRouter(Model, {
       .map(r => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
-      const { request: { body }, params: { id } } = ctx;
-
+      const { request: { body }, params } = ctx;
+      const id = params[paramId];
       const model = await Model.findById(id);
 
       model.set(body);
