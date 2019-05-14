@@ -16,7 +16,6 @@ export const ROLE_ANONYMOUS = new RoleList(
 export const ROLE_USER = new RoleList(
   ...ROLE_ANONYMOUS,
 
-  rights.CAN_EDIT_SELF_USER,
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
 );

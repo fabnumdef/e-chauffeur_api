@@ -1,4 +1,4 @@
-import { stdRule, campusRule } from './rules';
+import { stdRule, campusRule, selfEditingUserRule } from './rules';
 
 export const CAN_LOGIN = stdRule('login');
 
@@ -20,9 +20,8 @@ export const CAN_LIST_USER = stdRule('canListUser');
 export const CAN_GET_USER = stdRule('canGetUser');
 export const CAN_REMOVE_USER = stdRule('canRemoveUser');
 
-export const CAN_EDIT_SELF_USER = stdRule('canEditSelfUser');
-export const CAN_EDIT_SELF_USER_PASSWORD = stdRule('canEditSelfUserPassword');
-export const CAN_EDIT_SELF_USER_NAME = stdRule('canEditSelfUserName');
+export const CAN_EDIT_SELF_USER_PASSWORD = selfEditingUserRule('canEditSelfUserPassword');
+export const CAN_EDIT_SELF_USER_NAME = selfEditingUserRule('canEditSelfUserName');
 
 export const CAN_EDIT_USER_EVENT = stdRule('canEditUserEvent');
 export const CAN_CREATE_USER_EVENT = stdRule('canCreateUserEvent');
