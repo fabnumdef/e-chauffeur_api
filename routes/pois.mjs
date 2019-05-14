@@ -15,19 +15,19 @@ import {
 
 const router = generateCRUD(Poi, {
   create: {
-    right: [[CAN_CREATE_POI], [CAN_CREATE_POI_LOCAL]],
+    right: [CAN_CREATE_POI, CAN_CREATE_POI_LOCAL],
   },
   get: {
-    right: [[CAN_GET_POI], [CAN_GET_POI_LOCAL]],
+    right: [CAN_GET_POI, CAN_GET_POI_LOCAL],
   },
   delete: {
-    right: [[CAN_REMOVE_POI], [CAN_REMOVE_POI_LOCAL]],
+    right: [CAN_REMOVE_POI, CAN_REMOVE_POI_LOCAL],
   },
   update: {
-    right: [[CAN_EDIT_POI], [CAN_EDIT_POI_LOCAL]],
+    right: [CAN_EDIT_POI, CAN_EDIT_POI_LOCAL],
   },
   list: {
-    right: [[CAN_LIST_POI], [CAN_LIST_POI_LOCAL]],
+    right: [CAN_LIST_POI, CAN_LIST_POI_LOCAL],
     filters: {
       campus: 'campus._id',
     },

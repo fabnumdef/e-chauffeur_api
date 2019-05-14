@@ -3,10 +3,12 @@ import jwt from 'koa-jwt';
 import config from '../services/config';
 import User from '../models/user';
 import maskOutput from '../middlewares/mask-output';
+import resolveRights from '../middlewares/check-rights';
+import { CAN_LOGIN } from '../models/rights';
 
 const router = new Router();
 
-router.post('/generate', maskOutput, async (ctx) => {
+router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
   const { request: { body } } = ctx;
   const user = await User.findOne({ email: body.email });
 

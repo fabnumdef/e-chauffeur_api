@@ -1,16 +1,21 @@
 import Router from 'koa-router';
 import maskOutput from '../middlewares/mask-output';
-import checkRights, { checkRightsOrLocalRights } from '../middlewares/check-rights';
+import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
 
-export function addCreateToRouter(Model, { url = '/', right, main } = {}) {
+export function addCreateToRouter(Model, {
+  url = '/', right, rights = [], main,
+} = {}) {
   if (!right) {
     throw new Error('Right should be defined');
   }
   const autoGenId = !Model.schema.obj._id;
   this.post(
     url,
-    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
+    ...[right]
+      .concat(rights)
+      .filter(r => !!r)
+      .map(r => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
       const { request: { body } } = ctx;
@@ -29,7 +34,7 @@ export function addCreateToRouter(Model, { url = '/', right, main } = {}) {
 }
 
 export function addListToRouter(Model, {
-  url = '/', right, main, filters = {}, middlewares = [],
+  url = '/', right, rights = [], main, filters = {}, middlewares = [],
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -37,7 +42,10 @@ export function addListToRouter(Model, {
 
   this.get(
     url,
-    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
+    ...[right]
+      .concat(rights)
+      .filter(r => !!r)
+      .map(r => resolveRights(...[].concat(r))),
     maskOutput,
     ...Object.keys(filters).map(k => addFilter(k, filters[k])),
     ...middlewares,
@@ -64,10 +72,15 @@ export function addListToRouter(Model, {
   );
 }
 
-export function addGetToRouter(Model, { url = '/:id', right, main } = {}) {
+export function addGetToRouter(Model, {
+  url = '/:id', right, rights = [], main,
+} = {}) {
   this.get(
     url,
-    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
+    ...[right]
+      .concat(rights)
+      .filter(r => !!r)
+      .map(r => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
       const { params: { id } } = ctx;
@@ -84,10 +97,15 @@ export function addGetToRouter(Model, { url = '/:id', right, main } = {}) {
   );
 }
 
-export function addDeleteToRouter(Model, { url = '/:id', right, main } = {}) {
+export function addDeleteToRouter(Model, {
+  url = '/:id', right, rights = [], main,
+} = {}) {
   this.del(
     url,
-    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
+    ...[right]
+      .concat(rights)
+      .filter(r => !!r)
+      .map(r => resolveRights(...[].concat(r))),
     main || (async (ctx) => {
       const { params: { id } } = ctx;
       await Model.remove({ _id: id });
@@ -100,10 +118,15 @@ export function addDeleteToRouter(Model, { url = '/:id', right, main } = {}) {
   );
 }
 
-export function addUpdateToRouter(Model, { url = '/:id', right, main } = {}) {
+export function addUpdateToRouter(Model, {
+  url = '/:id', right, rights = [], main,
+} = {}) {
   this.patch(
     url,
-    Array.isArray(right) ? checkRightsOrLocalRights(...right) : checkRights(right),
+    ...[right]
+      .concat(rights)
+      .filter(r => !!r)
+      .map(r => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
       const { request: { body }, params: { id } } = ctx;
