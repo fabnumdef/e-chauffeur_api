@@ -1,17 +1,26 @@
 import * as rights from './rights';
 
-export const ROLE_ANONYMOUS = [
+class RoleList extends Set {
+  constructor(...items) {
+    super(items);
+  }
+}
+
+export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_LOGIN,
   rights.CAN_GET_RIDE,
   rights.CAN_GET_RIDE_POSITION,
   rights.CAN_LIST_CAMPUS,
-];
+);
 
-export const ROLE_USER = [
+export const ROLE_USER = new RoleList(
   ...ROLE_ANONYMOUS,
-];
 
-export const ROLE_DRIVER = [
+  rights.CAN_EDIT_SELF_USER_NAME,
+  rights.CAN_EDIT_SELF_USER_PASSWORD,
+);
+
+export const ROLE_DRIVER = new RoleList(
   ...ROLE_USER,
 
   rights.CAN_LIST_CAMPUS,
@@ -27,9 +36,9 @@ export const ROLE_DRIVER = [
 
   rights.CAN_EDIT_RIDE_STATUS,
   rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
-];
+);
 
-export const ROLE_REGULATOR = [
+export const ROLE_REGULATOR = new RoleList(
   ...ROLE_DRIVER,
 
   rights.CAN_LIST_USER,
@@ -69,9 +78,9 @@ export const ROLE_REGULATOR = [
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
-];
+);
 
-export const ROLE_ADMIN = [
+export const ROLE_ADMIN = new RoleList(
   ...ROLE_REGULATOR,
 
   rights.CAN_EDIT_POI_LOCAL,
@@ -88,9 +97,9 @@ export const ROLE_ADMIN = [
   rights.CAN_CREATE_PHONE_MODEL,
   rights.CAN_EDIT_PHONE_MODEL,
   rights.CAN_REMOVE_PHONE_MODEL,
-];
+);
 
-export const ROLE_SUPERADMIN = [
+export const ROLE_SUPERADMIN = new RoleList(
   ...ROLE_ADMIN,
 
   rights.CAN_EDIT_CAR_MODEL,
@@ -117,4 +126,4 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
-];
+);
