@@ -10,20 +10,21 @@ const PhoneSchema = new Schema({
     _id: { type: String, required: true, alias: 'model.id' },
     label: { type: String, required: true },
   },
-  phone: { type: String, required: true },
-  driver: {
-    _id: { type: Schema.ObjectId, alias: 'driver.id' },
+  number: { type: String, required: true },
+  owner: {
+    _id: { type: Schema.ObjectId, alias: 'owner.id' },
     email: String,
     name: String,
-    campus: {
-      _id: { type: String, alias: 'driver.campus.id' },
-      name: String,
-    },
+  },
+  campus: {
+    _id: { type: String, alias: 'campus.id' },
+    name: String,
   },
   state: {
     type: String,
     required: false,
     enum: [
+      null,
       'new',
       'very_good',
       'good',

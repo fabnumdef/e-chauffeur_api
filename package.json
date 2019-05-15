@@ -9,7 +9,6 @@
     "serve": "LOG=database node --experimental-modules --es-module-specifier-resolution=node server.mjs",
     "nodemon": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
-    "lintfix": "eslint --fix --ext .js,.mjs --ignore-path .gitignore .",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules --es-module-specifier-resolution=node tests/generate-state-schema.js",
     "import-fixtures": "node --experimental-modules --es-module-specifier-resolution=node fixtures"

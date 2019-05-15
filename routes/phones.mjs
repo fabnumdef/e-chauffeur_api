@@ -33,14 +33,19 @@ const router = generateCRUD(Phone, {
         ctx.throw_and_log(404, `The phone with serial number ${id} has not been finded.`);
       }
 
-      if (body.driver && (!body.driver.id || !body.driver.campus)) {
-        delete body.driver;
-        phone.driver = undefined;
+      if (!body.owner) {
+        delete body.owner;
+        phone.owner = null;
+      }
+
+      if (!body.campus) {
+        delete body.campus;
+        phone.campus = null;
       }
 
       if (!body.state) {
         delete body.state;
-        phone.state = undefined;
+        phone.state = null;
       }
 
       phone.set(body);
