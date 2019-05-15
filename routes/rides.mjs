@@ -3,7 +3,7 @@ import lGet from 'lodash.get';
 import { CANCELED_STATUSES, DELIVERED } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
-import checkRights from '../middlewares/check-rights';
+import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
@@ -154,7 +154,7 @@ const router = generateCRUD(Ride, {
  */
 router.get(
   '/:id/position',
-  checkRights(CAN_GET_RIDE_POSITION),
+  resolveRights(CAN_GET_RIDE_POSITION),
   maskOutput,
   async (ctx) => {
     const { params: { id }, query: { token } } = ctx;
@@ -189,7 +189,7 @@ router.get(
 
 router.post(
   '/:id/:action',
-  checkRights(CAN_EDIT_RIDE_STATUS),
+  resolveRights(CAN_EDIT_RIDE_STATUS),
   maskOutput,
   async (ctx) => {
     // @todo: rights - driver should be able to update status
