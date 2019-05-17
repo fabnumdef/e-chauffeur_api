@@ -85,6 +85,18 @@ export const ROLE_ADMIN = new RoleList(
 
   rights.CAN_EDIT_POI_LOCAL,
   rights.CAN_CREATE_POI_LOCAL,
+
+  rights.CAN_LIST_PHONE,
+  rights.CAN_GET_PHONE,
+  rights.CAN_CREATE_PHONE,
+  rights.CAN_EDIT_PHONE,
+  rights.CAN_REMOVE_PHONE,
+
+  rights.CAN_LIST_PHONE_MODEL,
+  rights.CAN_GET_PHONE_MODEL,
+  rights.CAN_CREATE_PHONE_MODEL,
+  rights.CAN_EDIT_PHONE_MODEL,
+  rights.CAN_REMOVE_PHONE_MODEL,
 );
 
 export const ROLE_SUPERADMIN = new RoleList(
