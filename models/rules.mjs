@@ -30,3 +30,8 @@ export const selfEditingUserRule = id => ({
     return userParam && loggedUser && userParam === loggedUser;
   },
 });
+
+export const roleEditingRule = id => ({
+  id: Symbol(id),
+  rule: ({ campuses = [] }, ctx, { id: campusId = null } = {}) => campusId && !!campuses.find(c => c._id === campusId),
+});

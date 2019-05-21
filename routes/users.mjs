@@ -60,7 +60,7 @@ const router = generateCRUD(User, {
       CAN_EDIT_SELF_USER_PASSWORD,
     ],
     main: async (ctx) => {
-      const { request: { body }, params: { user_id: id } } = ctx;
+      const { request: { body = {} }, params: { user_id: id } } = ctx;
 
       if (!body.password) {
         delete body.password;
@@ -81,6 +81,17 @@ const router = generateCRUD(User, {
       }
 
       const user = await User.findById(id);
+
+      ctx.assert(
+        user.checkRolesRightsIter(body.roles || [])
+          .reduce(
+            (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), false) && acc,
+            true,
+          ),
+        403,
+        'You\'re not authorized to change this role',
+      );
+
       user.set(body);
       ctx.body = await user.save();
       ctx.log(

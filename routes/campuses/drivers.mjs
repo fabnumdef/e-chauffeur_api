@@ -92,7 +92,7 @@ router.post(
     if (!body.password) {
       delete body.password;
     }
-
+    delete body.roles;
     Object.assign(body,
       {
         roles:
@@ -121,7 +121,7 @@ router.patch(
     if (!body.password) {
       delete body.password;
     }
-
+    delete body.roles;
     driver.set(body);
     ctx.body = await driver.save();
   },
