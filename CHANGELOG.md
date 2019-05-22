@@ -2,6 +2,7 @@
 ## Current
 ### Features
 * Add phone management.
+* Add roles to prevent unauthorized add/revoke of roles
 ## Version 1.2.0
 ### Features
 * Improved driver management.
