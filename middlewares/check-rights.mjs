@@ -24,7 +24,7 @@ export const injectUserMayMiddleware = async (ctx, next) => {
     ...lGet(ctx, 'state.user.roles', []),
   ];
 
-  ctx.may = function userMay(right) {
+  ctx.may = function userMay(right, ...params) {
     return list.reduce(
       (acc, row) => acc || (
         roles[row.role].has(right)
@@ -33,6 +33,7 @@ export const injectUserMayMiddleware = async (ctx, next) => {
           {
             ...ctx,
           },
+          ...params,
         )
       ),
       false,

@@ -78,6 +78,8 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
+  rights.CAN_REVOKE_ROLE_LOCAL_DRIVER,
+  rights.CAN_ADD_ROLE_LOCAL_DRIVER,
 );
 
 export const ROLE_ADMIN = new RoleList(
@@ -97,6 +99,9 @@ export const ROLE_ADMIN = new RoleList(
   rights.CAN_CREATE_PHONE_MODEL,
   rights.CAN_EDIT_PHONE_MODEL,
   rights.CAN_REMOVE_PHONE_MODEL,
+
+  rights.CAN_REVOKE_ROLE_LOCAL_REGULATOR,
+  rights.CAN_ADD_ROLE_LOCAL_REGULATOR,
 );
 
 export const ROLE_SUPERADMIN = new RoleList(
@@ -126,4 +131,13 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
+
+  rights.CAN_REVOKE_ROLE_SUPERADMIN,
+  rights.CAN_ADD_ROLE_SUPERADMIN,
+  rights.CAN_REVOKE_ROLE_ADMIN,
+  rights.CAN_ADD_ROLE_ADMIN,
+  rights.CAN_REVOKE_ROLE_REGULATOR,
+  rights.CAN_ADD_ROLE_REGULATOR,
+  rights.CAN_REVOKE_ROLE_DRIVER,
+  rights.CAN_ADD_ROLE_DRIVER,
 );

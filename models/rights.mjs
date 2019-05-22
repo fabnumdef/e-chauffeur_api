@@ -1,4 +1,6 @@
-import { stdRule, campusRule, selfEditingUserRule } from './rules';
+import {
+  stdRule, campusRule, selfEditingUserRule, roleEditingRule,
+} from './rules';
 
 export const CAN_LOGIN = stdRule('login');
 
@@ -92,3 +94,19 @@ export const CAN_GET_RIDE = stdRule('canGetRide');
 export const CAN_GET_RIDE_POSITION = stdRule('canGetRidePosition');
 
 export const CAN_SEND_FEEDBACK = stdRule('canSendFeedback');
+
+export const CAN_REVOKE_ROLE_SUPERADMIN = stdRule('canRevokeRoleSuperAdmin');
+export const CAN_ADD_ROLE_SUPERADMIN = stdRule('canAddRoleSuperAdmin');
+
+export const CAN_REVOKE_ROLE_ADMIN = stdRule('canRevokeRoleAdmin');
+export const CAN_ADD_ROLE_ADMIN = stdRule('canAddRoleAdmin');
+
+export const CAN_REVOKE_ROLE_LOCAL_REGULATOR = roleEditingRule('canRevokeRoleLocalRegulator');
+export const CAN_ADD_ROLE_LOCAL_REGULATOR = roleEditingRule('canAddRoleLocalRegulator');
+export const CAN_REVOKE_ROLE_REGULATOR = stdRule('canRevokeRoleRegulator');
+export const CAN_ADD_ROLE_REGULATOR = stdRule('canAddRoleRegulator');
+
+export const CAN_REVOKE_ROLE_LOCAL_DRIVER = roleEditingRule('canRevokeRoleLocalDriver');
+export const CAN_ADD_ROLE_LOCAL_DRIVER = roleEditingRule('canAddRoleLocalDriver');
+export const CAN_REVOKE_ROLE_DRIVER = stdRule('canRevokeRoleDriver');
+export const CAN_ADD_ROLE_DRIVER = stdRule('canAddRoleDriver');
