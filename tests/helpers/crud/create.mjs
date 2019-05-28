@@ -11,19 +11,21 @@ export const testCreate = (Model, {
   route = `/${defaultRouteName(Model)}`,
   generateDummyObject = () => ({}),
 } = {}) => [
-  'It should only authorize request when authenticated user has enough rights',
+  'It should only authorize creation when authenticated user has enough rights',
   async () => {
     const expectCreate = async (roleGenerator) => {
-      const dummyObject = await generateDummyObject();
-      const { statusCode } = await request()
+      const [dummyObject, toDropLater = []] = [].concat(await generateDummyObject());
+      const { body: { id }, statusCode } = await request()
         .post(route)
+        .query({ mask: 'id' })
         .set(...roleGenerator())
         .send(cleanObject(dummyObject));
 
       const object = await Model
-        .findOne(dummyObject);
+        .findById(id);
       if (object) {
         await object.remove();
+        await Promise.all(toDropLater.map(entity => entity.remove()));
       }
 
       return {

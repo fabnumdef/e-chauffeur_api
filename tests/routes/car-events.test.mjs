@@ -1,15 +1,14 @@
-import chai from 'chai';
-import request, { generateRegulatorJWTHeader } from '../request';
-import { cleanObject } from '../../middlewares/mask-output';
+import { generateDriverJWTHeader, generateRegulatorJWTHeader, generateSuperAdminJWTHeader } from '../request';
 import CarEvent, { generateDummyCarEvent } from '../models/car-event';
 import { createDummyCampus } from '../models/campus';
 import { createDummyCar } from '../models/car';
 import { createDummyCarModel } from '../models/car-model';
+import { testCreate } from '../helpers/crud/create';
 
-const { expect } = chai;
 
-describe('Test the car events API endpoint', () => {
-  it('POST API endpoint should create a new car-event', async () => {
+const config = {
+  route: '/car-events',
+  async generateDummyObject() {
     const toDropLater = [];
 
     const campus = await createDummyCampus();
@@ -22,20 +21,14 @@ describe('Test the car events API endpoint', () => {
     toDropLater.push(car);
 
     const dummyCarEvent = generateDummyCarEvent({ car });
-    try {
-      const response = await request()
-        .post('/car-events')
-        .set(...generateRegulatorJWTHeader())
-        .send(cleanObject(dummyCarEvent));
-      expect(response.statusCode).to.equal(200);
+    return [dummyCarEvent, toDropLater];
+  },
+};
 
-      const carEvent = await CarEvent
-        .find(dummyCarEvent)
-        .lean();
-      expect(carEvent).to.not.be.null;
-    } finally {
-      await Promise.all(toDropLater.map(entity => entity.remove()));
-      await CarEvent.deleteOne({ _id: dummyCarEvent._id });
-    }
-  });
+describe('Test the car events API endpoint', () => {
+  it(...testCreate(CarEvent, {
+    ...config,
+    cannotCall: [generateDriverJWTHeader],
+    canCall: [generateRegulatorJWTHeader, generateSuperAdminJWTHeader],
+  }));
 });

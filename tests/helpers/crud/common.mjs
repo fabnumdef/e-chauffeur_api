@@ -1,1 +1,2 @@
-export const defaultRouteName = Model => (Model.getDashedName && Model.getDashedName()) || Model.modelName.toLowerCase();
+export const defaultRouteName = Model => (Model.getDashedName && Model.getDashedName())
+  || Model.modelName.toLowerCase();
