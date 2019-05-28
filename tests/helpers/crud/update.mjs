@@ -14,7 +14,7 @@ export const testUpdate = (Model, {
   'It should only authorize update when authenticated user has enough rights',
   async () => {
     const expectUpdate = async (roleGenerator) => {
-      const dummyObject = await generateDummyObject();
+      const [dummyObject, toDropLater = []] = [].concat(await generateDummyObject());
       const createdObject = await Model.create(dummyObject);
 
       const { statusCode } = await request()
@@ -26,6 +26,7 @@ export const testUpdate = (Model, {
       if (object) {
         await object.remove();
       }
+      await Promise.all(toDropLater.map(entity => entity.remove()));
 
       return {
         statusCode: expect(statusCode),

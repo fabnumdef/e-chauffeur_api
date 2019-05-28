@@ -1,10 +1,15 @@
-import { generateDriverJWTHeader, generateRegulatorJWTHeader, generateSuperAdminJWTHeader } from '../request';
+import {
+  generateDriverJWTHeader,
+  generateRegulatorJWTHeader,
+  generateSuperAdminJWTHeader,
+} from '../request';
 import CarEvent, { generateDummyCarEvent } from '../models/car-event';
 import { createDummyCampus } from '../models/campus';
 import { createDummyCar } from '../models/car';
 import { createDummyCarModel } from '../models/car-model';
-import { testCreate } from '../helpers/crud/create';
-
+import {
+  testCreate, testDelete, testList, testGet, testUpdate,
+} from '../helpers/crud';
 
 const config = {
   route: '/car-events',
@@ -23,12 +28,31 @@ const config = {
     const dummyCarEvent = generateDummyCarEvent({ car });
     return [dummyCarEvent, toDropLater];
   },
+  cannotCall: [generateDriverJWTHeader],
+  canCall: [generateRegulatorJWTHeader, generateSuperAdminJWTHeader],
 };
 
 describe('Test the car events API endpoint', () => {
   it(...testCreate(CarEvent, {
     ...config,
-    cannotCall: [generateDriverJWTHeader],
-    canCall: [generateRegulatorJWTHeader, generateSuperAdminJWTHeader],
+  }));
+
+  it(...testList(CarEvent, {
+    ...config,
+  }));
+
+  it(...testDelete(CarEvent, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testGet(CarEvent, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testUpdate(CarEvent, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
   }));
 });

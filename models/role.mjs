@@ -63,6 +63,8 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_REMOVE_CAMPUS_DRIVER,
 
   rights.CAN_EDIT_CAR_EVENT,
+  rights.CAN_GET_CAR_EVENT,
+  rights.CAN_LIST_CAR_EVENT,
   rights.CAN_CREATE_CAR_EVENT,
   rights.CAN_REMOVE_CAR_EVENT,
 
