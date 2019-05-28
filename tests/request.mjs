@@ -35,3 +35,4 @@ export const generateRoleJWTHeader = (role, ...campuses) => {
 export const generateRegulatorJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_REGULATOR, ...params);
 export const generateDriverJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_DRIVER, ...params);
 export const generateSuperAdminJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_SUPERADMIN, ...params);
+export const generateAnonymousJWTHeader = () => ['Authorization', null];

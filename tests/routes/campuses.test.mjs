@@ -1,28 +1,55 @@
-import chai from 'chai';
-import request, { generateSuperAdminJWTHeader, generateRegulatorJWTHeader } from '../request';
+import {
+  generateSuperAdminJWTHeader,
+  generateRegulatorJWTHeader,
+  generateDriverJWTHeader,
+  generateAnonymousJWTHeader,
+} from '../request';
 import Campus, { generateDummyCampus } from '../models/campus';
-import { testCreateUnicity } from '../helpers/abstract-route';
-
-const { expect } = chai;
+import {
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+} from '../helpers/crud';
 
 const config = {
   route: '/campuses',
+  generateDummyObject: generateDummyCampus,
 };
 
-describe('Test the campus route', () => {
+describe('Test the campuses route', () => {
+  it(...testCreate(Campus, {
+    ...config,
+    cannotCall: [generateRegulatorJWTHeader, generateDriverJWTHeader],
+    canCall: [generateSuperAdminJWTHeader],
+  }));
+
   it(...testCreateUnicity(Campus, {
     ...config,
-    dummy: generateDummyCampus,
     requestCallBack: r => r
       .set(...generateSuperAdminJWTHeader()),
     transformObject: { id: '_id', name: 'name' },
   }));
 
-  it('It should response the GET method', async () => {
-    const { body: list, statusCode } = await request()
-      .get('/campuses')
-      .set(...generateRegulatorJWTHeader());
-    expect(statusCode).to.equal(200);
-    expect(Array.isArray(list)).to.be.true;
-  });
+  it(...testList(Campus, {
+    ...config,
+    canCall: [generateAnonymousJWTHeader],
+  }));
+
+  it(...testDelete(Campus, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+    cannotCall: [generateRegulatorJWTHeader, generateDriverJWTHeader],
+    canCall: [generateSuperAdminJWTHeader],
+  }));
+
+  it(...testGet(Campus, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+    canCall: [generateDriverJWTHeader],
+  }));
+
+  it(...testUpdate(Campus, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+    cannotCall: [generateRegulatorJWTHeader, generateDriverJWTHeader],
+    canCall: [generateSuperAdminJWTHeader],
+  }));
 });
