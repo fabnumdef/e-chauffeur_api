@@ -14,7 +14,7 @@ export const stdRule = id => ({
 export const campusRule = id => ({
   id: Symbol(id),
   rule: ({ campuses = [] }, ctx) => {
-    const campus = lGet(ctx, 'params.campus_id', null);
+    const campus = lGet(ctx, 'params.campus_id', lGet(ctx, 'query.filters.campus', null));
     return campus && !!campuses.find(c => c._id === campus);
   },
 });

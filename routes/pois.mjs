@@ -33,7 +33,7 @@ const router = generateCRUD(Poi, {
     },
     middlewares: [
       async (ctx, next) => {
-        const searchParams = {};
+        const searchParams = ctx.filters;
         if (ctx.query && ctx.query.search) {
           searchParams.$or = [
             {
