@@ -1,14 +1,14 @@
-import chai from 'chai';
-import request, { generateRegulatorJWTHeader } from '../request';
-import { cleanObject } from '../../middlewares/mask-output';
+import { generateDriverJWTHeader, generateRegulatorJWTHeader, generateSuperAdminJWTHeader } from '../request';
 import { createDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
 import Car, { generateDummyCar } from '../models/car';
+import {
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+} from '../helpers/crud';
 
-const { expect } = chai;
-
-describe('Test the car API endpoint', () => {
-  it('POST API endpoint should create a new car', async () => {
+const config = {
+  route: '/cars',
+  async generateDummyObject() {
     const toDropLater = [];
 
     const campus = await createDummyCampus();
@@ -17,30 +17,44 @@ describe('Test the car API endpoint', () => {
     const carModel = await createDummyCarModel();
     toDropLater.push(carModel);
 
-    const dummyCar = generateDummyCar({ campus, model: carModel });
-    try {
-      {
-        const response = await request()
-          .post('/cars')
-          .set(...generateRegulatorJWTHeader())
-          .send(cleanObject(dummyCar));
-        expect(response.statusCode).to.equal(200);
+    const dummyCar = await generateDummyCar({ campus, model: carModel });
 
-        const car = await Car
-          .find(dummyCar)
-          .lean();
-        expect(car).to.not.be.null;
-      }
-      {
-        const { statusCode } = await request()
-          .post('/cars')
-          .set(...generateRegulatorJWTHeader())
-          .send(cleanObject(dummyCar));
-        expect(statusCode).to.equal(409);
-      }
-    } finally {
-      await Promise.all(toDropLater.map(entity => entity.remove()));
-      await Car.deleteOne({ _id: dummyCar._id });
-    }
-  });
+    return [dummyCar, toDropLater];
+  },
+  cannotCall: [generateDriverJWTHeader],
+  canCall: [generateRegulatorJWTHeader, generateSuperAdminJWTHeader],
+};
+
+describe('Test the car API endpoint', () => {
+  it(...testCreate(Car, {
+    ...config,
+  }));
+
+  it(...testCreateUnicity(Car, {
+    ...config,
+    requestCallBack: r => r
+      .set(...generateSuperAdminJWTHeader()),
+    transformObject: {
+      id: '_id', label: 'label', campus: { id: '_id', name: 'name' }, model: { id: '_id', label: 'label' },
+    },
+  }));
+
+  it(...testList(Car, {
+    ...config,
+  }));
+
+  it(...testDelete(Car, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testGet(Car, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testUpdate(Car, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+  }));
 });

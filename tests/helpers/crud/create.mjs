@@ -49,6 +49,13 @@ export const testCreate = (Model, {
     ]);
   },
 ];
+
+function transform(config, data) {
+  return Object.keys(config)
+    .map(k => ({ [k]: typeof config[k] === 'object' ? transform(config[k], data[k]) : data[config[k]] }))
+    .reduce((acc, cur) => Object.assign(acc, cur), {});
+}
+
 export const testCreateUnicity = (Model, {
   generateDummyObject,
   requestCallBack = r => r,
@@ -57,15 +64,12 @@ export const testCreateUnicity = (Model, {
 } = {}) => [
   `Only one ${Model.modelName} should be able to be created with same parameters`,
   async () => {
-    const rawDummyObject = await generateDummyObject();
+    const [rawDummyObject, toDropLater = []] = [].concat(await generateDummyObject());
     const dummyObject = new Model(rawDummyObject);
-    const getRequest = () => (requestCallBack(request().post(route))
+    const getRequest = () => requestCallBack(request().post(route))
       .query({ mask: Object.keys(transformObject).join(',') })
-      .send(
-        Object.keys(transformObject)
-          .map(k => ({ [k]: dummyObject[transformObject[k]] }))
-          .reduce((acc, cur) => Object.assign(acc, cur), {}),
-      ));
+      .send(transform(transformObject, dummyObject));
+
     try {
       {
         const { body, statusCode } = await getRequest();
@@ -74,11 +78,14 @@ export const testCreateUnicity = (Model, {
 
         // eslint-disable-next-line no-restricted-syntax
         for (const key of Object.keys(transformObject)) {
-          expect(body[key]).to.equal(dummyObject[transformObject[key]]);
+          // @todo: Remove next condition, deep check object
+          if (typeof transformObject[key] === 'string') {
+            expect(body[key]).to.equal(dummyObject[transformObject[key]]);
+          }
         }
 
         const objectFound = await Model
-          .findOne(rawDummyObject)
+          .findById(rawDummyObject._id)
           .lean();
         expect(objectFound).to.not.be.null;
       }
@@ -88,6 +95,7 @@ export const testCreateUnicity = (Model, {
       }
     } finally {
       await dummyObject.remove();
+      await Promise.all(toDropLater.map(entity => entity.remove()));
     }
   },
 ];
