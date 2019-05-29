@@ -3,6 +3,10 @@
 ### Features
 * Add phone management.
 * Add roles to prevent unauthorized add/revoke of roles
+### Fix
+* Fix search location for campus rule
+* Fix filters addition for POI CRUD
+* Fix ctx param in check rights middleware
 ## Version 1.2.0
 ### Features
 * Improved driver management.
