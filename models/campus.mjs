@@ -55,7 +55,7 @@ CampusSchema.statics.countDrivers = async function findDrivers(campus) {
     },
   });
 
-  const users = await User.aggregate(filter);
+  const users = await User.aggregate(filter).allowDiskUse(true);
   return users.length;
 };
 
@@ -80,7 +80,7 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination
       },
     );
   }
-  const usersIds = await User.aggregate(filter);
+  const usersIds = await User.aggregate(filter).allowDiskUse(true);
 
   const users = await User.find({
     _id: { $in: usersIds },
