@@ -50,7 +50,7 @@ GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(
     },
     { $sort: { date: -1 } },
     { $group: { _id: '$driverId', date: { $first: '$date' }, position: { $first: '$position' } } },
-  ]);
+  ]).allowDiskUse(true);
   return positions;
 };
 
