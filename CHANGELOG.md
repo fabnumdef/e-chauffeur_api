@@ -1,5 +1,8 @@
 # Changelog
 ## Current
+## Version 1.2.1
+### Fix
+* When the dataset was too large, geolocations was impossible to query
 ## Version 1.2.0
 ### Features
 * Improved driver management.
