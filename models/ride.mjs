@@ -213,7 +213,7 @@ RideSchema.methods.findDriverPosition = async function findDriverPosition() {
     },
     { $sort: { date: -1 } },
     { $limit: 1 },
-  ]);
+  ]).allowDiskUse(true);
   return position;
 };
 

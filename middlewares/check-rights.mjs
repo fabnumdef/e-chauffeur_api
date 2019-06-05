@@ -30,9 +30,7 @@ export const injectUserMayMiddleware = async (ctx, next) => {
         roles[row.role].has(right)
         && right.rule(
           row,
-          {
-            ...ctx,
-          },
+          ctx,
           ...params,
         )
       ),
