@@ -72,6 +72,9 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_CREATE_USER_EVENT,
   rights.CAN_REMOVE_USER_EVENT,
 
+  rights.CAN_LIST_PHONE_MODEL,
+  rights.CAN_GET_PHONE_MODEL,
+
   rights.CAN_SEND_FEEDBACK,
 
   rights.CAN_GET_POI_LOCAL,
@@ -95,12 +98,6 @@ export const ROLE_ADMIN = new RoleList(
   rights.CAN_CREATE_PHONE,
   rights.CAN_EDIT_PHONE,
   rights.CAN_REMOVE_PHONE,
-
-  rights.CAN_LIST_PHONE_MODEL,
-  rights.CAN_GET_PHONE_MODEL,
-  rights.CAN_CREATE_PHONE_MODEL,
-  rights.CAN_EDIT_PHONE_MODEL,
-  rights.CAN_REMOVE_PHONE_MODEL,
 
   rights.CAN_REVOKE_ROLE_LOCAL_REGULATOR,
   rights.CAN_ADD_ROLE_LOCAL_REGULATOR,
@@ -133,6 +130,10 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
+
+  rights.CAN_CREATE_PHONE_MODEL,
+  rights.CAN_EDIT_PHONE_MODEL,
+  rights.CAN_REMOVE_PHONE_MODEL,
 
   rights.CAN_REVOKE_ROLE_SUPERADMIN,
   rights.CAN_ADD_ROLE_SUPERADMIN,
