@@ -9,6 +9,7 @@ export const testUpdate = (Model, {
   canCall = [],
   cannotCall = [],
   route = ({ id }) => `/${defaultRouteName(Model)}/${encodeURIComponent(id)}`,
+  queryParams = {},
   generateDummyObject = () => ({}),
 } = {}) => [
   'It should only authorize update when authenticated user has enough rights',
@@ -19,6 +20,7 @@ export const testUpdate = (Model, {
 
       const { statusCode } = await request()
         .patch(typeof route === 'function' ? route(createdObject) : route)
+        .query(queryParams)
         .set(...roleGenerator())
         .send(cleanObject(dummyObject));
 

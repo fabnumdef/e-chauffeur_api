@@ -8,6 +8,7 @@ export const testDelete = (Model, {
   canCall = [],
   cannotCall = [],
   route = ({ id }) => `/${defaultRouteName(Model)}/${encodeURIComponent(id)}`,
+  queryParams = {},
   generateDummyObject = () => ({}),
 } = {}) => [
   'It should only authorize deletion when authenticated user has enough rights',
@@ -18,6 +19,7 @@ export const testDelete = (Model, {
 
       const { statusCode } = await request()
         .delete(typeof route === 'function' ? route(createdObject) : route)
+        .query(queryParams)
         .set(...roleGenerator());
 
       const object = await Model.findOne(createdObject.toObject());
@@ -26,7 +28,7 @@ export const testDelete = (Model, {
       }
       await Promise.all(toDropLater.map(entity => entity.remove()));
 
-        return {
+      return {
         statusCode: expect(statusCode),
         foundObject: expect(object),
       };

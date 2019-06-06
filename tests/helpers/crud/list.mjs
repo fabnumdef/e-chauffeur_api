@@ -8,12 +8,14 @@ export const testList = (Model, {
   canCall = [],
   cannotCall = [],
   route = `/${defaultRouteName(Model)}`,
+  queryParams = {},
 } = {}) => [
   'It should response a list to the GET method',
   async () => {
     const expectList = async (roleGenerator) => {
       const { body, statusCode } = await request()
         .get(route)
+        .query(queryParams)
         .set(...roleGenerator());
 
       return {

@@ -9,6 +9,7 @@ export const testCreate = (Model, {
   canCall = [],
   cannotCall = [],
   route = `/${defaultRouteName(Model)}`,
+  queryParams = {},
   generateDummyObject = () => ({}),
 } = {}) => [
   'It should only authorize creation when authenticated user has enough rights',
@@ -17,7 +18,7 @@ export const testCreate = (Model, {
       const [dummyObject, toDropLater = []] = [].concat(await generateDummyObject());
       const { body: { id }, statusCode } = await request()
         .post(route)
-        .query({ mask: 'id' })
+        .query({ ...queryParams, mask: 'id' })
         .set(...roleGenerator())
         .send(cleanObject(dummyObject));
 
@@ -60,6 +61,7 @@ export const testCreateUnicity = (Model, {
   generateDummyObject,
   requestCallBack = r => r,
   transformObject = { id: '_id' },
+  queryParams = {},
   route = `/${defaultRouteName(Model)}`,
 } = {}) => [
   `Only one ${Model.modelName} should be able to be created with same parameters`,
@@ -67,7 +69,7 @@ export const testCreateUnicity = (Model, {
     const [rawDummyObject, toDropLater = []] = [].concat(await generateDummyObject());
     const dummyObject = new Model(rawDummyObject);
     const getRequest = () => requestCallBack(request().post(route))
-      .query({ mask: Object.keys(transformObject).join(',') })
+      .query({ ...queryParams, mask: Object.keys(transformObject).join(',') })
       .send(transform(transformObject, dummyObject));
 
     try {

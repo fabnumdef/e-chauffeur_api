@@ -8,6 +8,7 @@ export const testGet = (Model, {
   canCall = [],
   cannotCall = [],
   route = ({ id }) => `/${defaultRouteName(Model)}/${encodeURIComponent(id)}`,
+  queryParams = {},
   generateDummyObject = () => ({}),
 } = {}) => [
   'It should only authorize get when authenticated user has enough rights',
@@ -18,6 +19,7 @@ export const testGet = (Model, {
 
       const { statusCode } = await request()
         .get(typeof route === 'function' ? route(createdObject) : route)
+        .query(queryParams)
         .set(...roleGenerator());
 
       const object = await Model.findOne(createdObject.toObject());
