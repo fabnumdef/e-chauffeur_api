@@ -95,6 +95,7 @@ export const ROLE_ADMIN = new RoleList(
 
   rights.CAN_EDIT_POI_LOCAL,
   rights.CAN_CREATE_POI_LOCAL,
+  rights.CAN_REMOVE_POI_LOCAL,
 
   rights.CAN_CREATE_PHONE_LOCAL,
   rights.CAN_EDIT_PHONE_LOCAL,
