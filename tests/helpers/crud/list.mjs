@@ -4,6 +4,7 @@ import { defaultRouteName } from './common';
 
 const { expect } = chai;
 
+/* eslint-disable-next-line import/prefer-default-export */
 export const testList = (Model, {
   canCall = [],
   cannotCall = [],
