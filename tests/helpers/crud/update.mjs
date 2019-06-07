@@ -24,7 +24,7 @@ export const testUpdate = (Model, {
         .set(...roleGenerator())
         .send(cleanObject(dummyObject));
 
-      const object = await Model.findOne(createdObject.toObject());
+      const object = await Model.findById(createdObject._id);
       if (object) {
         await object.remove();
       }
