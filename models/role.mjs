@@ -63,12 +63,17 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_REMOVE_CAMPUS_DRIVER,
 
   rights.CAN_EDIT_CAR_EVENT,
+  rights.CAN_GET_CAR_EVENT,
+  rights.CAN_LIST_CAR_EVENT,
   rights.CAN_CREATE_CAR_EVENT,
   rights.CAN_REMOVE_CAR_EVENT,
 
   rights.CAN_EDIT_USER_EVENT,
   rights.CAN_CREATE_USER_EVENT,
   rights.CAN_REMOVE_USER_EVENT,
+
+  rights.CAN_LIST_PHONE_MODEL,
+  rights.CAN_GET_PHONE_MODEL,
 
   rights.CAN_SEND_FEEDBACK,
 
@@ -80,6 +85,9 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_EDIT_RIDE,
   rights.CAN_REVOKE_ROLE_LOCAL_DRIVER,
   rights.CAN_ADD_ROLE_LOCAL_DRIVER,
+
+  rights.CAN_LIST_PHONE_LOCAL,
+  rights.CAN_GET_PHONE_LOCAL,
 );
 
 export const ROLE_ADMIN = new RoleList(
@@ -87,18 +95,11 @@ export const ROLE_ADMIN = new RoleList(
 
   rights.CAN_EDIT_POI_LOCAL,
   rights.CAN_CREATE_POI_LOCAL,
+  rights.CAN_REMOVE_POI_LOCAL,
 
-  rights.CAN_LIST_PHONE,
-  rights.CAN_GET_PHONE,
-  rights.CAN_CREATE_PHONE,
-  rights.CAN_EDIT_PHONE,
-  rights.CAN_REMOVE_PHONE,
-
-  rights.CAN_LIST_PHONE_MODEL,
-  rights.CAN_GET_PHONE_MODEL,
-  rights.CAN_CREATE_PHONE_MODEL,
-  rights.CAN_EDIT_PHONE_MODEL,
-  rights.CAN_REMOVE_PHONE_MODEL,
+  rights.CAN_CREATE_PHONE_LOCAL,
+  rights.CAN_EDIT_PHONE_LOCAL,
+  rights.CAN_REMOVE_PHONE_LOCAL,
 
   rights.CAN_REVOKE_ROLE_LOCAL_REGULATOR,
   rights.CAN_ADD_ROLE_LOCAL_REGULATOR,
@@ -131,6 +132,10 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
+
+  rights.CAN_CREATE_PHONE_MODEL,
+  rights.CAN_EDIT_PHONE_MODEL,
+  rights.CAN_REMOVE_PHONE_MODEL,
 
   rights.CAN_REVOKE_ROLE_SUPERADMIN,
   rights.CAN_ADD_ROLE_SUPERADMIN,

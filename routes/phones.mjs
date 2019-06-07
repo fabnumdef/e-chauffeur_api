@@ -3,28 +3,28 @@ import generateCRUD from '../helpers/abstract-route';
 import Phone from '../models/phone';
 
 import {
-  CAN_CREATE_PHONE,
-  CAN_EDIT_PHONE,
-  CAN_GET_PHONE,
-  CAN_LIST_PHONE,
-  CAN_REMOVE_PHONE,
+  CAN_CREATE_PHONE_LOCAL,
+  CAN_EDIT_PHONE_LOCAL,
+  CAN_GET_PHONE_LOCAL,
+  CAN_LIST_PHONE_LOCAL,
+  CAN_REMOVE_PHONE_LOCAL,
 } from '../models/rights';
 
 const router = generateCRUD(Phone, {
   create: {
-    right: CAN_CREATE_PHONE,
+    right: CAN_CREATE_PHONE_LOCAL,
   },
   list: {
-    right: CAN_LIST_PHONE,
+    right: CAN_LIST_PHONE_LOCAL,
   },
   get: {
-    right: CAN_GET_PHONE,
+    right: CAN_GET_PHONE_LOCAL,
   },
   delete: {
-    right: CAN_REMOVE_PHONE,
+    right: CAN_REMOVE_PHONE_LOCAL,
   },
   update: {
-    right: CAN_EDIT_PHONE,
+    right: CAN_EDIT_PHONE_LOCAL,
     main: async (ctx) => {
       const { params: { id }, request: { body } } = ctx;
 

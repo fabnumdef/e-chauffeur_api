@@ -179,4 +179,8 @@ UserSchema.methods.checkRolesRightsIter = function checkRolesRightsIter(roles) {
   ];
 };
 
+UserSchema.statics.findFromLatestPositions = async function findFromLatestPositions(positions) {
+  return this.find({ _id: { $in: positions.map(p => p._id) } }).lean();
+};
+
 export default mongoose.model('User', UserSchema);

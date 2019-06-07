@@ -48,11 +48,11 @@ export const CAN_CREATE_CAMPUS_DRIVER = campusRule('canCreateCampusDriver');
 export const CAN_EDIT_CAMPUS_DRIVER = campusRule('canEditCampusDriver');
 export const CAN_REMOVE_CAMPUS_DRIVER = campusRule('canRemoveCampusDriver');
 
-export const CAN_LIST_PHONE = stdRule('canListPhone');
-export const CAN_GET_PHONE = stdRule('canGetPhone');
-export const CAN_CREATE_PHONE = stdRule('canCreatePhone');
-export const CAN_EDIT_PHONE = stdRule('canEditPhone');
-export const CAN_REMOVE_PHONE = stdRule('canRemovePhone');
+export const CAN_LIST_PHONE_LOCAL = campusRule('canListPhoneLocal');
+export const CAN_GET_PHONE_LOCAL = campusRule('canGetPhoneLocal');
+export const CAN_CREATE_PHONE_LOCAL = campusRule('canCreatePhoneLocal');
+export const CAN_EDIT_PHONE_LOCAL = campusRule('canEditPhoneLocal');
+export const CAN_REMOVE_PHONE_LOCAL = campusRule('canRemovePhoneLocal');
 
 export const CAN_LIST_PHONE_MODEL = stdRule('canListPhoneModel');
 export const CAN_GET_PHONE_MODEL = stdRule('canGetPhoneModel');
