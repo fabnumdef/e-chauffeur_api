@@ -1,8 +1,10 @@
 # Changelog
-## Current
+## Version 1.3.0
 ### Features
 * Add phone management.
 * Add roles to prevent unauthorized add/revoke of roles
+* Added CRUD tests for basic routes
+* Let user change self password
 ### Fix
 * Fix search location for campus rule
 * Fix filters addition for POI CRUD
