@@ -82,15 +82,17 @@ const router = generateCRUD(User, {
 
       const user = await User.findById(id);
 
-      ctx.assert(
-        user.checkRolesRightsIter(body.roles || [])
-          .reduce(
-            (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), false) && acc,
-            true,
-          ),
-        403,
-        'You\'re not authorized to change this role',
-      );
+      if (body.roles) {
+        ctx.assert(
+          user.checkRolesRightsIter(body.roles || [])
+            .reduce(
+              (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), false) && acc,
+              true,
+            ),
+          403,
+          'You\'re not authorized to change this role',
+        );
+      }
 
       user.set(body);
       ctx.body = await user.save();
