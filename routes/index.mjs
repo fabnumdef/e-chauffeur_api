@@ -17,6 +17,10 @@ import phoneModels from './phone-models';
 
 const router = new Router();
 
+router.get('/', (ctx) => {
+  ctx.body = 'OK';
+});
+
 router.use('/users', users);
 router.use('/pois', pois);
 router.use('/logs', logs);
