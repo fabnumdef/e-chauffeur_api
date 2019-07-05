@@ -1,11 +1,32 @@
 import mongoose from 'mongoose';
 import omit from 'lodash.omit';
+import difference from 'lodash.difference';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Luxon from 'luxon';
 import OpeningHours from 'opening_hours';
 import config from '../services/config';
 import createdAtPlugin from './helpers/created-at';
+import {
+  CAN_ADD_ROLE_ADMIN,
+  CAN_ADD_ROLE_DRIVER,
+  CAN_ADD_ROLE_LOCAL_DRIVER,
+  CAN_ADD_ROLE_LOCAL_REGULATOR,
+  CAN_ADD_ROLE_REGULATOR,
+  CAN_ADD_ROLE_SUPERADMIN,
+  CAN_REVOKE_ROLE_ADMIN,
+  CAN_REVOKE_ROLE_DRIVER, CAN_REVOKE_ROLE_LOCAL_DRIVER, CAN_REVOKE_ROLE_LOCAL_REGULATOR,
+  CAN_REVOKE_ROLE_REGULATOR, CAN_REVOKE_ROLE_SUPERADMIN,
+} from './rights';
+import * as rolesImport from './role';
+
+const {
+  ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_DRIVER, ROLE_REGULATOR,
+} = {
+  ...Object.keys(rolesImport)
+    .map(r => ({ [r]: r }))
+    .reduce((acc, r) => Object.assign(acc, r), {}),
+};
 
 const SALT_WORK_FACTOR = 10;
 const { Schema } = mongoose;
@@ -104,6 +125,62 @@ UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) 
   } catch (e) {
     return [];
   }
+};
+
+UserSchema.methods.diffRoles = function diffRoles(roles = []) {
+  const expandRoles = (...array) => array
+    .reduce(
+      (acc, { role, campuses = [] }) => acc
+        .concat(campuses.map(campus => ({ role, campus }))),
+      [],
+    )
+    .map(({ role, campus }) => ({
+      role, campus: !campus ? null : { id: campus.id, name: campus.name },
+    }));
+  const userRoles = expandRoles(...this.roles.toObject({ virtuals: true }));
+  const paramRoles = expandRoles(...roles);
+  return {
+    revoked: difference(userRoles, paramRoles),
+    added: difference(paramRoles, userRoles),
+  };
+};
+
+UserSchema.methods.checkRolesRightsIter = function checkRolesRightsIter(roles) {
+  const { added, revoked } = this.diffRoles(roles);
+  return [
+    ...added.map(({ role, campus }) => {
+      switch (role) {
+        case ROLE_REGULATOR:
+          return [CAN_ADD_ROLE_REGULATOR, [CAN_ADD_ROLE_LOCAL_REGULATOR, campus]];
+        case ROLE_DRIVER:
+          return [CAN_ADD_ROLE_DRIVER, [CAN_ADD_ROLE_LOCAL_DRIVER, campus]];
+        case ROLE_ADMIN:
+          return [CAN_ADD_ROLE_ADMIN];
+        case ROLE_SUPERADMIN:
+          return [CAN_ADD_ROLE_SUPERADMIN];
+        default:
+          return [];
+      }
+    }),
+    ...revoked.map(({ role, campus }) => {
+      switch (role) {
+        case ROLE_REGULATOR:
+          return [CAN_REVOKE_ROLE_REGULATOR, [CAN_REVOKE_ROLE_LOCAL_REGULATOR, campus]];
+        case ROLE_DRIVER:
+          return [CAN_REVOKE_ROLE_DRIVER, [CAN_REVOKE_ROLE_LOCAL_DRIVER, campus]];
+        case ROLE_ADMIN:
+          return [CAN_REVOKE_ROLE_ADMIN];
+        case ROLE_SUPERADMIN:
+          return [CAN_REVOKE_ROLE_SUPERADMIN];
+        default:
+          return [];
+      }
+    }),
+  ];
+};
+
+UserSchema.statics.findFromLatestPositions = async function findFromLatestPositions(positions) {
+  return this.find({ _id: { $in: positions.map(p => p._id) } }).lean();
 };
 
 export default mongoose.model('User', UserSchema);

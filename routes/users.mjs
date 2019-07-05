@@ -1,7 +1,7 @@
 import generateCRUD from '../helpers/abstract-route';
 import User from '../models/user';
 import {
-  CAN_CREATE_USER,
+  CAN_CREATE_USER, CAN_EDIT_SELF_USER_NAME, CAN_EDIT_SELF_USER_PASSWORD,
   CAN_EDIT_USER,
   CAN_GET_USER,
   CAN_LIST_USER,
@@ -53,16 +53,47 @@ const router = generateCRUD(User, {
     ],
   },
   update: {
-    right: CAN_EDIT_USER,
+    paramId: 'user_id',
+    right: [
+      CAN_EDIT_USER,
+      CAN_EDIT_SELF_USER_NAME,
+      CAN_EDIT_SELF_USER_PASSWORD,
+    ],
     main: async (ctx) => {
-      const { request: { body } } = ctx;
+      const { request: { body = {} }, params: { user_id: id } } = ctx;
 
       if (!body.password) {
         delete body.password;
       }
 
-      const { params: { id } } = ctx;
+      const userBody = {};
+
+      if (ctx.may(CAN_EDIT_USER)) {
+        Object.assign(userBody, body);
+      }
+
+      if (ctx.may(CAN_EDIT_SELF_USER_PASSWORD) && body.password) {
+        userBody.password = body.password;
+      }
+
+      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.name) {
+        userBody.name = body.name;
+      }
+
       const user = await User.findById(id);
+
+      if (body.roles) {
+        ctx.assert(
+          user.checkRolesRightsIter(body.roles || [])
+            .reduce(
+              (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), false) && acc,
+              true,
+            ),
+          403,
+          'You\'re not authorized to change this role',
+        );
+      }
+
       user.set(body);
       ctx.body = await user.save();
       ctx.log(

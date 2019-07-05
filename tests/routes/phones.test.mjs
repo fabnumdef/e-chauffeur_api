@@ -1,11 +1,7 @@
-import {
-  generateAdminJWTHeader as originalGenerateAdminJWTHeader,
-  generateRegulatorJWTHeader as originalGenerateRegulatorJWTHeader,
-  generateDriverJWTHeader,
-  generateSuperAdminJWTHeader,
-} from '../request';
+import { generateAdminJWTHeader as originalGenerateAdminJWTHeader, generateDriverJWTHeader } from '../request';
 import Campus, { generateDummyCampus } from '../models/campus';
-import Poi, { generateDummyPoi } from '../models/poi';
+import { createDummyPhoneModel } from '../models/phone-model';
+import Phone, { generateDummyPhone } from '../models/phone';
 import {
   testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
 } from '../helpers/crud';
@@ -13,10 +9,9 @@ import {
 const campus = generateDummyCampus();
 
 const generateAdminJWTHeader = originalGenerateAdminJWTHeader.bind(null, campus);
-const generateRegulatorJWTHeader = originalGenerateRegulatorJWTHeader.bind(null, campus);
 
 const config = {
-  route: '/pois',
+  route: '/phones',
   queryParams: {
     filters: {
       campus: campus._id,
@@ -25,15 +20,18 @@ const config = {
   async generateDummyObject() {
     const toDropLater = [];
 
-    const dummyPoi = await generateDummyPoi({ campus });
+    const phoneModel = await createDummyPhoneModel();
+    toDropLater.push(phoneModel);
 
-    return [dummyPoi, toDropLater];
+    const dummyPhone = await generateDummyPhone({ campus, model: phoneModel });
+
+    return [dummyPhone, toDropLater];
   },
   cannotCall: [generateDriverJWTHeader],
-  canCall: [generateAdminJWTHeader, generateSuperAdminJWTHeader],
+  canCall: [generateAdminJWTHeader],
 };
 
-describe('Test the poi API endpoint', () => {
+describe('Test the phone API endpoint', () => {
   before(async () => {
     await Campus.create(campus);
   });
@@ -42,38 +40,39 @@ describe('Test the poi API endpoint', () => {
     await Campus.deleteOne(campus);
   });
 
-  it(...testCreate(Poi, {
+  it(...testCreate(Phone, {
     ...config,
   }));
 
-  it(...testCreateUnicity(Poi, {
+  it(...testCreateUnicity(Phone, {
     ...config,
     requestCallBack: r => r
       .set(...generateAdminJWTHeader()),
     transformObject: {
       id: '_id',
       label: 'label',
+      number: 'number',
+      imei: 'imei',
       campus: { id: '_id', name: 'name' },
+      model: { id: '_id', label: 'label' },
     },
   }));
 
-  it(...testList(Poi, {
+  it(...testList(Phone, {
     ...config,
-    canCall: config.canCall.concat(generateRegulatorJWTHeader),
   }));
 
-  it(...testDelete(Poi, {
+  it(...testDelete(Phone, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
   }));
 
-  it(...testGet(Poi, {
+  it(...testGet(Phone, {
     ...config,
-    canCall: config.canCall.concat(generateRegulatorJWTHeader),
     route: ({ id }) => `${config.route}/${id}`,
   }));
 
-  it(...testUpdate(Poi, {
+  it(...testUpdate(Phone, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
   }));

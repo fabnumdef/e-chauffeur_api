@@ -7,9 +7,11 @@ import rangePaginationMiddleware from './middlewares/range-pagination';
 import routes from './routes';
 import config from './services/config';
 import { loggerMiddleware } from './services/logger';
+import { injectUserMayMiddleware } from './middlewares/check-rights';
 
 const app = new Koa();
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
+app.use(injectUserMayMiddleware);
 app.use(loggerMiddleware);
 qsParser(app);
 app.use(rangePaginationMiddleware);

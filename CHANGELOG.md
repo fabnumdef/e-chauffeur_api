@@ -1,5 +1,14 @@
 # Changelog
-## Current
+## Version 1.3.0
+### Features
+* Add phone management.
+* Add roles to prevent unauthorized add/revoke of roles
+* Added CRUD tests for basic routes
+* Let user change self password
+### Fix
+* Fix search location for campus rule
+* Fix filters addition for POI CRUD
+* Fix ctx param in check rights middleware
 ## Version 1.2.1
 ### Fix
 * When the dataset was too large, geolocations was impossible to query

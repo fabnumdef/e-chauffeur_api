@@ -1,4 +1,5 @@
 import GeoTracking from '../../models/geo-tracking';
+import { cleanObject } from '../../middlewares/mask-output';
 
 export default (socket) => {
   socket.on('positionUpdate', async ({
@@ -13,9 +14,8 @@ export default (socket) => {
     }
     io.emit(
       'positionUpdate', {
-        user,
-        campus,
-        position,
+        ...cleanObject(user),
+        position: { coordinates: position },
         date: new Date(),
       },
     );

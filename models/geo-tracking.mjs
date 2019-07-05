@@ -30,12 +30,22 @@ const GeoTrackingSchema = new Schema({
   ],
 });
 
-GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(campusId) {
+GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(drivers = [], date) {
+  const upperDate = date;
+  const lowerDate = new Date((date * 1) - (1000 * 3600));
   const GeoTracking = mongoose.model('GeoTracking');
-  const positions = await GeoTracking.aggregate([
+  return GeoTracking.aggregate([
     {
       $match: {
-        'campus._id': campusId,
+        'driver._id': { $in: drivers.map(d => d._id) },
+        $or: [
+          {
+            start: { $lte: upperDate, $gte: lowerDate },
+          },
+          {
+            end: { $lte: upperDate, $gte: lowerDate },
+          },
+        ],
       },
     },
     {
@@ -51,7 +61,6 @@ GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(
     { $sort: { date: -1 } },
     { $group: { _id: '$driverId', date: { $first: '$date' }, position: { $first: '$position' } } },
   ]).allowDiskUse(true);
-  return positions;
 };
 
 GeoTrackingSchema.statics.pushHourlyTrack = async function pushHourlyTrack(user, campus, position) {

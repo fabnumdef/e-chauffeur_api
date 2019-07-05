@@ -2,7 +2,7 @@ import isEmpty from 'lodash.isempty';
 import Router from 'koa-router';
 import Campus from '../../models/campus';
 import maskOutput from '../../middlewares/mask-output';
-import { checkCampusRights } from '../../middlewares/check-rights';
+import resolveRights from '../../middlewares/check-rights';
 import {
   CAN_CREATE_CAMPUS_DRIVER,
   CAN_EDIT_CAMPUS_DRIVER,
@@ -17,7 +17,7 @@ const router = new Router();
 
 router.get(
   '/',
-  checkCampusRights(CAN_LIST_CAMPUS_DRIVER),
+  resolveRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
   async (ctx) => {
     let data;
@@ -42,7 +42,7 @@ router.get(
 
 router.get(
   '/:id',
-  checkCampusRights(CAN_GET_CAMPUS_DRIVER),
+  resolveRights(CAN_GET_CAMPUS_DRIVER),
   maskOutput,
   async (ctx) => {
     ctx.body = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
@@ -51,7 +51,7 @@ router.get(
 
 router.get(
   '/:driver_id/rides',
-  checkCampusRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
+  resolveRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
   maskOutput,
   ensureThatFiltersExists('status'),
   async (ctx) => {
@@ -63,7 +63,7 @@ router.get(
 
 router.post(
   '/',
-  checkCampusRights(CAN_CREATE_CAMPUS_DRIVER),
+  resolveRights(CAN_CREATE_CAMPUS_DRIVER),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -92,7 +92,7 @@ router.post(
     if (!body.password) {
       delete body.password;
     }
-
+    delete body.roles;
     Object.assign(body,
       {
         roles:
@@ -110,7 +110,7 @@ router.post(
 
 router.patch(
   '/:id',
-  checkCampusRights(CAN_EDIT_CAMPUS_DRIVER),
+  resolveRights(CAN_EDIT_CAMPUS_DRIVER),
   maskOutput,
   async (ctx) => {
     const { request: { body } } = ctx;
@@ -121,7 +121,7 @@ router.patch(
     if (!body.password) {
       delete body.password;
     }
-
+    delete body.roles;
     driver.set(body);
     ctx.body = await driver.save();
   },
@@ -129,7 +129,7 @@ router.patch(
 
 router.del(
   '/:id',
-  checkCampusRights(CAN_REMOVE_CAMPUS_DRIVER),
+  resolveRights(CAN_REMOVE_CAMPUS_DRIVER),
   async (ctx) => {
     const driver = await Campus.findDriver(ctx.params.campus_id, ctx.params.id);
     ctx.assert(!isEmpty(driver), 404, 'Driver not found.');

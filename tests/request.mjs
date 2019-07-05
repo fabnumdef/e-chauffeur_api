@@ -32,6 +32,9 @@ export const generateRoleJWTHeader = (role, ...campuses) => {
   return ['Authorization', `Bearer ${token}`];
 };
 
+export const generateAdminJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_ADMIN, ...params);
 export const generateRegulatorJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_REGULATOR, ...params);
+export const generateUserJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_USER, ...params);
 export const generateDriverJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_DRIVER, ...params);
 export const generateSuperAdminJWTHeader = (...params) => generateRoleJWTHeader(rolesKeys.ROLE_SUPERADMIN, ...params);
+export const generateAnonymousJWTHeader = () => ['Authorization', null];

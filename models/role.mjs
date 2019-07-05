@@ -1,17 +1,26 @@
 import * as rights from './rights';
 
-export const ROLE_ANONYMOUS = [
+class RoleList extends Set {
+  constructor(...items) {
+    super(items);
+  }
+}
+
+export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_LOGIN,
   rights.CAN_GET_RIDE,
   rights.CAN_GET_RIDE_POSITION,
   rights.CAN_LIST_CAMPUS,
-];
+);
 
-export const ROLE_USER = [
+export const ROLE_USER = new RoleList(
   ...ROLE_ANONYMOUS,
-];
 
-export const ROLE_DRIVER = [
+  rights.CAN_EDIT_SELF_USER_NAME,
+  rights.CAN_EDIT_SELF_USER_PASSWORD,
+);
+
+export const ROLE_DRIVER = new RoleList(
   ...ROLE_USER,
 
   rights.CAN_LIST_CAMPUS,
@@ -27,9 +36,9 @@ export const ROLE_DRIVER = [
 
   rights.CAN_EDIT_RIDE_STATUS,
   rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
-];
+);
 
-export const ROLE_REGULATOR = [
+export const ROLE_REGULATOR = new RoleList(
   ...ROLE_DRIVER,
 
   rights.CAN_LIST_USER,
@@ -54,12 +63,17 @@ export const ROLE_REGULATOR = [
   rights.CAN_REMOVE_CAMPUS_DRIVER,
 
   rights.CAN_EDIT_CAR_EVENT,
+  rights.CAN_GET_CAR_EVENT,
+  rights.CAN_LIST_CAR_EVENT,
   rights.CAN_CREATE_CAR_EVENT,
   rights.CAN_REMOVE_CAR_EVENT,
 
   rights.CAN_EDIT_USER_EVENT,
   rights.CAN_CREATE_USER_EVENT,
   rights.CAN_REMOVE_USER_EVENT,
+
+  rights.CAN_LIST_PHONE_MODEL,
+  rights.CAN_GET_PHONE_MODEL,
 
   rights.CAN_SEND_FEEDBACK,
 
@@ -69,16 +83,29 @@ export const ROLE_REGULATOR = [
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
-];
+  rights.CAN_REVOKE_ROLE_LOCAL_DRIVER,
+  rights.CAN_ADD_ROLE_LOCAL_DRIVER,
 
-export const ROLE_ADMIN = [
+  rights.CAN_LIST_PHONE_LOCAL,
+  rights.CAN_GET_PHONE_LOCAL,
+);
+
+export const ROLE_ADMIN = new RoleList(
   ...ROLE_REGULATOR,
 
   rights.CAN_EDIT_POI_LOCAL,
   rights.CAN_CREATE_POI_LOCAL,
-];
+  rights.CAN_REMOVE_POI_LOCAL,
 
-export const ROLE_SUPERADMIN = [
+  rights.CAN_CREATE_PHONE_LOCAL,
+  rights.CAN_EDIT_PHONE_LOCAL,
+  rights.CAN_REMOVE_PHONE_LOCAL,
+
+  rights.CAN_REVOKE_ROLE_LOCAL_REGULATOR,
+  rights.CAN_ADD_ROLE_LOCAL_REGULATOR,
+);
+
+export const ROLE_SUPERADMIN = new RoleList(
   ...ROLE_ADMIN,
 
   rights.CAN_EDIT_CAR_MODEL,
@@ -105,4 +132,17 @@ export const ROLE_SUPERADMIN = [
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
-];
+
+  rights.CAN_CREATE_PHONE_MODEL,
+  rights.CAN_EDIT_PHONE_MODEL,
+  rights.CAN_REMOVE_PHONE_MODEL,
+
+  rights.CAN_REVOKE_ROLE_SUPERADMIN,
+  rights.CAN_ADD_ROLE_SUPERADMIN,
+  rights.CAN_REVOKE_ROLE_ADMIN,
+  rights.CAN_ADD_ROLE_ADMIN,
+  rights.CAN_REVOKE_ROLE_REGULATOR,
+  rights.CAN_ADD_ROLE_REGULATOR,
+  rights.CAN_REVOKE_ROLE_DRIVER,
+  rights.CAN_ADD_ROLE_DRIVER,
+);
