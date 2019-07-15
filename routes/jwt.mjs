@@ -2,9 +2,10 @@ import Router from 'koa-router';
 import jwt from 'koa-jwt';
 import config from '../services/config';
 import User from '../models/user';
+import Campus from '../models/campus';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
-import { CAN_LOGIN } from '../models/rights';
+import { CAN_LIST_ALL_CAMPUSES, CAN_LOGIN } from '../models/rights';
 
 const router = new Router();
 
@@ -55,7 +56,11 @@ router.get(
   jwt({ secret: config.get('token:secret') }),
   async (ctx) => {
     const u = await User.findById(ctx.state.user.id);
-    ctx.body = await u.getCampusesAccessibles();
+    if (ctx.may(CAN_LIST_ALL_CAMPUSES)) {
+      ctx.body = await Campus.find();
+    } else {
+      ctx.body = await u.getCampusesAccessibles();
+    }
   },
 );
 

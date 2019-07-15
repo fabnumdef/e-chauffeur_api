@@ -110,3 +110,5 @@ export const CAN_REVOKE_ROLE_LOCAL_DRIVER = roleEditingRule('canRevokeRoleLocalD
 export const CAN_ADD_ROLE_LOCAL_DRIVER = roleEditingRule('canAddRoleLocalDriver');
 export const CAN_REVOKE_ROLE_DRIVER = stdRule('canRevokeRoleDriver');
 export const CAN_ADD_ROLE_DRIVER = stdRule('canAddRoleDriver');
+
+export const CAN_LIST_ALL_CAMPUSES = stdRule('canListAllCampuses');

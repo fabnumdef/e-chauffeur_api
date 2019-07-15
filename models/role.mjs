@@ -145,4 +145,6 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_ADD_ROLE_REGULATOR,
   rights.CAN_REVOKE_ROLE_DRIVER,
   rights.CAN_ADD_ROLE_DRIVER,
+
+  rights.CAN_LIST_ALL_CAMPUSES,
 );
