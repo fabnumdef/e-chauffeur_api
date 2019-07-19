@@ -1,10 +1,14 @@
 stages:
   - test
   - build
+  - deploy
 
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_DRIVER: overlay2
+  URL_REVIEW: ${CI_COMMIT_REF_SLUG}.${DOMAIN_STAGING}
+  URL_PRODUCTION: ${DOMAIN_PRODUCTION}
+  KUBECONFIG: /etc/deploy/config
 
 test:
   variables:
@@ -24,12 +28,38 @@ build:
   stage: build
   services:
     - docker:dind
-
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_BEFORE_SHA || true
     - docker build --cache-from $CI_REGISTRY_IMAGE:$CI_COMMIT_BEFORE_SHA --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+deploy_review:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  before_script:
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - kubectl config get-contexts
+    - kubectl config use-context ${STAGING_KUBECONTEXT}
+  script:
+    - helm init --upgrade --service-account tiller
+    - helm repo update
+    - helm upgrade
+      --install --debug
+      --namespace e-chauffeur
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${URL_REVIEW}"
+      --set imageCredentials.username="${CI_REGISTRY_USER}"
+      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.MONGODB="${STAGING_MONGODB}"
+      --wait
+      --force
+      ${CI_COMMIT_REF_SLUG}
+      .helm-chart
+  except:
+    refs:
+      - master

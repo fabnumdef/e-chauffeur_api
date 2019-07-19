@@ -37,4 +37,4 @@ COPY ./config.json.dist ./config.json
 
 EXPOSE 3000
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "serve" ]
