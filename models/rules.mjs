@@ -1,4 +1,5 @@
 import lGet from 'lodash.get';
+import {CAN_LIST_ALL_CAMPUSES} from "./rights";
 
 /**
  * @return {symbol}
@@ -14,6 +15,9 @@ export const stdRule = id => ({
 export const campusRule = id => ({
   id: Symbol(id),
   rule: ({ campuses = [] }, ctx) => {
+    if (ctx.may(CAN_LIST_ALL_CAMPUSES)) {
+      return true;
+    }
     const campus = lGet(ctx, 'params.campus_id', lGet(ctx, 'query.filters.campus', null));
     return campus && !!campuses.find(c => c._id === campus);
   },

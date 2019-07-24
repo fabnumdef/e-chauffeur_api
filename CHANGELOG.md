@@ -1,4 +1,9 @@
 # Changelog
+## Current
+
+## Version 1.3.1
+### Features
+ * Superadmin is now able to list all campuses
 ## Version 1.3.0
 ### Features
 * Add phone management.
