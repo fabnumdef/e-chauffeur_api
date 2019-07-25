@@ -40,13 +40,12 @@ deploy_review:
   stage: deploy
   image: dtzar/helm-kubectl
   before_script:
+    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
+    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - kubectl config get-contexts
-    - kubectl config use-context ${STAGING_KUBECONTEXT}
+    - helm init --upgrade --service-account tiller --force-upgrade
   script:
-    - helm init --upgrade --service-account tiller
-    - helm repo update
     - helm upgrade
       --install --debug
       --namespace e-chauffeur
@@ -57,7 +56,6 @@ deploy_review:
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --wait
-      --force
       ${CI_COMMIT_REF_SLUG}
       .helm-chart
   except:

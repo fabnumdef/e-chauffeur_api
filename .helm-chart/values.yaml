@@ -29,12 +29,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: "traefik"
     traefik.frontend.passHostHeader: "true"
-    # kubernetes.io/tls-acme: "true"
   host: api.echauffeur.qfc.at
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
