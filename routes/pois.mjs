@@ -40,7 +40,7 @@ const router = generateCRUD(Poi, {
               _id: new RegExp(ctx.query.search, 'i'),
             },
             {
-              name: new RegExp(ctx.query.search, 'i'),
+              label: new RegExp(ctx.query.search, 'i'),
             },
           ];
         }
