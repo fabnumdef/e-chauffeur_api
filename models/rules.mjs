@@ -1,5 +1,6 @@
 import lGet from 'lodash.get';
-import {CAN_LIST_ALL_CAMPUSES} from "./rights";
+// eslint-disable-next-line import/no-cycle
+import { CAN_LIST_ALL_CAMPUSES } from './rights';
 
 /**
  * @return {symbol}
