@@ -1,6 +1,6 @@
 # Changelog
 ## Current
-
+* Fix POI search on label instead of name field
 ## Version 1.3.1
 ### Features
  * Superadmin is now able to list all campuses
