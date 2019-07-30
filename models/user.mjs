@@ -1,10 +1,13 @@
 import mongoose from 'mongoose';
 import omit from 'lodash.omit';
+import orderBy from 'lodash.orderby';
+import chunk from 'lodash.chunk';
 import difference from 'lodash.difference';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Luxon from 'luxon';
 import OpeningHours from 'opening_hours';
+import nanoid from 'nanoid/generate';
 import config from '../services/config';
 import createdAtPlugin from './helpers/created-at';
 import {
@@ -29,9 +32,15 @@ const {
 };
 
 const SALT_WORK_FACTOR = 10;
+const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
+const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
+
 const { Schema } = mongoose;
 // @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
 const { DateTime, Interval } = Luxon;
+
+export const LOGIN = 'login';
+export const VALIDATOR = 'validator';
 
 const UserSchema = new Schema({
   email: { type: String, required: true, index: { unique: true } },
@@ -63,6 +72,27 @@ const UserSchema = new Schema({
       },
     },
   },
+  tokens: [
+    {
+      _id: false,
+      token: String,
+      role: {
+        type: String,
+        enum: [LOGIN, VALIDATOR],
+      },
+      meta: {
+        email: String,
+        phone: String,
+      },
+      attempts: [
+        {
+          _id: false,
+          date: Date,
+        },
+      ],
+      expiration: Date,
+    },
+  ],
 });
 
 UserSchema.plugin(createdAtPlugin);
@@ -71,6 +101,7 @@ UserSchema.pre('save', function preSave(next) {
   if (!this.isModified('password') || !this.password) {
     next();
   }
+  this.tokens = this.activeTokens;
   bcrypt
     .hash(this.password, SALT_WORK_FACTOR)
     .then((password) => {
@@ -86,6 +117,17 @@ UserSchema.virtual('name')
   })
   .set(function setName() {
     [this.firstname, this.lastname] = this.name.split(' ');
+  });
+
+UserSchema.virtual('activeTokens')
+  .get(function getName() {
+    const [firsts] = chunk(orderBy(
+      this.tokens
+        .filter(t => t.attempts.length < 3 && t.expiration > new Date()),
+      ['expiration'],
+      ['desc'],
+    ), 10);
+    return firsts;
   });
 
 UserSchema.methods.toCleanObject = function toCleanObject(...params) {
@@ -109,6 +151,25 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
     throw new Error('No password set');
   }
   return bcrypt.compare(password, this.password);
+};
+
+UserSchema.methods.compareResetToken = async function compareResetToken(token, meta = {}) {
+  const tokenRow = this.activeTokens
+    .filter(t => t.role === LOGIN)
+    .find(t => (Object.keys(t.meta.toObject()).reduce((acc, cur) => acc && meta[cur] === t.meta[cur], true)));
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    await this.save();
+    return false;
+  }
+
+  return true;
 };
 
 UserSchema.statics.cleanObject = o => UserSchema.methods.toCleanObject.call(o);
@@ -195,6 +256,25 @@ UserSchema.methods.checkRolesRightsIter = function checkRolesRightsIter(roles) {
 
 UserSchema.statics.findFromLatestPositions = async function findFromLatestPositions(positions) {
   return this.find({ _id: { $in: positions.map(p => p._id) } }).lean();
+};
+
+UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
+  const email = encodeURIComponent(this.email);
+  return `${config.get('user_website_url')}/edit-account?email=${email}&token=${token}`;
+};
+
+UserSchema.methods.generateResetToken = async function generateResetToken(role, meta) {
+  const expiration = new Date();
+  expiration.setSeconds(expiration.getSeconds() + RESET_TOKEN_EXPIRATION_SECONDS);
+  const token = {
+    expiration,
+    meta,
+    role,
+    token: nanoid(RESET_TOKEN_ALPHABET, 6),
+  };
+  this.tokens.unshift(token);
+  await this.save();
+  return token;
 };
 
 export default mongoose.model('User', UserSchema);
