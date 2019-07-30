@@ -35,8 +35,10 @@ const { DateTime, Interval } = Luxon;
 
 const UserSchema = new Schema({
   email: { type: String, required: true, index: { unique: true } },
-  name: String,
-  password: { type: String, required: true },
+  firstname: String,
+  lastname: String,
+  password: String,
+
   roles: [{
     _id: false,
     role: { type: String, required: true },
@@ -78,13 +80,22 @@ UserSchema.pre('save', function preSave(next) {
     .catch(err => next(err));
 });
 
+UserSchema.virtual('name')
+  .get(function getName() {
+    return `${this.firstname} ${this.lastname}`;
+  })
+  .set(function setName() {
+    [this.firstname, this.lastname] = this.name.split(' ');
+  });
+
 UserSchema.methods.toCleanObject = function toCleanObject(...params) {
   return omit(this.toObject ? this.toObject(...params) : this, ['password']);
 };
 
-UserSchema.methods.emitJWT = function emitJWT() {
+UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
   const u = this.toCleanObject({ versionKey: false });
   u.id = u._id;
+  u.isRenewable = isRenewable;
   delete u._id;
   return jwt.sign(
     u,
@@ -94,6 +105,9 @@ UserSchema.methods.emitJWT = function emitJWT() {
 };
 
 UserSchema.methods.comparePassword = function comparePassword(password) {
+  if (!this.password) {
+    throw new Error('No password set');
+  }
   return bcrypt.compare(password, this.password);
 };
 
