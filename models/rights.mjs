@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import {
   stdRule, campusRule, selfEditingUserRule, roleEditingRule,
 } from './rules';
@@ -21,6 +22,8 @@ export const CAN_CREATE_USER = stdRule('canCreateUser');
 export const CAN_LIST_USER = stdRule('canListUser');
 export const CAN_GET_USER = stdRule('canGetUser');
 export const CAN_REMOVE_USER = stdRule('canRemoveUser');
+
+export const CAN_SEND_CREATION_TOKEN = stdRule('canSendCreationToken');
 
 export const CAN_EDIT_SELF_USER_PASSWORD = selfEditingUserRule('canEditSelfUserPassword');
 export const CAN_EDIT_SELF_USER_NAME = selfEditingUserRule('canEditSelfUserName');

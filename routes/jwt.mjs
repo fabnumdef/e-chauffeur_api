@@ -13,15 +13,23 @@ router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
   const { request: { body } } = ctx;
   const user = await User.findOne({ email: body.email });
 
-  if (!user) {
-    ctx.throw_and_log(404, `User "${body.email}" not found.`);
+  if (!body.password && !body.token) {
+    ctx.throw_and_log(400, 'To generate a JWT, token or password are required.');
   }
 
-  if (!(await user.comparePassword(body.password))) {
+  if (!user) {
     ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
   }
 
-  ctx.body = { token: user.emitJWT() };
+  if (body.password && !(await user.comparePassword(body.password))) {
+    ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
+  }
+
+  if (body.token && !(await user.compareResetToken(body.token, { email: body.email }))) {
+    ctx.throw_and_log(403, `Username and token do not match for user "${body.email}".`);
+  }
+
+  ctx.body = { token: user.emitJWT(!!body.password) };
 });
 
 router.post(
@@ -29,6 +37,9 @@ router.post(
   maskOutput,
   jwt({ secret: config.get('token:secret') }),
   async (ctx) => {
+    if (!ctx.state.user.isRenewable) {
+      ctx.throw_and_log(403, 'Token not renewable.');
+    }
     const user = await User.findById(ctx.state.user.id);
     if (!user) {
       ctx.throw_and_log(404, `User "${ctx.state.user.id}" not found.`);

@@ -1,16 +1,19 @@
 import generateCRUD from '../helpers/abstract-route';
-import User from '../models/user';
+import User, { LOGIN } from '../models/user';
 import {
   CAN_CREATE_USER, CAN_EDIT_SELF_USER_NAME, CAN_EDIT_SELF_USER_PASSWORD,
+  CAN_SEND_CREATION_TOKEN,
   CAN_EDIT_USER,
   CAN_GET_USER,
   CAN_LIST_USER,
   CAN_REMOVE_USER,
 } from '../models/rights';
 
+const X_SEND_TOKEN = 'x-send-token';
+
 const router = generateCRUD(User, {
   create: {
-    right: CAN_CREATE_USER,
+    right: [CAN_CREATE_USER, CAN_SEND_CREATION_TOKEN],
     main: async (ctx) => {
       const { request: { body } } = ctx;
 
@@ -18,12 +21,30 @@ const router = generateCRUD(User, {
         delete body.password;
       }
 
-      if (await User.findOne({ email: body.email })) {
-        ctx.throw_and_log(409, `User email ${body.email} already existing.`);
-      }
+      const emailO = { email: body.email };
+      const userExists = await User.findOne(emailO);
+      if (ctx.headers[X_SEND_TOKEN] && ctx.may(CAN_SEND_CREATION_TOKEN)) {
+        if (userExists) {
+          const { token } = await userExists.generateResetToken(LOGIN, emailO);
+          await userExists.sendResetPasswordMail(token);
+          ctx.log(`Password reset requested by ${body.email}.`);
+        } else {
+          const user = await User.create(emailO);
+          const { token } = await user.generateResetToken(LOGIN, emailO);
+          await user.sendRegistrationTokenMail(token);
+          ctx.log(`User creation requested by ${body.email}.`);
+        }
+        ctx.status = 204;
+      } else if (ctx.may(CAN_CREATE_USER)) {
+        if (userExists) {
+          ctx.throw_and_log(409, `User email ${body.email} already existing.`);
+        }
 
-      ctx.body = await User.create(body);
-      ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
+        ctx.body = await User.create(body);
+        ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
+      } else {
+        ctx.status = 403;
+      }
     },
   },
   get: {
