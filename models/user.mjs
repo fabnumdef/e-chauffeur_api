@@ -228,7 +228,7 @@ UserSchema.methods.confirmPhone = async function confirmPhone(token) {
 };
 
 UserSchema.methods.confirmEmail = async function confirmEmail(token) {
-  const email = this.email;
+  const { email } = this;
   const tokenRow = this.activeTokens
     .filter(t => !!t.email)
     .find(t => t.email === email);
@@ -363,7 +363,7 @@ UserSchema.methods.sendVerificationSMS = async function sendVerifSMS(token) {
   if (!this.phone || !this.phone.canonical) {
     throw new Error('Phone undefined');
   }
-  await sendVerificationSMS(this.phone.canonical, {data: { token } });
+  await sendVerificationSMS(this.phone.canonical, { data: { token } });
 };
 
 UserSchema.methods.generateResetToken = async function generateResetToken({ email = null, phone = null }) {
