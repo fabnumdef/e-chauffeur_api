@@ -1,9 +1,10 @@
 import generateCRUD from '../helpers/abstract-route';
-import User, { LOGIN } from '../models/user';
+import User from '../models/user';
 import {
   CAN_CREATE_USER, CAN_EDIT_SELF_USER_NAME, CAN_EDIT_SELF_USER_PASSWORD,
   CAN_SEND_CREATION_TOKEN,
   CAN_EDIT_USER,
+  CAN_EDIT_USER_SENSITIVE_DATA,
   CAN_GET_USER,
   CAN_LIST_USER,
   CAN_REMOVE_USER,
@@ -21,16 +22,24 @@ const router = generateCRUD(User, {
         delete body.password;
       }
 
+      if (!ctx.may(CAN_EDIT_USER_SENSITIVE_DATA)) {
+        delete body.email_confirmed;
+        if (body.phone) {
+          delete body.phone.canonical;
+          delete body.phone.confirmed;
+        }
+      }
+
       const emailO = { email: body.email };
       const userExists = await User.findOne(emailO);
       if (ctx.headers[X_SEND_TOKEN] && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
-          const { token } = await userExists.generateResetToken(LOGIN, emailO);
+          const { token } = await userExists.generateResetToken(emailO);
           await userExists.sendResetPasswordMail(token);
           ctx.log(`Password reset requested by ${body.email}.`);
         } else {
           const user = await User.create(emailO);
-          const { token } = await user.generateResetToken(LOGIN, emailO);
+          const { token } = await user.generateResetToken(emailO);
           await user.sendRegistrationTokenMail(token);
           ctx.log(`User creation requested by ${body.email}.`);
         }
@@ -115,8 +124,38 @@ const router = generateCRUD(User, {
         );
       }
 
+      if (!ctx.may(CAN_EDIT_USER_SENSITIVE_DATA)) {
+        delete body.email_confirmed;
+        if (body.phone) {
+          delete body.phone.canonical;
+          delete body.phone.confirmed;
+        }
+      }
+
       user.set(body);
+
+      if (!user.phone.confirmed && body.phone && body.phone.token) {
+        await user.confirmPhone(body.phone.token);
+      }
+
+      if (!user.email_confirmed && body.email && body.email_token) {
+        await user.confirmEmail(body.email_token);
+      }
+
       ctx.body = await user.save();
+
+      if (ctx.headers[X_SEND_TOKEN]) {
+        const toSend = ctx.headers[X_SEND_TOKEN].split(',');
+        if (toSend.includes('email') && !user.email_confirmed) {
+          const { token } = await user.generateResetToken({ email: user.email });
+          await user.sendVerificationMail(token);
+        }
+        if (toSend.includes('phone') && !user.phone.confirmed) {
+          const { token } = await user.generateResetToken({ phone: user.phone.canonical });
+          await user.sendVerificationSMS(token);
+        }
+      }
+
       ctx.log(
         ctx.log.INFO,
         `${User.modelName} "${id}" has been modified`,

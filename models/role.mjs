@@ -104,6 +104,8 @@ export const ROLE_ADMIN = new RoleList(
 
   rights.CAN_REVOKE_ROLE_LOCAL_REGULATOR,
   rights.CAN_ADD_ROLE_LOCAL_REGULATOR,
+
+  rights.CAN_EDIT_USER_SENSITIVE_DATA,
 );
 
 export const ROLE_SUPERADMIN = new RoleList(

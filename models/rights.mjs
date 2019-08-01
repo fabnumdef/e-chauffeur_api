@@ -18,6 +18,7 @@ export const CAN_GET_CAR_EVENT = stdRule('canGetCarEvent');
 export const CAN_REMOVE_CAR_EVENT = stdRule('canRemoveCarEvent');
 
 export const CAN_EDIT_USER = stdRule('canEditUser');
+export const CAN_EDIT_USER_SENSITIVE_DATA = stdRule('canEditUserSensitiveData');
 export const CAN_CREATE_USER = stdRule('canCreateUser');
 export const CAN_LIST_USER = stdRule('canListUser');
 export const CAN_GET_USER = stdRule('canGetUser');

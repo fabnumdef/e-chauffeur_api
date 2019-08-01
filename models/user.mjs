@@ -7,8 +7,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Luxon from 'luxon';
 import OpeningHours from 'opening_hours';
+import validator from 'validator';
 import nanoid from 'nanoid/generate';
+import gliphone from 'google-libphonenumber';
 import config from '../services/config';
+import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
+import { sendVerificationSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 import {
   CAN_ADD_ROLE_ADMIN,
@@ -23,6 +27,8 @@ import {
 } from './rights';
 import * as rolesImport from './role';
 
+const { normalizeEmail } = validator;
+const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const {
   ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_DRIVER, ROLE_REGULATOR,
 } = {
@@ -35,19 +41,37 @@ const SALT_WORK_FACTOR = 10;
 const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
 
+const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
 // @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
 const { DateTime, Interval } = Luxon;
 
-export const LOGIN = 'login';
-export const VALIDATOR = 'validator';
-
 const UserSchema = new Schema({
-  email: { type: String, required: true, index: { unique: true } },
+  email: {
+    type: String,
+    required: true,
+    validate: {
+      validator(v) {
+        return [].concat(config.get('whitelist_domains')).reduce((acc, cur) => acc || v.endsWith(cur), false);
+      },
+    },
+    index: { unique: true },
+  },
+  email_confirmed: {
+    type: Boolean,
+    default: false,
+  },
   firstname: String,
   lastname: String,
   password: String,
-
+  phone: {
+    original: String,
+    canonical: String,
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
+  },
   roles: [{
     _id: false,
     role: { type: String, required: true },
@@ -76,14 +100,8 @@ const UserSchema = new Schema({
     {
       _id: false,
       token: String,
-      role: {
-        type: String,
-        enum: [LOGIN, VALIDATOR],
-      },
-      meta: {
-        email: String,
-        phone: String,
-      },
+      email: String,
+      phone: String,
       attempts: [
         {
           _id: false,
@@ -97,7 +115,21 @@ const UserSchema = new Schema({
 
 UserSchema.plugin(createdAtPlugin);
 
+UserSchema.pre('validate', function preValidate() {
+  if (this.isModified('email')) {
+    this.email = normalizeEmail(this.email);
+  }
+});
 UserSchema.pre('save', function preSave(next) {
+  if (this.isModified('phone.original')) {
+    if (this.phone.original.length) {
+      this.phone.canonical = phoneUtil.format(phoneUtil.parse(this.phone.original, 'FR'), PhoneNumberFormat.E164);
+    } else {
+      this.phone.canonical = null;
+    }
+    this.phone.confirmed = false;
+  }
+
   if (!this.isModified('password') || !this.password) {
     next();
   }
@@ -115,8 +147,8 @@ UserSchema.virtual('name')
   .get(function getName() {
     return `${this.firstname} ${this.lastname}`;
   })
-  .set(function setName() {
-    [this.firstname, this.lastname] = this.name.split(' ');
+  .set(function setName(name) {
+    [this.firstname, this.lastname] = name.split(' ');
   });
 
 UserSchema.virtual('activeTokens')
@@ -153,26 +185,74 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
   return bcrypt.compare(password, this.password);
 };
 
-UserSchema.methods.compareResetToken = async function compareResetToken(token, meta = {}) {
+UserSchema.methods.compareResetToken = async function compareResetToken(token, email) {
   const tokenRow = this.activeTokens
-    .filter(t => t.role === LOGIN)
-    .find(t => (Object.keys(t.meta.toObject()).reduce((acc, cur) => acc && meta[cur] === t.meta[cur], true)));
+    .filter(t => !!t.email)
+    .find(t => t.email === email);
 
   if (!tokenRow) {
     return false;
   }
 
-  if (token !== tokenRow.token) {
+  if (token.toLowerCase() !== tokenRow.token) {
     tokenRow.attempts = tokenRow.attempts || [];
     tokenRow.attempts.push({ date: new Date() });
     await this.save();
     return false;
   }
 
+  this.email_confirmed = true;
+  await this.save();
+
   return true;
 };
 
-UserSchema.statics.cleanObject = o => UserSchema.methods.toCleanObject.call(o);
+UserSchema.methods.confirmPhone = async function confirmPhone(token) {
+  const phone = this.phone.canonical;
+  const tokenRow = this.activeTokens
+    .filter(t => !!t.phone)
+    .find(t => t.phone === phone);
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token.toLowerCase() !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    return false;
+  }
+
+  this.phone.confirmed = true;
+  return true;
+};
+
+UserSchema.methods.confirmEmail = async function confirmEmail(token) {
+  const email = this.email;
+  const tokenRow = this.activeTokens
+    .filter(t => !!t.email)
+    .find(t => t.email === email);
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token.toLowerCase() !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    return false;
+  }
+
+  this.email_confirmed = true;
+  return true;
+};
+
+UserSchema.statics.cleanObject = (o, ...params) => {
+  const User = mongoose.model('User');
+
+  const user = new User(o);
+  return user.toCleanObject(...params);
+};
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
   const campuses = this.roles
@@ -263,13 +343,36 @@ UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
   return `${config.get('user_website_url')}/edit-account?email=${email}&token=${token}`;
 };
 
-UserSchema.methods.generateResetToken = async function generateResetToken(role, meta) {
+UserSchema.methods.sendRegistrationTokenMail = async function sendRegistrationTokenMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendRegistrationMail(this.email,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendPasswordResetMail(this.email,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendVerificationMail = async function sendVerifMail(token) {
+  await sendVerificationMail(this.email, { data: { token, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendVerificationSMS = async function sendVerifSMS(token) {
+  if (!this.phone || !this.phone.canonical) {
+    throw new Error('Phone undefined');
+  }
+  await sendVerificationSMS(this.phone.canonical, {data: { token } });
+};
+
+UserSchema.methods.generateResetToken = async function generateResetToken({ email = null, phone = null }) {
   const expiration = new Date();
   expiration.setSeconds(expiration.getSeconds() + RESET_TOKEN_EXPIRATION_SECONDS);
   const token = {
     expiration,
-    meta,
-    role,
+    email,
+    phone,
     token: nanoid(RESET_TOKEN_ALPHABET, 6),
   };
   this.tokens.unshift(token);

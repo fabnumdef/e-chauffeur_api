@@ -25,7 +25,7 @@ router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
     ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
   }
 
-  if (body.token && !(await user.compareResetToken(body.token, { email: body.email }))) {
+  if (body.token && !(await user.compareResetToken(body.token, body.email))) {
     ctx.throw_and_log(403, `Username and token do not match for user "${body.email}".`);
   }
 
@@ -57,7 +57,7 @@ router.get(
     if (!user) {
       ctx.throw_and_log(404, `User "${ctx.state.user.id}" not found.`);
     }
-    ctx.body = User.cleanObject(user);
+    ctx.body = User.cleanObject(user, { virtuals: true });
   },
 );
 
