@@ -9,5 +9,5 @@ import io from './io';
   const server = http.createServer(app.callback());
   app.io = socketIo(server);
   io(app.io);
-  server.listen(80);
+  server.listen(1337);
 })();

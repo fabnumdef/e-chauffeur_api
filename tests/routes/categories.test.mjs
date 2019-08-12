@@ -23,7 +23,7 @@ describe('Test the category API endpoint', () => {
 
   it(...testCreateUnicity(Category, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateSuperAdminJWTHeader()),
     transformObject: { id: '_id', label: 'label' },
   }));

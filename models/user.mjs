@@ -24,7 +24,7 @@ const {
   ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_DRIVER, ROLE_REGULATOR,
 } = {
   ...Object.keys(rolesImport)
-    .map(r => ({ [r]: r }))
+    .map((r) => ({ [r]: r }))
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
@@ -75,7 +75,7 @@ UserSchema.pre('save', function preSave(next) {
       this.password = password;
       next();
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 });
 
 UserSchema.methods.toCleanObject = function toCleanObject(...params) {
@@ -97,18 +97,18 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
   return bcrypt.compare(password, this.password);
 };
 
-UserSchema.statics.cleanObject = o => UserSchema.methods.toCleanObject.call(o);
+UserSchema.statics.cleanObject = (o) => UserSchema.methods.toCleanObject.call(o);
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
   const campuses = this.roles
-    .map(r => r.campuses)
+    .map((r) => r.campuses)
     .reduce((a, b) => a.concat(b), []);
   const Campus = mongoose.model('Campus');
   return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
 };
 
 UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
-  const eventsIntervals = Interval.merge(events.map(e => e.toInterval()));
+  const eventsIntervals = Interval.merge(events.map((e) => e.toInterval()));
   try {
     const oh = new OpeningHours(this.workingHours);
     const ohIntervals = oh
@@ -131,7 +131,7 @@ UserSchema.methods.diffRoles = function diffRoles(roles = []) {
   const expandRoles = (...array) => array
     .reduce(
       (acc, { role, campuses = [] }) => acc
-        .concat(campuses.map(campus => ({ role, campus }))),
+        .concat(campuses.map((campus) => ({ role, campus }))),
       [],
     )
     .map(({ role, campus }) => ({
@@ -180,7 +180,7 @@ UserSchema.methods.checkRolesRightsIter = function checkRolesRightsIter(roles) {
 };
 
 UserSchema.statics.findFromLatestPositions = async function findFromLatestPositions(positions) {
-  return this.find({ _id: { $in: positions.map(p => p._id) } }).lean();
+  return this.find({ _id: { $in: positions.map((p) => p._id) } }).lean();
 };
 
 export default mongoose.model('User', UserSchema);

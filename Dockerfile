@@ -35,6 +35,6 @@ COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY . /usr/src/app/
 COPY ./config.json.dist ./config.json
 
-EXPOSE 3000
+EXPOSE 1337
 
 CMD [ "npm", "run", "serve" ]

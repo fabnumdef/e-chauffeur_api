@@ -3,7 +3,7 @@ import UserEvent from '../../models/user-event';
 
 const { Types: { ObjectId } } = mongoose;
 
-export const generateDummyUserEvent = params => ({
+export const generateDummyUserEvent = (params) => ({
   _id: new ObjectId(),
   ...params,
 });

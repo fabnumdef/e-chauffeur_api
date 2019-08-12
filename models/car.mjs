@@ -43,7 +43,7 @@ CarSchema.index({
 
 CarSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
   const interval = Interval.fromDateTimes(start, end);
-  const eventsIntervals = Interval.merge(events.filter(e => !!e.toInterval).map(e => e.toInterval()));
+  const eventsIntervals = Interval.merge(events.filter((e) => !!e.toInterval).map((e) => e.toInterval()));
   try {
     const intervals = [];
     const diff = interval.difference(...eventsIntervals);

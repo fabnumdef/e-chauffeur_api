@@ -14,8 +14,8 @@ export function addCreateToRouter(Model, {
     url,
     ...[right]
       .concat(rights)
-      .filter(r => !!r)
-      .map(r => resolveRights(...[].concat(r))),
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
       const { request: { body } } = ctx;
@@ -44,10 +44,10 @@ export function addListToRouter(Model, {
     url,
     ...[right]
       .concat(rights)
-      .filter(r => !!r)
-      .map(r => resolveRights(...[].concat(r))),
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
-    ...Object.keys(filters).map(k => addFilter(k, filters[k])),
+    ...Object.keys(filters).map((k) => addFilter(k, filters[k])),
     ...middlewares,
     main || (async (ctx) => {
       const { offset, limit } = ctx.parseRangePagination(Model);
@@ -79,8 +79,8 @@ export function addGetToRouter(Model, {
     url,
     ...[right]
       .concat(rights)
-      .filter(r => !!r)
-      .map(r => resolveRights(...[].concat(r))),
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
       const { params } = ctx;
@@ -105,8 +105,8 @@ export function addDeleteToRouter(Model, {
     url,
     ...[right]
       .concat(rights)
-      .filter(r => !!r)
-      .map(r => resolveRights(...[].concat(r))),
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];
@@ -127,8 +127,8 @@ export function addUpdateToRouter(Model, {
     url,
     ...[right]
       .concat(rights)
-      .filter(r => !!r)
-      .map(r => resolveRights(...[].concat(r))),
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
     main || (async (ctx) => {
       const { request: { body }, params } = ctx;

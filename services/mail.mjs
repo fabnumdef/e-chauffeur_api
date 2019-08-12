@@ -6,12 +6,13 @@ export default async function sendMail(to, options = {}) {
   if (!conf.auth || (!conf.auth.user && !conf.auth.pass)) {
     delete conf.auth;
   }
-  const opts = Object.assign({
+  const opts = {
     from: config.get('mail:default_from'),
     subject: '',
     text: '',
     html: '',
-  }, options);
+    ...options,
+  };
   if (!opts.html && opts.text) {
     opts.html = `<p>${opts.text}</p>`;
   }

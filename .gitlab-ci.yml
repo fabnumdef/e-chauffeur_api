@@ -22,6 +22,14 @@ test:
   script:
     - npm i
     - npm test
+    - npm run lint
+
+lint:
+  image: node:latest
+  stage: test
+  script:
+    - npm i
+    - npm run lint
 
 build:
   image: docker:stable
@@ -55,9 +63,38 @@ deploy_review:
       --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
+      --set ingress.issuer="letsencrypt-prod"
       --wait
-      ${CI_COMMIT_REF_SLUG}
+      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
       .helm-chart
   except:
     refs:
       - master
+      - develop
+
+deploy_staging:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  before_script:
+    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
+    - curl -L https://git.io/get_helm.sh | bash
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - helm init --upgrade --service-account tiller --force-upgrade
+  script:
+    - helm upgrade
+      --install --debug
+      --namespace e-chauffeur
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${DOMAIN_STAGING}"
+      --set imageCredentials.username="${CI_REGISTRY_USER}"
+      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.MONGODB="${STAGING_MONGODB}"
+      --set ingress.issuer="letsencrypt-prod"
+      --wait
+      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      .helm-chart
+  only:
+    refs:
+      - develop

@@ -3,7 +3,7 @@ import CarEvent from '../../models/car-event';
 
 const { Types: { ObjectId } } = mongoose;
 
-export const generateDummyCarEvent = params => ({
+export const generateDummyCarEvent = (params) => ({
   _id: new ObjectId(),
   ...params,
 });

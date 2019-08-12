@@ -1,6 +1,6 @@
 import Ride from '../../models/ride';
 
-export const generateDummyRide = params => ({
+export const generateDummyRide = (params) => ({
   ...params,
 });
 

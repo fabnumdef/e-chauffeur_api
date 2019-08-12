@@ -36,6 +36,6 @@ describe('Test the campuses/cars route', () => {
         expect(statusCode).to.equal(200);
         expect(body).to.be.empty;
       },
-    ].map(fn => fn()));
+    ].map((fn) => fn()));
   });
 });
