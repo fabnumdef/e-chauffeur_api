@@ -1,11 +1,18 @@
 import mongoose from 'mongoose';
 import omit from 'lodash.omit';
+import orderBy from 'lodash.orderby';
+import chunk from 'lodash.chunk';
 import difference from 'lodash.difference';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Luxon from 'luxon';
 import OpeningHours from 'opening_hours';
+import validator from 'validator';
+import nanoid from 'nanoid/generate';
+import gliphone from 'google-libphonenumber';
 import config from '../services/config';
+import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
+import { sendVerificationSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 import {
   CAN_ADD_ROLE_ADMIN,
@@ -20,6 +27,8 @@ import {
 } from './rights';
 import * as rolesImport from './role';
 
+const { normalizeEmail } = validator;
+const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const {
   ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_DRIVER, ROLE_REGULATOR,
 } = {
@@ -29,14 +38,40 @@ const {
 };
 
 const SALT_WORK_FACTOR = 10;
+const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
+const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
+
+const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
 // @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
 const { DateTime, Interval } = Luxon;
 
 const UserSchema = new Schema({
-  email: { type: String, required: true, index: { unique: true } },
-  name: String,
-  password: { type: String, required: true },
+  email: {
+    type: String,
+    required: true,
+    validate: {
+      validator(v) {
+        return [].concat(config.get('whitelist_domains')).reduce((acc, cur) => acc || v.endsWith(cur), false);
+      },
+    },
+    index: { unique: true },
+  },
+  email_confirmed: {
+    type: Boolean,
+    default: false,
+  },
+  firstname: String,
+  lastname: String,
+  password: String,
+  phone: {
+    original: String,
+    canonical: String,
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
+  },
   roles: [{
     _id: false,
     role: { type: String, required: true },
@@ -61,14 +96,44 @@ const UserSchema = new Schema({
       },
     },
   },
+  tokens: [
+    {
+      _id: false,
+      token: String,
+      email: String,
+      phone: String,
+      attempts: [
+        {
+          _id: false,
+          date: Date,
+        },
+      ],
+      expiration: Date,
+    },
+  ],
 });
 
 UserSchema.plugin(createdAtPlugin);
 
+UserSchema.pre('validate', function preValidate() {
+  if (this.isModified('email')) {
+    this.email = normalizeEmail(this.email);
+  }
+});
 UserSchema.pre('save', function preSave(next) {
+  if (this.isModified('phone.original')) {
+    if (this.phone.original.length) {
+      this.phone.canonical = phoneUtil.format(phoneUtil.parse(this.phone.original, 'FR'), PhoneNumberFormat.E164);
+    } else {
+      this.phone.canonical = null;
+    }
+    this.phone.confirmed = false;
+  }
+
   if (!this.isModified('password') || !this.password) {
     next();
   }
+  this.tokens = this.activeTokens;
   bcrypt
     .hash(this.password, SALT_WORK_FACTOR)
     .then((password) => {
@@ -78,13 +143,33 @@ UserSchema.pre('save', function preSave(next) {
     .catch(err => next(err));
 });
 
+UserSchema.virtual('name')
+  .get(function getName() {
+    return `${this.firstname} ${this.lastname}`;
+  })
+  .set(function setName(name) {
+    [this.firstname, this.lastname] = name.split(' ');
+  });
+
+UserSchema.virtual('activeTokens')
+  .get(function getName() {
+    const [firsts] = chunk(orderBy(
+      this.tokens
+        .filter(t => t.attempts.length < 3 && t.expiration > new Date()),
+      ['expiration'],
+      ['desc'],
+    ), 10);
+    return firsts;
+  });
+
 UserSchema.methods.toCleanObject = function toCleanObject(...params) {
   return omit(this.toObject ? this.toObject(...params) : this, ['password']);
 };
 
-UserSchema.methods.emitJWT = function emitJWT() {
+UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
   const u = this.toCleanObject({ versionKey: false });
   u.id = u._id;
+  u.isRenewable = isRenewable;
   delete u._id;
   return jwt.sign(
     u,
@@ -94,10 +179,80 @@ UserSchema.methods.emitJWT = function emitJWT() {
 };
 
 UserSchema.methods.comparePassword = function comparePassword(password) {
+  if (!this.password) {
+    throw new Error('No password set');
+  }
   return bcrypt.compare(password, this.password);
 };
 
-UserSchema.statics.cleanObject = o => UserSchema.methods.toCleanObject.call(o);
+UserSchema.methods.compareResetToken = async function compareResetToken(token, email) {
+  const tokenRow = this.activeTokens
+    .filter(t => !!t.email)
+    .find(t => t.email === email);
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token.toLowerCase() !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    await this.save();
+    return false;
+  }
+
+  this.email_confirmed = true;
+  await this.save();
+
+  return true;
+};
+
+UserSchema.methods.confirmPhone = async function confirmPhone(token) {
+  const phone = this.phone.canonical;
+  const tokenRow = this.activeTokens
+    .filter(t => !!t.phone)
+    .find(t => t.phone === phone);
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token.toLowerCase() !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    return false;
+  }
+
+  this.phone.confirmed = true;
+  return true;
+};
+
+UserSchema.methods.confirmEmail = async function confirmEmail(token) {
+  const { email } = this;
+  const tokenRow = this.activeTokens
+    .filter(t => !!t.email)
+    .find(t => t.email === email);
+
+  if (!tokenRow) {
+    return false;
+  }
+
+  if (token.toLowerCase() !== tokenRow.token) {
+    tokenRow.attempts = tokenRow.attempts || [];
+    tokenRow.attempts.push({ date: new Date() });
+    return false;
+  }
+
+  this.email_confirmed = true;
+  return true;
+};
+
+UserSchema.statics.cleanObject = (o, ...params) => {
+  const User = mongoose.model('User');
+
+  const user = new User(o);
+  return user.toCleanObject(...params);
+};
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
   const campuses = this.roles
@@ -181,6 +336,48 @@ UserSchema.methods.checkRolesRightsIter = function checkRolesRightsIter(roles) {
 
 UserSchema.statics.findFromLatestPositions = async function findFromLatestPositions(positions) {
   return this.find({ _id: { $in: positions.map(p => p._id) } }).lean();
+};
+
+UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
+  const email = encodeURIComponent(this.email);
+  return `${config.get('user_website_url')}/edit-account?email=${email}&token=${token}`;
+};
+
+UserSchema.methods.sendRegistrationTokenMail = async function sendRegistrationTokenMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendRegistrationMail(this.email,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendResetPasswordMail = async function sendResetPasswordMail(token) {
+  const resetTokenUrl = this.getResetTokenUrl(token);
+  await sendPasswordResetMail(this.email,
+    { data: { token, resetTokenUrl, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendVerificationMail = async function sendVerifMail(token) {
+  await sendVerificationMail(this.email, { data: { token, ...this.toObject({ virtuals: true }) } });
+};
+
+UserSchema.methods.sendVerificationSMS = async function sendVerifSMS(token) {
+  if (!this.phone || !this.phone.canonical) {
+    throw new Error('Phone undefined');
+  }
+  await sendVerificationSMS(this.phone.canonical, { data: { token } });
+};
+
+UserSchema.methods.generateResetToken = async function generateResetToken({ email = null, phone = null }) {
+  const expiration = new Date();
+  expiration.setSeconds(expiration.getSeconds() + RESET_TOKEN_EXPIRATION_SECONDS);
+  const token = {
+    expiration,
+    email,
+    phone,
+    token: nanoid(RESET_TOKEN_ALPHABET, 6),
+  };
+  this.tokens.unshift(token);
+  await this.save();
+  return token;
 };
 
 export default mongoose.model('User', UserSchema);
