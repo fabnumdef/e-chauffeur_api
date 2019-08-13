@@ -15,7 +15,7 @@ describe('Test the JWT route', () => {
           email: 'foo@bar.com',
           password: 'foobar',
         });
-      expect(statusCode).to.equal(404);
+      expect(statusCode).to.equal(403);
     });
 
     it('It should return 403 if bad password', async () => {
@@ -25,7 +25,7 @@ describe('Test the JWT route', () => {
           email: 'foo@bar.com',
           password: 'foobar',
         });
-      expect(statusCode).to.equal(404);
+      expect(statusCode).to.equal(403);
     });
 
     it('It should return a valid token on generate', async () => {

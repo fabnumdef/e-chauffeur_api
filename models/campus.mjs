@@ -23,7 +23,6 @@ const CampusSchema = new Schema({
     drivers: String,
     everybody: String,
   },
-  information: String,
 });
 
 CampusSchema.plugin(createdAtPlugin);
