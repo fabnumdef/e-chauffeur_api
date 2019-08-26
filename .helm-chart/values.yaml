@@ -14,6 +14,23 @@ nameOverride: ""
 fullnameOverride: ""
 env:
   MONGODB: e-chauffeur-mongodb
+  TOKEN__DURATION: 3600
+  SATISFACTION_QUESTIONNAIRE_URL: null
+  TWILIO__SID: null
+  TWILIO__TOKEN: null
+  TWILIO__MESSAGING_SERVICE_SID: null
+  MAIL__TRANSPORTER__HOST: null
+  MAIL__TRANSPORTER__PORT: 587
+  MAIL__TRANSPORTER__AUTH__USER: null
+  MAIL__TRANSPORTER__AUTH__PASS: null
+  MAIL__DEFAULT_FROM: null
+  MAIL__FEEDBACK_MAIL: null
+  MAIL__CONTACT_MAIL: null
+  MAIL__HTML: "<p>:message</p>"
+  MAIL__TEXT: ":message"
+  MAIL__SUBJECT: ":gsbdd - :firstname :lastname (:email - :phone)."
+  REDIRECT_TARGET: null
+  USER_WEBSITE_URL: null
 imageCredentials:
   name: e-chauffeur-api
   registry: registry.gitlab.com

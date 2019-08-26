@@ -25,6 +25,42 @@ spec:
           env:
             - name: MONGODB
               value: "{{ .Values.env.MONGODB }}"
+            - name: TOKEN__DURATION
+              value: "{{ .Values.env.TOKEN__DURATION }}"
+            - name: TOKEN__SECRET
+              value: "{{ randAlphaNum 35 }}"
+            - name: SATISFACTION_QUESTIONNAIRE_URL
+              value: "{{ .Values.env.SATISFACTION_QUESTIONNAIRE_URL }}"
+            - name: TWILIO__SID
+              value: "{{ .Values.env.TOKEN__DURATION }}"
+            - name: TWILIO__TOKEN
+              value: "{{ .Values.env.TWILIO__TOKEN }}"
+            - name: TWILIO__MESSAGING_SERVICE_SID
+              value: "{{ .Values.env.TWILIO__MESSAGING_SERVICE_SID }}"
+            - name: MAIL__TRANSPORTER__HOST
+              value: "{{ .Values.env.MAIL__TRANSPORTER__HOST }}"
+            - name: MAIL__TRANSPORTER__PORT
+              value: "{{ .Values.env.MAIL__TRANSPORTER__PORT }}"
+            - name: MAIL__TRANSPORTER__AUTH__USER
+              value: "{{ .Values.env.MAIL__TRANSPORTER__AUTH__USER }}"
+            - name: MAIL__TRANSPORTER__AUTH__PASS
+              value: "{{ .Values.env.MAIL__TRANSPORTER__AUTH__PASS }}"
+            - name: MAIL__DEFAULT_FROM
+              value: "{{ .Values.env.MAIL__DEFAULT_FROM }}"
+            - name: MAIL__FEEDBACK_MAIL
+              value: "{{ .Values.env.MAIL__FEEDBACK_MAIL }}"
+            - name: MAIL__CONTACT_MAIL
+              value: "{{ .Values.env.MAIL__CONTACT_MAIL }}"
+            - name: MAIL__HTML
+              value: "{{ .Values.env.MAIL__HTML }}"
+            - name: MAIL__TEXT
+              value: "{{ .Values.env.MAIL__TEXT }}"
+            - name: MAIL__SUBJECT
+              value: "{{ .Values.env.MAIL__SUBJECT }}"
+            - name: REDIRECT_TARGET
+              value: "{{ .Values.env.REDIRECT_TARGET }}"
+            - name: USER_WEBSITE_URL
+              value: "{{ .Values.env.USER_WEBSITE_URL }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

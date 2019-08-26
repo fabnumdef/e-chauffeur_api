@@ -4,10 +4,7 @@ stages:
   - deploy
 
 variables:
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_DRIVER: overlay2
-  URL_REVIEW: ${CI_COMMIT_REF_SLUG}.${DOMAIN_STAGING}
-  URL_PRODUCTION: ${DOMAIN_PRODUCTION}
+  URL_REVIEW: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
   KUBECONFIG: /etc/deploy/config
 
 test:
@@ -32,17 +29,18 @@ lint:
     - npm run lint
 
 build:
-  image: docker:stable
   stage: build
-  services:
-    - docker:dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_BEFORE_SHA || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE:$CI_COMMIT_BEFORE_SHA --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - cat package.json | head -10
+    - /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
 deploy_review:
   stage: deploy
@@ -63,7 +61,19 @@ deploy_review:
       --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
-      --set ingress.issuer="letsencrypt-prod"
+      --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
+      --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${STAGING_MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${STAGING_MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${STAGING_MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${STAGING_MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${STAGING_MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set ingress.issuer="letsencrypt-staging"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}
       .helm-chart
@@ -86,11 +96,23 @@ deploy_staging:
       --install --debug
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
-      --set ingress.host="${DOMAIN_STAGING}"
+      --set ingress.host="${STAGING_DOMAIN}"
       --set imageCredentials.username="${CI_REGISTRY_USER}"
       --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
+      --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
+      --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${STAGING_MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${STAGING_MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${STAGING_MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${STAGING_MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${STAGING_MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
       --set ingress.issuer="letsencrypt-prod"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}
@@ -98,3 +120,43 @@ deploy_staging:
   only:
     refs:
       - develop
+
+deploy_prod:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  before_script:
+    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
+    - curl -L https://git.io/get_helm.sh | bash
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - helm init --upgrade --service-account tiller --force-upgrade
+  script:
+    - helm upgrade
+      --install --debug
+      --namespace e-chauffeur
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${PRODUCTION_DOMAIN}"
+      --set imageCredentials.username="${CI_REGISTRY_USER}"
+      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.MONGODB="${PRODUCTION_MONGODB}"
+      --set env.SATISFACTION_QUESTIONNAIRE_URL="${PRODUCTION_SATISFACTION_QUESTIONNAIRE_URL}"
+      --set env.TWILIO__SID="${PRODUCTION_TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${PRODUCTION_TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${PRODUCTION_TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${PRODUCTION_MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${PRODUCTION_MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${PRODUCTION_MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${PRODUCTION_MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${PRODUCTION_MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${PRODUCTION_MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${PRODUCTION_REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${PRODUCTION_USER_WEBSITE_URL}"
+      --set ingress.issuer="letsencrypt-prod"
+      --wait
+      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      .helm-chart
+  only:
+    refs:
+      - tags
+      - master
