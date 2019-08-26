@@ -48,7 +48,7 @@ describe('Test the poi API endpoint', () => {
 
   it(...testCreateUnicity(Poi, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateAdminJWTHeader()),
     transformObject: {
       id: '_id',

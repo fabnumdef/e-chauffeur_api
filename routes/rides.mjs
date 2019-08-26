@@ -97,7 +97,7 @@ const router = generateCRUD(Ride, {
       async (ctx, next) => {
         await next();
         if (lGet(ctx, 'query.csv.flatten', '').toLowerCase() === 'true') {
-          ctx.body = ctx.body.map(ride => ({
+          ctx.body = ctx.body.map((ride) => ({
             ...ride,
             departure: {
               ...ride.departure,

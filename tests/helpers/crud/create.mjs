@@ -27,7 +27,7 @@ export const testCreate = (Model, {
       if (object) {
         await object.remove();
       }
-      await Promise.all(toDropLater.map(entity => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.remove()));
 
       return {
         statusCode: expect(statusCode),
@@ -53,13 +53,13 @@ export const testCreate = (Model, {
 
 function transform(config, data) {
   return Object.keys(config)
-    .map(k => ({ [k]: typeof config[k] === 'object' ? transform(config[k], data[k]) : data[config[k]] }))
+    .map((k) => ({ [k]: typeof config[k] === 'object' ? transform(config[k], data[k]) : data[config[k]] }))
     .reduce((acc, cur) => Object.assign(acc, cur), {});
 }
 
 export const testCreateUnicity = (Model, {
   generateDummyObject,
-  requestCallBack = r => r,
+  requestCallBack = (r) => r,
   transformObject = { id: '_id' },
   queryParams = {},
   route = `/${defaultRouteName(Model)}`,
@@ -97,7 +97,7 @@ export const testCreateUnicity = (Model, {
       }
     } finally {
       await dummyObject.remove();
-      await Promise.all(toDropLater.map(entity => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.remove()));
     }
   },
 ];

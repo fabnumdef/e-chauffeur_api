@@ -37,7 +37,7 @@ GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(
   return GeoTracking.aggregate([
     {
       $match: {
-        'driver._id': { $in: drivers.map(d => d._id) },
+        'driver._id': { $in: drivers.map((d) => d._id) },
         $or: [
           {
             start: { $lte: upperDate, $gte: lowerDate },

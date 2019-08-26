@@ -26,7 +26,7 @@ describe('Test the user events API endpoint', () => {
         .lean();
       expect(userEvent).to.not.be.null;
     } finally {
-      await Promise.all(toDropLater.map(entity => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.remove()));
       await UserEvent.deleteOne({ _id: dummyUserEvent._id });
     }
   });

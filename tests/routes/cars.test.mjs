@@ -32,7 +32,7 @@ describe('Test the car API endpoint', () => {
 
   it(...testCreateUnicity(Car, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateSuperAdminJWTHeader()),
     transformObject: {
       id: '_id', label: 'label', campus: { id: '_id', name: 'name' }, model: { id: '_id', label: 'label' },

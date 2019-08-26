@@ -13,9 +13,9 @@ router.get(
     const drivers = await Campus.findDrivers(ctx.params.campus_id);
     const positions = await GeoTracking.getLatestPosition(drivers, new Date());
     ctx.body = drivers.map(
-      driver => ({
+      (driver) => ({
         ...cleanObject(driver),
-        ...(positions.find(p => p._id.equals(driver._id)) || {}),
+        ...(positions.find((p) => p._id.equals(driver._id)) || {}),
       }),
     );
   },

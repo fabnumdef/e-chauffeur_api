@@ -1,0 +1,65 @@
+# Default values for .helm-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+namespace: e-chauffeur
+image:
+  repository: registry.gitlab.com/fabnum-minarm/e-chauffeur/api
+  tag: stable
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+env:
+  MONGODB: e-chauffeur-mongodb
+  TOKEN__DURATION: 3600
+  SATISFACTION_QUESTIONNAIRE_URL: null
+  TWILIO__SID: null
+  TWILIO__TOKEN: null
+  TWILIO__MESSAGING_SERVICE_SID: null
+  MAIL__TRANSPORTER__HOST: null
+  MAIL__TRANSPORTER__PORT: 587
+  MAIL__TRANSPORTER__AUTH__USER: null
+  MAIL__TRANSPORTER__AUTH__PASS: null
+  MAIL__DEFAULT_FROM: null
+  MAIL__FEEDBACK_MAIL: null
+  MAIL__CONTACT_MAIL: null
+  MAIL__HTML: "<p>:message</p>"
+  MAIL__TEXT: ":message"
+  MAIL__SUBJECT: ":gsbdd - :firstname :lastname (:email - :phone)."
+  REDIRECT_TARGET: null
+  USER_WEBSITE_URL: null
+imageCredentials:
+  name: e-chauffeur-api
+  registry: registry.gitlab.com
+  username: user
+  password: pass
+
+service:
+  type: ClusterIP
+  port: 1337
+
+ingress:
+  enabled: true
+  host: api.localhost
+  issuer: letsencrypt-staging
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

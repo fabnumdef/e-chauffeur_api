@@ -69,7 +69,7 @@ export default {
           status: to,
           time: new Date(),
         });
-        const show = path => get(this, path, '');
+        const show = (path) => get(this, path, '');
         const start = DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT);
         switch (to) {
           case VALIDATED:

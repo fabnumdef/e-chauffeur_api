@@ -1,0 +1,162 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  URL_REVIEW: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
+  KUBECONFIG: /etc/deploy/config
+
+test:
+  variables:
+    MONGODB: "mongodb://mongo/e-chauffeur"
+  image: node:latest
+  stage: test
+  services:
+    - mongo:latest
+  before_script:
+    - cp config.json.dist config.json
+  script:
+    - npm i
+    - npm test
+    - npm run lint
+
+lint:
+  image: node:latest
+  stage: test
+  script:
+    - npm i
+    - npm run lint
+
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - cat package.json | head -10
+    - /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+deploy_review:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  before_script:
+    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
+    - curl -L https://git.io/get_helm.sh | bash
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - helm init --upgrade --service-account tiller --force-upgrade
+  script:
+    - helm upgrade
+      --install --debug
+      --namespace e-chauffeur
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${URL_REVIEW}"
+      --set imageCredentials.username="${CI_REGISTRY_USER}"
+      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.MONGODB="${STAGING_MONGODB}"
+      --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
+      --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${STAGING_MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${STAGING_MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${STAGING_MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${STAGING_MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${STAGING_MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set ingress.issuer="letsencrypt-staging"
+      --wait
+      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      .helm-chart
+  except:
+    refs:
+      - master
+      - develop
+
+deploy_staging:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  before_script:
+    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
+    - curl -L https://git.io/get_helm.sh | bash
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - helm init --upgrade --service-account tiller --force-upgrade
+  script:
+    - helm upgrade
+      --install --debug
+      --namespace e-chauffeur
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${STAGING_DOMAIN}"
+      --set imageCredentials.username="${CI_REGISTRY_USER}"
+      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.MONGODB="${STAGING_MONGODB}"
+      --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
+      --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${STAGING_MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${STAGING_MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${STAGING_MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${STAGING_MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${STAGING_MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set ingress.issuer="letsencrypt-prod"
+      --wait
+      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      .helm-chart
+  only:
+    refs:
+      - develop
+
+deploy_prod:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  before_script:
+    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
+    - curl -L https://git.io/get_helm.sh | bash
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - helm init --upgrade --service-account tiller --force-upgrade
+  script:
+    - helm upgrade
+      --install --debug
+      --namespace e-chauffeur
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${PRODUCTION_DOMAIN}"
+      --set imageCredentials.username="${CI_REGISTRY_USER}"
+      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.MONGODB="${PRODUCTION_MONGODB}"
+      --set env.SATISFACTION_QUESTIONNAIRE_URL="${PRODUCTION_SATISFACTION_QUESTIONNAIRE_URL}"
+      --set env.TWILIO__SID="${PRODUCTION_TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${PRODUCTION_TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${PRODUCTION_TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${PRODUCTION_MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${PRODUCTION_MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${PRODUCTION_MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${PRODUCTION_MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${PRODUCTION_MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${PRODUCTION_MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${PRODUCTION_REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${PRODUCTION_USER_WEBSITE_URL}"
+      --set ingress.issuer="letsencrypt-prod"
+      --wait
+      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      .helm-chart
+  only:
+    refs:
+      - tags
+      - master

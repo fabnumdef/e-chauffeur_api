@@ -33,7 +33,7 @@ const {
   ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_DRIVER, ROLE_REGULATOR,
 } = {
   ...Object.keys(rolesImport)
-    .map(r => ({ [r]: r }))
+    .map((r) => ({ [r]: r }))
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
@@ -140,7 +140,7 @@ UserSchema.pre('save', function preSave(next) {
       this.password = password;
       next();
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 });
 
 UserSchema.virtual('name')
@@ -155,7 +155,7 @@ UserSchema.virtual('activeTokens')
   .get(function getName() {
     const [firsts] = chunk(orderBy(
       this.tokens
-        .filter(t => t.attempts.length < 3 && t.expiration > new Date()),
+        .filter((t) => t.attempts.length < 3 && t.expiration > new Date()),
       ['expiration'],
       ['desc'],
     ), 10);
@@ -187,8 +187,8 @@ UserSchema.methods.comparePassword = function comparePassword(password) {
 
 UserSchema.methods.compareResetToken = async function compareResetToken(token, email) {
   const tokenRow = this.activeTokens
-    .filter(t => !!t.email)
-    .find(t => t.email === email);
+    .filter((t) => !!t.email)
+    .find((t) => t.email === email);
 
   if (!tokenRow) {
     return false;
@@ -210,8 +210,8 @@ UserSchema.methods.compareResetToken = async function compareResetToken(token, e
 UserSchema.methods.confirmPhone = async function confirmPhone(token) {
   const phone = this.phone.canonical;
   const tokenRow = this.activeTokens
-    .filter(t => !!t.phone)
-    .find(t => t.phone === phone);
+    .filter((t) => !!t.phone)
+    .find((t) => t.phone === phone);
 
   if (!tokenRow) {
     return false;
@@ -230,8 +230,8 @@ UserSchema.methods.confirmPhone = async function confirmPhone(token) {
 UserSchema.methods.confirmEmail = async function confirmEmail(token) {
   const { email } = this;
   const tokenRow = this.activeTokens
-    .filter(t => !!t.email)
-    .find(t => t.email === email);
+    .filter((t) => !!t.email)
+    .find((t) => t.email === email);
 
   if (!tokenRow) {
     return false;
@@ -256,14 +256,14 @@ UserSchema.statics.cleanObject = (o, ...params) => {
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
   const campuses = this.roles
-    .map(r => r.campuses)
+    .map((r) => r.campuses)
     .reduce((a, b) => a.concat(b), []);
   const Campus = mongoose.model('Campus');
   return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
 };
 
 UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
-  const eventsIntervals = Interval.merge(events.map(e => e.toInterval()));
+  const eventsIntervals = Interval.merge(events.map((e) => e.toInterval()));
   try {
     const oh = new OpeningHours(this.workingHours);
     const ohIntervals = oh
@@ -286,7 +286,7 @@ UserSchema.methods.diffRoles = function diffRoles(roles = []) {
   const expandRoles = (...array) => array
     .reduce(
       (acc, { role, campuses = [] }) => acc
-        .concat(campuses.map(campus => ({ role, campus }))),
+        .concat(campuses.map((campus) => ({ role, campus }))),
       [],
     )
     .map(({ role, campus }) => ({
@@ -335,7 +335,7 @@ UserSchema.methods.checkRolesRightsIter = function checkRolesRightsIter(roles) {
 };
 
 UserSchema.statics.findFromLatestPositions = async function findFromLatestPositions(positions) {
-  return this.find({ _id: { $in: positions.map(p => p._id) } }).lean();
+  return this.find({ _id: { $in: positions.map((p) => p._id) } }).lean();
 };
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {

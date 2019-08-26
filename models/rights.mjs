@@ -1,3 +1,5 @@
+// No choice, I've to ignore this rule, it's not really a cycle import because we're not importing the same part
+// of the tree
 // eslint-disable-next-line import/no-cycle
 import {
   stdRule, campusRule, selfEditingUserRule, roleEditingRule,

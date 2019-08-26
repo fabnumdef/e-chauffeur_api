@@ -46,7 +46,7 @@ describe('Test the phone API endpoint', () => {
 
   it(...testCreateUnicity(Phone, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateAdminJWTHeader()),
     transformObject: {
       id: '_id',

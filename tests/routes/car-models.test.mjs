@@ -23,7 +23,7 @@ describe('Test the car-models API endpoint', () => {
 
   it(...testCreateUnicity(CarModel, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateSuperAdminJWTHeader()),
     transformObject: { id: '_id', label: 'label' },
   }));
