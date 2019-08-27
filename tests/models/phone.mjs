@@ -1,7 +1,7 @@
 import nanoid from 'nanoid';
 import Phone from '../../models/phone';
 
-export const generateDummyPhone = params => ({
+export const generateDummyPhone = (params) => ({
   _id: nanoid(),
   imei: 'MyIMEICode',
   label: 'Test',

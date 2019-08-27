@@ -15,7 +15,7 @@ export default async (ctx, next) => {
   ctx.parseRangePagination = (entity, { max = 30 } = {}) => {
     const name = (entity.getDashedName && entity.getDashedName()) || entity.modelName.toLowerCase();
     const range = qs.parse(ctx.headers.range || '')[name] || '';
-    const [lower, higher] = range.split('-').map(n => parseInt(n, 10));
+    const [lower, higher] = range.split('-').map((n) => parseInt(n, 10));
     return {
       offset: lower || 0,
       limit: Math.min(!Number.isNaN(higher) ? higher - lower + 1 : max) || max,

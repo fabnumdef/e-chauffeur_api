@@ -53,6 +53,6 @@ describe('Test the campuses/drivers route', () => {
           });
         expect(statusCode).to.equal(200);
       },
-    ].map(fn => fn()));
+    ].map((fn) => fn()));
   });
 });

@@ -23,7 +23,7 @@ describe('Test the campuses route', () => {
 
   it(...testCreateUnicity(Campus, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateSuperAdminJWTHeader()),
     transformObject: { id: '_id', name: 'name' },
   }));

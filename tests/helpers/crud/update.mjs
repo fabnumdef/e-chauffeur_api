@@ -29,7 +29,7 @@ export const testUpdate = (Model, {
       if (object) {
         await object.remove();
       }
-      await Promise.all(toDropLater.map(entity => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.remove()));
 
       return {
         statusCode: expect(statusCode),

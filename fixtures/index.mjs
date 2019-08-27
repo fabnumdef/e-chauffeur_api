@@ -20,9 +20,9 @@ const modelsPath = path.join(DIRNAME, '..', 'models');
 (async () => {
   await import('../services');
 
-  await Promise.all((await readDir(modelsPath)).map(async f => import(`../models/${f}`)));
+  await Promise.all((await readDir(modelsPath)).map(async (f) => import(`../models/${f}`)));
   await Promise.all((await readDir(DIRNAME))
-    .filter(f => f !== CURRENT_FILE && f !== 'index.js')
+    .filter((f) => f !== CURRENT_FILE && f !== 'index.js')
     .map(async (file) => {
       const { default: Model } = await import(`../models/${file.replace(/\.json|.js/, '')}.mjs`);
       const data = JSON.parse(await readFile(path.resolve(DIRNAME, `./${file}`), 'utf8'));

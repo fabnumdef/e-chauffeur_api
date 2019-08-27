@@ -4,7 +4,7 @@ import User from '../../models/user';
 
 const { Types: { ObjectId } } = mongoose;
 
-export const generateDummyUser = params => ({
+export const generateDummyUser = (params) => ({
   _id: new ObjectId(),
   email: `${nanoid()}@localhost`,
   password: nanoid(),

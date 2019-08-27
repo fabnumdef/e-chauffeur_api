@@ -23,7 +23,7 @@ describe('Test the phone-models API endpoint', () => {
 
   it(...testCreateUnicity(PhoneModel, {
     ...config,
-    requestCallBack: r => r
+    requestCallBack: (r) => r
       .set(...generateSuperAdminJWTHeader()),
     transformObject: { id: '_id', label: 'label' },
   }));

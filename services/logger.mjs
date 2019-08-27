@@ -4,7 +4,7 @@ import Transport from 'winston-transport';
 
 import config from './config';
 
-export const createMongoDBTransport = db => new winston.transports.MongoDB({ db, collection: 'logs' });
+export const createMongoDBTransport = (db) => new winston.transports.MongoDB({ db, collection: 'logs' });
 
 export const defaultConsoleTransport = new winston.transports.Console({ level: process.env.LOG_LEVEL || 'warn' });
 export const defaultMongoDBTransport = createMongoDBTransport(config.get('mongodb'));
@@ -21,7 +21,7 @@ export const SILLY = 'silly';
 
 export async function loggerMiddleware(ctx, next) {
   ctx.log = (level, message, meta = {}) => {
-    const metadata = Object.assign({ user: ctx.state.user }, meta);
+    const metadata = { user: ctx.state.user, ...meta };
     winston.log({ level, message, metadata });
   };
 
@@ -69,4 +69,4 @@ Transport.prototype.normalizeQuery = (options) => {
   return options;
 };
 
-Transport.prototype.formatResults = results => results;
+Transport.prototype.formatResults = (results) => results;

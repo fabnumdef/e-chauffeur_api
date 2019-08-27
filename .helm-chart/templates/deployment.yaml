@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include ".helm-chart.fullname" . }}
+  labels:
+{{ include ".helm-chart.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include ".helm-chart.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include ".helm-chart.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.imageCredentials.name }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MONGODB
+              value: "{{ .Values.env.MONGODB }}"
+            - name: TOKEN__DURATION
+              value: "{{ .Values.env.TOKEN__DURATION }}"
+            - name: TOKEN__SECRET
+              value: "{{ randAlphaNum 35 }}"
+            - name: SATISFACTION_QUESTIONNAIRE_URL
+              value: "{{ .Values.env.SATISFACTION_QUESTIONNAIRE_URL }}"
+            - name: TWILIO__SID
+              value: "{{ .Values.env.TOKEN__DURATION }}"
+            - name: TWILIO__TOKEN
+              value: "{{ .Values.env.TWILIO__TOKEN }}"
+            - name: TWILIO__MESSAGING_SERVICE_SID
+              value: "{{ .Values.env.TWILIO__MESSAGING_SERVICE_SID }}"
+            - name: MAIL__TRANSPORTER__HOST
+              value: "{{ .Values.env.MAIL__TRANSPORTER__HOST }}"
+            - name: MAIL__TRANSPORTER__PORT
+              value: "{{ .Values.env.MAIL__TRANSPORTER__PORT }}"
+            - name: MAIL__TRANSPORTER__AUTH__USER
+              value: "{{ .Values.env.MAIL__TRANSPORTER__AUTH__USER }}"
+            - name: MAIL__TRANSPORTER__AUTH__PASS
+              value: "{{ .Values.env.MAIL__TRANSPORTER__AUTH__PASS }}"
+            - name: MAIL__DEFAULT_FROM
+              value: "{{ .Values.env.MAIL__DEFAULT_FROM }}"
+            - name: MAIL__FEEDBACK_MAIL
+              value: "{{ .Values.env.MAIL__FEEDBACK_MAIL }}"
+            - name: MAIL__CONTACT_MAIL
+              value: "{{ .Values.env.MAIL__CONTACT_MAIL }}"
+            - name: MAIL__HTML
+              value: "{{ .Values.env.MAIL__HTML }}"
+            - name: MAIL__TEXT
+              value: "{{ .Values.env.MAIL__TEXT }}"
+            - name: MAIL__SUBJECT
+              value: "{{ .Values.env.MAIL__SUBJECT }}"
+            - name: REDIRECT_TARGET
+              value: "{{ .Values.env.REDIRECT_TARGET }}"
+            - name: USER_WEBSITE_URL
+              value: "{{ .Values.env.USER_WEBSITE_URL }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

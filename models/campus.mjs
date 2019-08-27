@@ -23,7 +23,6 @@ const CampusSchema = new Schema({
     drivers: String,
     everybody: String,
   },
-  information: String,
 });
 
 CampusSchema.plugin(createdAtPlugin);
@@ -33,7 +32,7 @@ CampusSchema.index({
   name: 'text',
 });
 
-const filterDriver = campus => [
+const filterDriver = (campus) => [
   {
     $unwind: '$roles',
   },
@@ -90,14 +89,14 @@ CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination
 };
 
 CampusSchema.statics.findDriver = async function findDriver(campus, id) {
-  const driver = (await CampusSchema.statics.findDrivers(campus)).filter(d => d._id.toString() === id);
+  const driver = (await CampusSchema.statics.findDrivers(campus)).filter((d) => d._id.toString() === id);
   return (!driver.length) ? {} : driver.shift();
 };
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
   const UserEvent = mongoose.model('UserEvent');
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
-  const userIds = users.map(u => u._id);
+  const userIds = users.map((u) => u._id);
 
   const events = await UserEvent.find({
     $or: [
@@ -142,12 +141,12 @@ CampusSchema.statics.findDriversInDateInterval = async function findDriversInDat
   });
 
   return users.map((u) => {
-    const e = events.filter(ev => ev.user.id === u.id);
+    const e = events.filter((ev) => ev.user.id === u.id);
     const availabilities = u.getAvailabilities(date.start, date.end, e);
     const user = u.toObject({ virtuals: true });
     user.availabilities = availabilities;
     return user;
-  }).filter(u => u.availabilities.length);
+  }).filter((u) => u.availabilities.length);
 };
 
 CampusSchema.statics.findCars = async function findCars(campus, start, end) {
@@ -155,7 +154,7 @@ CampusSchema.statics.findCars = async function findCars(campus, start, end) {
   const CarEvent = mongoose.model('CarEvent');
   const carIds = (await Car.find({
     'campus._id': campus,
-  })).map(c => c._id);
+  })).map((c) => c._id);
 
   const cars = await Car.find({
     _id: { $in: carIds },
@@ -204,12 +203,12 @@ CampusSchema.statics.findCars = async function findCars(campus, start, end) {
   });
 
   return cars.map((c) => {
-    const e = events.filter(ev => ev.car.id === c.id);
+    const e = events.filter((ev) => ev.car.id === c.id);
     const availabilities = c.getAvailabilities(start, end, e);
     const car = c.toObject({ virtuals: true });
     car.availabilities = availabilities;
     return car;
-  }).filter(u => u.availabilities.length);
+  }).filter((u) => u.availabilities.length);
 };
 
 CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(driver, status = []) {

@@ -50,6 +50,6 @@ describe('Test the campuses/stats route', () => {
         expect(statusCode).to.equal(200);
         expect(body).to.have.all.keys('total');
       },
-    ].map(fn => fn()));
+    ].map((fn) => fn()));
   });
 });

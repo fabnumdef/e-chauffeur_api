@@ -6,6 +6,7 @@ import app from '../app';
 import User from '../models/user';
 import * as roles from '../models/role';
 
+config.get('whitelist_domains').push('localhost');
 const DATABASE = `${config.get('mongodb')}-test`;
 
 logger.remove(defaultMongoDBTransport);
@@ -13,7 +14,7 @@ logger.add(createMongoDBTransport(DATABASE));
 
 const rolesKeys = {
   ...Object.keys(roles)
-    .map(r => ({ [r]: r }))
+    .map((r) => ({ [r]: r }))
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 

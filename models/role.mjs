@@ -11,6 +11,7 @@ export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_GET_RIDE,
   rights.CAN_GET_RIDE_POSITION,
   rights.CAN_LIST_CAMPUS,
+  rights.CAN_SEND_CREATION_TOKEN,
 );
 
 export const ROLE_USER = new RoleList(
@@ -103,6 +104,8 @@ export const ROLE_ADMIN = new RoleList(
 
   rights.CAN_REVOKE_ROLE_LOCAL_REGULATOR,
   rights.CAN_ADD_ROLE_LOCAL_REGULATOR,
+
+  rights.CAN_EDIT_USER_SENSITIVE_DATA,
 );
 
 export const ROLE_SUPERADMIN = new RoleList(
