@@ -57,8 +57,8 @@ deploy_review:
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${URL_REVIEW}"
-      --set imageCredentials.username="${CI_REGISTRY_USER}"
-      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
@@ -97,8 +97,8 @@ deploy_staging:
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${STAGING_DOMAIN}"
-      --set imageCredentials.username="${CI_REGISTRY_USER}"
-      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
@@ -136,8 +136,8 @@ deploy_prod:
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${PRODUCTION_DOMAIN}"
-      --set imageCredentials.username="${CI_REGISTRY_USER}"
-      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${PRODUCTION_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${PRODUCTION_SATISFACTION_QUESTIONNAIRE_URL}"
