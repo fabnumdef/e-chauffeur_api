@@ -9,6 +9,7 @@ import {
   CAN_LIST_USER,
   CAN_REMOVE_USER,
 } from '../models/rights';
+import config from '../services/config';
 
 const X_SEND_TOKEN = 'x-send-token';
 
@@ -35,11 +36,21 @@ const router = generateCRUD(User, {
       if (ctx.headers[X_SEND_TOKEN] && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
           const { token } = await userExists.generateResetToken(emailO);
+          try {
+            await userExists.save();
+          } catch (e) {
+            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+          }
           await userExists.sendResetPasswordMail(token);
           ctx.log(`Password reset requested by ${body.email}.`);
         } else {
-          const user = await User.create(emailO);
+          const user = new User(emailO);
           const { token } = await user.generateResetToken(emailO);
+          try {
+            await userExists.save();
+          } catch (e) {
+            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+          }
           await user.sendRegistrationTokenMail(token);
           ctx.log(`User creation requested by ${body.email}.`);
         }
@@ -48,8 +59,11 @@ const router = generateCRUD(User, {
         if (userExists) {
           ctx.throw_and_log(409, `User email ${body.email} already existing.`);
         }
-
-        ctx.body = await User.create(body);
+        try {
+          ctx.body = await User.create(body);
+        } catch (e) {
+          ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+        }
         ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
       } else {
         ctx.status = 403;
@@ -148,10 +162,20 @@ const router = generateCRUD(User, {
         const toSend = ctx.headers[X_SEND_TOKEN].split(',');
         if (toSend.includes('email') && !user.email_confirmed) {
           const { token } = await user.generateResetToken({ email: user.email });
+          try {
+            await user.save();
+          } catch (e) {
+            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+          }
           await user.sendVerificationMail(token);
         }
         if (toSend.includes('phone') && !user.phone.confirmed) {
           const { token } = await user.generateResetToken({ phone: user.phone.canonical });
+          try {
+            await user.save();
+          } catch (e) {
+            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+          }
           await user.sendVerificationSMS(token);
         }
       }

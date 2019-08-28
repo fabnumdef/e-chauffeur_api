@@ -54,6 +54,9 @@ const UserSchema = new Schema({
       validator(v) {
         return [].concat(config.get('whitelist_domains')).reduce((acc, cur) => acc || v.endsWith(cur), false);
       },
+      message({ value }) {
+        return `"${value}" should ends with ${config.get('whitelist_domains').join(', ')}`;
+      },
     },
     index: { unique: true },
   },
@@ -145,15 +148,17 @@ UserSchema.pre('save', function preSave(next) {
 
 UserSchema.virtual('name')
   .get(function getName() {
-    return `${this.firstname} ${this.lastname}`;
+    return `${this.firstname || ''} ${this.lastname || ''}`;
   })
   .set(function setName(name) {
-    [this.firstname, this.lastname] = name.split(' ');
+    if (!this.firstname && !this.lastname) {
+      [this.firstname, this.lastname = ''] = name.split(' ') || [name];
+    }
   });
 
 UserSchema.virtual('activeTokens')
   .get(function getName() {
-    const [firsts] = chunk(orderBy(
+    const [firsts = []] = chunk(orderBy(
       this.tokens
         .filter((t) => t.attempts.length < 3 && t.expiration > new Date()),
       ['expiration'],
@@ -376,7 +381,6 @@ UserSchema.methods.generateResetToken = async function generateResetToken({ emai
     token: nanoid(RESET_TOKEN_ALPHABET, 6),
   };
   this.tokens.unshift(token);
-  await this.save();
   return token;
 };
 

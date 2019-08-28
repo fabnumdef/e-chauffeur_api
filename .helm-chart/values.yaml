@@ -7,7 +7,7 @@ namespace: e-chauffeur
 image:
   repository: registry.gitlab.com/fabnum-minarm/e-chauffeur/api
   tag: stable
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 imagePullSecrets: []
 nameOverride: ""
