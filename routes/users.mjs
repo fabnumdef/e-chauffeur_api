@@ -14,7 +14,7 @@ import config from '../services/config';
 const X_SEND_TOKEN = 'x-send-token';
 const addDomainInError = (e) => [
   400,
-  { whitelistDomains: config.get('whitelist_domains'), ...(e.toJSON ? e.toJSON() : e) },
+  e.toJSON ? { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() } : e,
 ];
 const router = generateCRUD(User, {
   create: {
