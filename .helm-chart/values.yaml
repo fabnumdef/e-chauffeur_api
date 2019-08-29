@@ -31,6 +31,8 @@ env:
   MAIL__SUBJECT: ":gsbdd - :firstname :lastname (:email - :phone)."
   REDIRECT_TARGET: null
   USER_WEBSITE_URL: null
+  WHITELIST_DOMAINS: null
+  VERSION: null
 imageCredentials:
   name: e-chauffeur-api
   registry: registry.gitlab.com

@@ -73,6 +73,8 @@ deploy_review:
       --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-staging"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}
@@ -113,6 +115,8 @@ deploy_staging:
       --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}
@@ -152,6 +156,8 @@ deploy_prod:
       --set env.MAIL__CONTACT_MAIL="${PRODUCTION_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${PRODUCTION_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${PRODUCTION_USER_WEBSITE_URL}"
+      --set-string env.WHITELIST_DOMAINS="${PRODUCTION_WHITELIST_DOMAINS}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}

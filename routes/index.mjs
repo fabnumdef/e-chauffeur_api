@@ -14,11 +14,12 @@ import feedback from './feedback';
 import forms from './forms';
 import phones from './phones';
 import phoneModels from './phone-models';
+import config from '../services/config';
 
 const router = new Router();
 
 router.get('/', (ctx) => {
-  ctx.body = 'OK';
+  ctx.body = `OK - ${config.get('version')}`;
 });
 
 router.use('/users', users);

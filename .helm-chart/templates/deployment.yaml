@@ -61,6 +61,10 @@ spec:
               value: "{{ .Values.env.REDIRECT_TARGET }}"
             - name: USER_WEBSITE_URL
               value: "{{ .Values.env.USER_WEBSITE_URL }}"
+            - name: WHITELIST_DOMAINS
+              value: "{{ .Values.env.WHITELIST_DOMAINS }}"
+            - name: VERSION
+              value: "{{ .Values.env.VERSION }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
