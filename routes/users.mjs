@@ -12,7 +12,10 @@ import {
 import config from '../services/config';
 
 const X_SEND_TOKEN = 'x-send-token';
-
+const addDomainInError = (e) => [
+  400,
+  { whitelistDomains: config.get('whitelist_domains'), ...(e.toJSON ? e.toJSON() : e) },
+];
 const router = generateCRUD(User, {
   create: {
     right: [CAN_CREATE_USER, CAN_SEND_CREATION_TOKEN],
@@ -39,7 +42,7 @@ const router = generateCRUD(User, {
           try {
             await userExists.save();
           } catch (e) {
-            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+            ctx.throw_and_log(...addDomainInError(e));
           }
           await userExists.sendResetPasswordMail(token);
           ctx.log(`Password reset requested by ${body.email}.`);
@@ -49,7 +52,7 @@ const router = generateCRUD(User, {
           try {
             await userExists.save();
           } catch (e) {
-            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+            ctx.throw_and_log(...addDomainInError(e));
           }
           await user.sendRegistrationTokenMail(token);
           ctx.log(`User creation requested by ${body.email}.`);
@@ -62,7 +65,7 @@ const router = generateCRUD(User, {
         try {
           ctx.body = await User.create(body);
         } catch (e) {
-          ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+          ctx.throw_and_log(...addDomainInError(e));
         }
         ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
       } else {
@@ -165,7 +168,7 @@ const router = generateCRUD(User, {
           try {
             await user.save();
           } catch (e) {
-            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+            ctx.throw_and_log(...addDomainInError(e));
           }
           await user.sendVerificationMail(token);
         }
@@ -174,7 +177,7 @@ const router = generateCRUD(User, {
           try {
             await user.save();
           } catch (e) {
-            ctx.throw_and_log(400, { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() });
+            ctx.throw_and_log(...addDomainInError(e));
           }
           await user.sendVerificationSMS(token);
         }
