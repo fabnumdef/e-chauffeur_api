@@ -14,7 +14,7 @@ import config from '../services/config';
 const X_SEND_TOKEN = 'x-send-token';
 const addDomainInError = (e) => [
   400,
-  e.toJSON ? { whitelistDomains: config.get('whitelist_domains'), ...e.toJSON() } : e,
+  e.errors ? { whitelistDomains: config.get('whitelist_domains'), errors: e.errors } : e,
 ];
 const router = generateCRUD(User, {
   create: {
@@ -50,7 +50,7 @@ const router = generateCRUD(User, {
           const user = new User(emailO);
           const { token } = await user.generateResetToken(emailO);
           try {
-            await userExists.save();
+            await user.save();
           } catch (e) {
             ctx.throw_and_log(...addDomainInError(e));
           }
