@@ -14,12 +14,12 @@ export const testGet = (Model, {
 } = {}) => [
   'It should only authorize get when authenticated user has enough rights',
   async () => {
-    const expectGet = async (roleGenerator) => {
+    const expectGet = async (roleGenerator, id) => {
       const [dummyObject, toDropLater = []] = [].concat(await generateDummyObject());
       const createdObject = await Model.create(dummyObject);
 
       const { statusCode } = await request()
-        .get(typeof route === 'function' ? route(createdObject) : route)
+        .get(typeof route === 'function' ? route(id ? { id } : createdObject) : route)
         .query(queryParams)
         .set(...roleGenerator());
 
@@ -35,6 +35,10 @@ export const testGet = (Model, {
       };
     };
 
+    if (canCall.length > 0) {
+      const { statusCode } = await expectGet(canCall[0], 'not-existing');
+      statusCode.to.equal(404);
+    }
     await Promise.all([
       ...canCall.map(async (roleGenerator) => {
         const { statusCode, foundObject } = await expectGet(roleGenerator);
