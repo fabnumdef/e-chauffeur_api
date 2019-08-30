@@ -9,6 +9,7 @@ export default async (ctx, next) => {
       ctx.status = err.status || 400;
       ctx.body = err.errors;
     } else {
+      ctx.log(ctx.log.ERROR, err.message, err);
       ctx.status = err.status || 500;
       ctx.body = err.message;
     }
