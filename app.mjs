@@ -3,7 +3,7 @@ import bodyParser from 'koa-bodyparser';
 import qsParser from 'koa-qs';
 import jwt from 'koa-jwt';
 import cors from '@koa/cors';
-import rangePaginationMiddleware from './middlewares/range-pagination';
+import rangePaginationMiddleware, { HEADER_ACCEPT_RANGES, HEADER_CONTENT_RANGES } from './middlewares/range-pagination';
 import routes from './routes';
 import config from './services/config';
 import { loggerMiddleware } from './services/logger';
@@ -16,7 +16,7 @@ app.use(loggerMiddleware);
 qsParser(app);
 app.use(rangePaginationMiddleware);
 app.use(cors({
-  exposeHeaders: ['Content-Range', 'Accept-Ranges'],
+  exposeHeaders: [HEADER_CONTENT_RANGES, HEADER_ACCEPT_RANGES],
 })); // @todo: fine tune, for security
 app.use(bodyParser());
 app
