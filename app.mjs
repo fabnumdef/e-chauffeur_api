@@ -8,8 +8,10 @@ import routes from './routes';
 import config from './services/config';
 import { loggerMiddleware } from './services/logger';
 import { injectUserMayMiddleware } from './middlewares/check-rights';
+import errorHandler from './middlewares/error-handler';
 
 const app = new Koa();
+app.use(errorHandler);
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
 app.use(injectUserMayMiddleware);
 app.use(loggerMiddleware);
