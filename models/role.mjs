@@ -19,13 +19,12 @@ export const ROLE_USER = new RoleList(
 
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
+  rights.CAN_GET_CAMPUS,
+  rights.CAN_REQUEST_RIDE,
 );
 
 export const ROLE_DRIVER = new RoleList(
   ...ROLE_USER,
-
-  rights.CAN_LIST_CAMPUS,
-  rights.CAN_GET_CAMPUS,
 
   rights.CAN_LIST_CAR_MODEL,
   rights.CAN_GET_CAR_MODEL,

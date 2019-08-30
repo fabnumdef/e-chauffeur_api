@@ -22,10 +22,13 @@ const RideSchema = new Schema({
     time: Date,
   }],
   category: {
-    _id: { type: String, required: true, alias: 'category.id' },
+    _id: { type: String, alias: 'category.id' },
     label: String,
   },
-  start: Date,
+  start: {
+    type: Date,
+    required: true,
+  },
   end: Date,
   departure: {
     _id: { type: String, required: true, alias: 'departure.id' },
@@ -54,15 +57,15 @@ const RideSchema = new Schema({
     },
   },
   driver: {
-    _id: { type: Schema.ObjectId, required: true, alias: 'driver.id' },
+    _id: { type: Schema.ObjectId, alias: 'driver.id' },
     name: String,
   },
   car: {
-    _id: { type: String, required: true, alias: 'car.id' },
+    _id: { type: String, alias: 'car.id' },
     label: String,
     model: {
-      _id: { type: String, required: true },
-      label: { type: String, required: true },
+      _id: { type: String },
+      label: { type: String },
     },
   },
   campus: {
@@ -73,9 +76,16 @@ const RideSchema = new Schema({
     },
   },
   comments: String,
-  passengersCount: Number,
+  userComments: String,
+  passengersCount: {
+    type: Number,
+    default: 1,
+  },
   phone: String,
-  luggage: Boolean,
+  luggage: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 RideSchema.plugin(createdAtPlugin);

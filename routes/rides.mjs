@@ -1,5 +1,6 @@
 import camelCase from 'lodash.camelcase';
 import lGet from 'lodash.get';
+import mask from 'json-mask';
 import { CANCELED_STATUSES, DELIVERED } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
@@ -9,6 +10,7 @@ import Ride from '../models/ride';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
+  CAN_REQUEST_RIDE,
   CAN_EDIT_RIDE,
   CAN_EDIT_RIDE_STATUS,
   CAN_GET_RIDE,
@@ -26,11 +28,17 @@ function ioEmit(ctx, data, eventName = '', rooms = []) {
 
 const router = generateCRUD(Ride, {
   create: {
-    right: CAN_CREATE_RIDE,
+    right: [CAN_CREATE_RIDE, CAN_REQUEST_RIDE],
     async main(ctx) {
-      const { request: { body } } = ctx;
+      let { request: { body } } = ctx;
+      if (!ctx.may(CAN_CREATE_RIDE)) {
+        body = mask(body, 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments');
+      }
       const ride = await Ride.create(body);
       ctx.body = ride;
+      if (!ctx.may(CAN_CREATE_RIDE)) {
+        ctx.body = mask(ctx.body, 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments');
+      }
       ctx.log(ctx.log.INFO, `${Ride.modelName} "${ride.id}" has been created`);
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
         `ride/${ride.id}`,
