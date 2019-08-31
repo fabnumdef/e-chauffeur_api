@@ -125,7 +125,7 @@ UserSchema.pre('validate', function preValidate() {
 });
 UserSchema.pre('save', function preSave(next) {
   if (this.isModified('phone.original')) {
-    if (this.phone.original.length) {
+    if (this.phone.original && this.phone.original.length) {
       this.phone.canonical = phoneUtil.format(phoneUtil.parse(this.phone.original, 'FR'), PhoneNumberFormat.E164);
     } else {
       this.phone.canonical = null;
