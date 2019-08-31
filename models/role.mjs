@@ -21,6 +21,11 @@ export const ROLE_USER = new RoleList(
   rights.CAN_EDIT_SELF_USER_PASSWORD,
   rights.CAN_GET_CAMPUS,
   rights.CAN_REQUEST_RIDE,
+
+  rights.CAN_GET_POI_LOCAL,
+  rights.CAN_LIST_POI_LOCAL,
+  rights.CAN_GET_POI,
+  rights.CAN_LIST_POI,
 );
 
 export const ROLE_DRIVER = new RoleList(
@@ -77,9 +82,6 @@ export const ROLE_REGULATOR = new RoleList(
 
   rights.CAN_SEND_FEEDBACK,
 
-  rights.CAN_GET_POI_LOCAL,
-  rights.CAN_LIST_POI_LOCAL,
-
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
@@ -128,8 +130,6 @@ export const ROLE_SUPERADMIN = new RoleList(
 
   rights.CAN_EDIT_POI,
   rights.CAN_CREATE_POI,
-  rights.CAN_GET_POI,
-  rights.CAN_LIST_POI,
 
   rights.CAN_REMOVE_POI,
 
