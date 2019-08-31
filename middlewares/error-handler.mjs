@@ -10,6 +10,8 @@ export default async (ctx, next) => {
       ctx.body = err.errors;
     } else {
       ctx.log(ctx.log.ERROR, err.message, err);
+      // eslint-disable-next-line no-console
+      console.error(err);
       ctx.status = err.status || 500;
       ctx.body = err.message;
     }
