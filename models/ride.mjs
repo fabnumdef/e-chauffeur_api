@@ -113,6 +113,9 @@ RideSchema.pre('validate', async function beforeSave() {
     })(mongoose.model('Campus')),
     (async (User) => {
       const userId = this.requestedBy._id;
+      if (!userId) {
+        return;
+      }
       const user = await User.findById(userId).lean();
       this.requestedBy = {
         ...user,
