@@ -48,6 +48,26 @@ const router = generateCRUD(Poi, {
         await next();
       },
     ],
+    async main(ctx) {
+      const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
+      const [total, data] = await Promise.all([
+        Poi.countDocuments(ctx.filters),
+        Poi.find(ctx.filters).skip(offset).limit(limit).lean(),
+      ]);
+
+      ctx.log(
+        ctx.log.INFO,
+        `Find query in ${Poi.modelName}`,
+        {
+          filters: ctx.filters, offset, limit, total,
+        },
+      );
+
+      ctx.setRangePagination(Poi, {
+        total, offset, count: data.length, limit,
+      });
+      ctx.body = data;
+    },
   },
 });
 
