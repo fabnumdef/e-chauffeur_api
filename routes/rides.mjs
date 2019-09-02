@@ -31,10 +31,12 @@ const router = generateCRUD(Ride, {
     right: [CAN_CREATE_RIDE, CAN_REQUEST_RIDE],
     async main(ctx) {
       let { request: { body } } = ctx;
+      const { state: { user } } = ctx;
       if (!ctx.may(CAN_CREATE_RIDE)) {
         body = mask(body, 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments');
+        body.requestedBy = user;
       }
-      const ride = await Ride.create(body);
+      const ride = await Ride.create(Object.assign(body));
       ctx.body = ride;
       if (!ctx.may(CAN_CREATE_RIDE)) {
         ctx.body = mask(ctx.body, 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments');
