@@ -90,6 +90,11 @@ export const ROLE_REGULATOR = new RoleList(
 
   rights.CAN_LIST_PHONE_LOCAL,
   rights.CAN_GET_PHONE_LOCAL,
+
+  rights.CAN_CREATE_TIME_SLOT,
+  rights.CAN_LIST_TIME_SLOT,
+  rights.CAN_EDIT_TIME_SLOT,
+  rights.CAN_REMOVE_TIME_SLOT,
 );
 
 export const ROLE_ADMIN = new RoleList(

@@ -119,3 +119,8 @@ export const CAN_REVOKE_ROLE_DRIVER = stdRule();
 export const CAN_ADD_ROLE_DRIVER = stdRule();
 
 export const CAN_LIST_ALL_CAMPUSES = stdRule();
+
+export const CAN_EDIT_TIME_SLOT = campusRule();
+export const CAN_CREATE_TIME_SLOT = campusRule();
+export const CAN_LIST_TIME_SLOT = campusRule();
+export const CAN_REMOVE_TIME_SLOT = campusRule();

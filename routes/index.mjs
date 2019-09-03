@@ -14,6 +14,7 @@ import feedback from './feedback';
 import forms from './forms';
 import phones from './phones';
 import phoneModels from './phone-models';
+import timeSlots from './time-slots';
 import config from '../services/config';
 
 const router = new Router();
@@ -37,5 +38,6 @@ router.use('/feedback', feedback);
 router.use('/forms', forms);
 router.use('/phones', phones);
 router.use('/phone-models', phoneModels);
+router.use('/time-slots', timeSlots);
 
 export default router.routes();
