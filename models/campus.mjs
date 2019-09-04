@@ -94,12 +94,14 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 };
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
+  const TimeSlot = mongoose.model('TimeSlot');
+  const slots = await TimeSlot.findWithin(date.start, date.end);
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
 
   return users.map((u) => {
-    const availabilities = u.getAvailabilities(date.start, date.end);
+    const availabilities = slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id)));
     const user = u.toObject({ virtuals: true });
-    user.availabilities = availabilities;
+    user.availabilities = availabilities.map((s) => s.toObject({ virtuals: true }));
     return user;
   }).filter((u) => u.availabilities.length);
 };

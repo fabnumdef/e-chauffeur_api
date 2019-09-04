@@ -82,4 +82,4 @@ TimeSlotSchema.statics.countDocumentsWithin = function countDocumentsWithin(afte
     ...rest,
   );
 };
-export default mongoose.model('TimeSlotModel', TimeSlotSchema, 'time-slots');
+export default mongoose.model('TimeSlot', TimeSlotSchema, 'time-slots');
