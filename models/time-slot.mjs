@@ -14,6 +14,8 @@ const TimeSlotSchema = new Schema({
   },
   drivers: [{
     _id: { type: mongoose.Types.ObjectId, alias: 'id' },
+    firstname: String,
+    lastname: String,
   }],
   campus: {
     _id: { type: String, alias: 'campus.id' },
