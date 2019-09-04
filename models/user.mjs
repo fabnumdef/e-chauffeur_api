@@ -83,22 +83,6 @@ const UserSchema = new Schema({
       name: { type: String, required: true },
     }],
   }],
-  workingHours: {
-    type: String,
-    default: '',
-    validate: {
-      validator(v) {
-        if (!v || v.length === 0) {
-          return true;
-        }
-        try {
-          return !!(new OpeningHours(v));
-        } catch (e) {
-          return false;
-        }
-      },
-    },
-  },
   tokens: [
     {
       _id: false,
@@ -267,21 +251,12 @@ UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessible
   return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
 };
 
-UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
-  const eventsIntervals = Interval.merge(events.map((e) => e.toInterval()));
+UserSchema.methods.getAvailabilities = function isAvailable(start, end) {
   try {
     const oh = new OpeningHours(this.workingHours);
-    const ohIntervals = oh
+    return oh
       .getOpenIntervals(start, end)
       .map(([f, t]) => Interval.fromDateTimes(DateTime.fromJSDate(f), DateTime.fromJSDate(t)));
-    const intervals = [];
-    ohIntervals.forEach((i) => {
-      const diff = i.difference(...eventsIntervals);
-      if (diff) {
-        intervals.push(...diff);
-      }
-    });
-    return intervals;
   } catch (e) {
     return [];
   }

@@ -94,55 +94,10 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 };
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
-  const UserEvent = mongoose.model('UserEvent');
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
-  const userIds = users.map((u) => u._id);
-
-  const events = await UserEvent.find({
-    $or: [
-      {
-        start: {
-          $lte: date.start,
-        },
-        end: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-      },
-      {
-        start: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-        end: {
-          $gte: date.end,
-        },
-      },
-      {
-        start: {
-          $lte: date.start,
-        },
-        end: {
-          $gte: date.end,
-        },
-      },
-      {
-        start: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-        end: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-      },
-    ],
-    'user._id': { $in: userIds },
-  });
 
   return users.map((u) => {
-    const e = events.filter((ev) => ev.user.id === u.id);
-    const availabilities = u.getAvailabilities(date.start, date.end, e);
+    const availabilities = u.getAvailabilities(date.start, date.end);
     const user = u.toObject({ virtuals: true });
     user.availabilities = availabilities;
     return user;
