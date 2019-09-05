@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
-import stateMachine, { CREATED, VALIDATED, VALIDATE } from './status';
+import stateMachine, {
+  DRAFTED, CREATED, VALIDATED, VALIDATE,
+} from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
@@ -15,7 +17,7 @@ const RideSchema = new Schema({
     type: String,
     default: () => nanoid(12),
   },
-  status: { type: String, default: CREATED },
+  status: { type: String, default: DRAFTED },
   statusChanges: [{
     _id: false,
     status: { type: String, required: true },
@@ -30,8 +32,8 @@ const RideSchema = new Schema({
     required: true,
   },
   end: Date,
-  requestedBy: {
-    _id: { type: mongoose.Types.ObjectId, alias: 'requestedBy.id' },
+  owner: {
+    _id: { type: mongoose.Types.ObjectId, alias: 'owner.id' },
     firstname: String,
     lastname: String,
     phone: String,
@@ -112,12 +114,12 @@ RideSchema.pre('validate', async function beforeSave() {
       this.campus = await Campus.findById(campusId).lean();
     })(mongoose.model('Campus')),
     (async (User) => {
-      const userId = this.requestedBy._id;
+      const userId = this.owner._id;
       if (!userId) {
         return;
       }
       const user = await User.findById(userId).lean();
-      this.requestedBy = {
+      this.owner = {
         ...user,
         phone: user.phone.canonical,
       };
@@ -219,10 +221,6 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, e
     this.filtersWithin(start, end, filters),
     ...rest,
   );
-};
-
-RideSchema.methods.isAccessibleByAnonymous = function isAccessibleByAnonymous(token) {
-  return this.token === token;
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {
