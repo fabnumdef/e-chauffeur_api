@@ -8,7 +8,7 @@ class RoleList extends Set {
 
 export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_LOGIN,
-  rights.CAN_GET_RIDE,
+  rights.CAN_GET_RIDE_WITH_TOKEN,
   rights.CAN_GET_RIDE_POSITION,
   rights.CAN_LIST_CAMPUS,
   rights.CAN_SEND_CREATION_TOKEN,
@@ -20,7 +20,11 @@ export const ROLE_USER = new RoleList(
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
   rights.CAN_GET_CAMPUS,
+
   rights.CAN_REQUEST_RIDE,
+  rights.CAN_GET_OWNED_RIDE,
+  rights.CAN_EDIT_OWNED_RIDE,
+  rights.CAN_EDIT_OWNED_RIDE_STATUS,
 
   rights.CAN_GET_POI_LOCAL,
   rights.CAN_LIST_POI_LOCAL,
@@ -85,6 +89,7 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
+  rights.CAN_GET_RIDE,
   rights.CAN_REVOKE_ROLE_LOCAL_DRIVER,
   rights.CAN_ADD_ROLE_LOCAL_DRIVER,
 
