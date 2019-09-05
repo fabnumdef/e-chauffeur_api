@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Luxon from 'luxon';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
@@ -9,6 +10,7 @@ import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 
+const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
 
@@ -107,6 +109,9 @@ RideSchema.pre('validate', async function beforeSave() {
   } catch (e) {
     // Silent error
   }
+  if (this.status === DRAFTED) {
+    this.end = DateTime.fromJSDate(this.start).plus(Duration.fromObject({ hours: 1 })).toJSDate();
+  }
 
   await Promise.all([
     (async (Campus) => {
@@ -121,7 +126,7 @@ RideSchema.pre('validate', async function beforeSave() {
       const user = await User.findById(userId).lean();
       this.owner = {
         ...user,
-        phone: user.phone.canonical,
+        phone: (user.phone || {}).canonical,
       };
     })(mongoose.model('User')),
     (async (Car) => {
