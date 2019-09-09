@@ -2,7 +2,7 @@
 // of the tree
 // eslint-disable-next-line import/no-cycle
 import {
-  stdRule, campusRule, selfEditingUserRule, roleEditingRule,
+  stdRule, campusRule, selfEditingUserRule, roleEditingRule, ownedRideRule, tokenRideRule,
 } from './rules';
 
 export const CAN_LOGIN = stdRule();
@@ -92,10 +92,15 @@ export const CAN_REMOVE_POI_LOCAL = campusRule();
 
 export const CAN_LIST_LOG = stdRule();
 
+// @todo : scope there by campus
 export const CAN_EDIT_RIDE = stdRule();
 export const CAN_EDIT_RIDE_STATUS = stdRule();
+export const CAN_EDIT_OWNED_RIDE_STATUS = ownedRideRule();
 export const CAN_CREATE_RIDE = stdRule();
 export const CAN_REQUEST_RIDE = stdRule();
+export const CAN_GET_OWNED_RIDE = ownedRideRule();
+export const CAN_GET_RIDE_WITH_TOKEN = tokenRideRule();
+export const CAN_EDIT_OWNED_RIDE = ownedRideRule();
 export const CAN_LIST_RIDE = stdRule();
 export const CAN_GET_RIDE = stdRule();
 export const CAN_GET_RIDE_POSITION = stdRule();

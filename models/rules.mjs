@@ -3,6 +3,7 @@ import nanoid from 'nanoid';
 // It's not really a cycle import, we're not importing the same part of the tree
 // eslint-disable-next-line import/no-cycle
 import { CAN_LIST_ALL_CAMPUSES } from './rights';
+import { getPrefetchedRide } from '../helpers/prefetch-ride';
 
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
 /**
@@ -35,3 +36,13 @@ export const roleEditingRule = ruleGenerator((
   ctx,
   { id: campusId = null } = {},
 ) => campusId && !!campuses.find((c) => c._id === campusId));
+
+export const tokenRideRule = ruleGenerator((_, ctx) => {
+  const ride = getPrefetchedRide(ctx, ctx.params.id);
+  return ride.token === ctx.query.token;
+});
+export const ownedRideRule = ruleGenerator((_, ctx) => {
+  const { user } = ctx.state;
+  const ride = getPrefetchedRide(ctx, ctx.params.id);
+  return ride.owner.id.toString() === user.id;
+});

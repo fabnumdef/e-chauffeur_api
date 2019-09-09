@@ -1,7 +1,7 @@
 import camelCase from 'lodash.camelcase';
 import lGet from 'lodash.get';
 import mask from 'json-mask';
-import { CANCELED_STATUSES, DELIVERED } from '../models/status';
+import { CANCELED_STATUSES, CREATE, DELIVERED } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
@@ -10,13 +10,18 @@ import Ride from '../models/ride';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
-  CAN_REQUEST_RIDE,
   CAN_EDIT_RIDE,
   CAN_EDIT_RIDE_STATUS,
   CAN_GET_RIDE,
   CAN_GET_RIDE_POSITION,
   CAN_LIST_RIDE,
+
+  CAN_REQUEST_RIDE,
+  CAN_GET_OWNED_RIDE,
+  CAN_GET_RIDE_WITH_TOKEN,
+  CAN_EDIT_OWNED_RIDE_STATUS,
 } from '../models/rights';
+import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
 
 function ioEmit(ctx, data, eventName = '', rooms = []) {
   let { app: { io } } = ctx;
@@ -25,21 +30,27 @@ function ioEmit(ctx, data, eventName = '', rooms = []) {
   });
   io.emit(eventName, data);
 }
-
+const REQUEST_PRE_MASK = 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments,status';
+const REQUEST_POST_MASK = 'id,start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments,status';
 const router = generateCRUD(Ride, {
   create: {
     right: [CAN_CREATE_RIDE, CAN_REQUEST_RIDE],
     async main(ctx) {
       let { request: { body } } = ctx;
       const { state: { user } } = ctx;
+      const isRequest = !body.status;
+
       if (!ctx.may(CAN_CREATE_RIDE)) {
-        body = mask(body, 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments');
-        body.requestedBy = user;
+        body = mask(body, REQUEST_PRE_MASK);
+      }
+      if (isRequest) {
+        delete body.status;
+        body.owner = user;
       }
       const ride = await Ride.create(Object.assign(body));
       ctx.body = ride;
       if (!ctx.may(CAN_CREATE_RIDE)) {
-        ctx.body = mask(ctx.body, 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments');
+        ctx.body = mask(ctx.body, REQUEST_POST_MASK);
       }
       ctx.log(ctx.log.INFO, `${Ride.modelName} "${ride.id}" has been created`);
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
@@ -56,7 +67,6 @@ const router = generateCRUD(Ride, {
 
       const { params: { id } } = ctx;
       const ride = await Ride.findById(id);
-      const previousDriverId = ride.driver.id.toString();
 
       ride.set(body);
       await ride.save();
@@ -71,24 +81,29 @@ const router = generateCRUD(Ride, {
         `campus/${ride.campus.id}`,
         `driver/${ride.driver.id}`,
       ];
-      if (body.driver.id !== previousDriverId) {
-        rooms.push(`driver/${previousDriverId}`);
+      if (ride.driver && ride.driver.id) {
+        const previousDriverId = ride.driver.id.toString();
+        if (body.driver.id !== previousDriverId) {
+          rooms.push(`driver/${previousDriverId}`);
+        }
       }
+
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
     },
   },
   get: {
-    right: CAN_GET_RIDE,
+    preMiddlewares: [
+      prefetchRideMiddleware(),
+    ],
+    right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
-      const { params: { id }, query: { token } } = ctx;
-      const ride = await Ride.findById(Ride.castId(id));
+      const { params: { id } } = ctx;
+      const ride = getPrefetchedRide(ctx, id);
 
-      if (!ride.isAccessibleByAnonymous(token)) {
-        ctx.throw_and_log(401, `User not authorized to fetch the ride "${id}"`);
-      }
       if (!ride) {
         ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
       }
+
       ctx.body = ride;
       ctx.log(
         ctx.log.INFO,
@@ -199,13 +214,16 @@ router.get(
 
 router.post(
   '/:id/:action',
-  resolveRights(CAN_EDIT_RIDE_STATUS),
+  prefetchRideMiddleware(),
+  resolveRights(CAN_EDIT_RIDE_STATUS, CAN_EDIT_OWNED_RIDE_STATUS),
   maskOutput,
   async (ctx) => {
-    // @todo: rights - driver should be able to update status
-
+    // @todo: rights - driver should be able to update only some status
     const { params: { id, action } } = ctx;
-    const ride = await Ride.findById(id);
+    if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE) {
+      ctx.throw_and_log(403, `You're not authorized to mutate to "${action}"`);
+    }
+    const ride = getPrefetchedRide(ctx, id);
     if (!ride) {
       ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
     }

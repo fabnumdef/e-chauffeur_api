@@ -3,6 +3,7 @@ import get from 'lodash.get';
 
 const { DateTime } = Luxon;
 
+export const DRAFTED = 'drafted';
 export const CREATED = 'created';
 export const VALIDATED = 'validated'; // Regulation validation
 export const REJECTED_BOUNDARY = 'rejected_boundary'; // Regulation validation
@@ -26,6 +27,7 @@ export const CANCELED_STATUSES = [
   CANCELED_CUSTOMER_MISSING,
 ];
 
+export const CREATE = 'create';
 export const VALIDATE = 'validation';
 export const REJECT_BOUNDARY = 'rejection_boundary';
 export const REJECT_CAPACITY = 'rejection_capacity';
@@ -44,8 +46,9 @@ export const CANCEL_CUSTOMER_MISSING = 'cancel_customer_missing';
 export const CANCELABLE = [VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS];
 
 export default {
-  init: CREATED,
+  init: DRAFTED,
   transitions: [
+    { name: CREATE, from: DRAFTED, to: CREATED },
     { name: VALIDATE, from: CREATED, to: VALIDATED },
     { name: REJECT_BOUNDARY, from: CREATED, to: REJECTED_BOUNDARY },
     { name: REJECT_CAPACITY, from: CREATED, to: REJECTED_CAPACITY },

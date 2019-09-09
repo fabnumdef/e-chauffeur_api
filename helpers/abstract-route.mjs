@@ -73,15 +73,17 @@ export function addListToRouter(Model, {
 }
 
 export function addGetToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [], preMiddlewares = [],
 } = {}) {
   this.get(
     url,
+    ...preMiddlewares,
     ...[right]
       .concat(rights)
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    ...middlewares,
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];
@@ -124,15 +126,17 @@ export function addDeleteToRouter(Model, {
 }
 
 export function addUpdateToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [], preMiddlewares = [],
 } = {}) {
   this.patch(
     url,
+    ...preMiddlewares,
     ...[right]
       .concat(rights)
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    ...middlewares,
     main || (async (ctx) => {
       const { request: { body }, params } = ctx;
       const id = params[paramId];
