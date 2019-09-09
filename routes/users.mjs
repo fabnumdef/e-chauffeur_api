@@ -45,7 +45,7 @@ const router = generateCRUD(User, {
             ctx.throw_and_log(...addDomainInError(e));
           }
           await userExists.sendResetPasswordMail(token);
-          ctx.log(`Password reset requested by ${body.email}.`);
+          ctx.log(ctx.log.INFO, `Password reset requested by ${body.email}.`);
         } else {
           const user = new User(emailO);
           const { token } = await user.generateResetToken(emailO);
@@ -55,7 +55,7 @@ const router = generateCRUD(User, {
             ctx.throw_and_log(...addDomainInError(e));
           }
           await user.sendRegistrationTokenMail(token);
-          ctx.log(`User creation requested by ${body.email}.`);
+          ctx.log(ctx.log.INFO, `User creation requested by ${body.email}.`);
         }
         ctx.status = 204;
       } else if (ctx.may(CAN_CREATE_USER)) {

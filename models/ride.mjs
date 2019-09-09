@@ -22,11 +22,21 @@ const RideSchema = new Schema({
     time: Date,
   }],
   category: {
-    _id: { type: String, required: true, alias: 'category.id' },
+    _id: { type: String, alias: 'category.id' },
     label: String,
   },
-  start: Date,
+  start: {
+    type: Date,
+    required: true,
+  },
   end: Date,
+  requestedBy: {
+    _id: { type: mongoose.Types.ObjectId, alias: 'requestedBy.id' },
+    firstname: String,
+    lastname: String,
+    phone: String,
+    email: String,
+  },
   departure: {
     _id: { type: String, required: true, alias: 'departure.id' },
     label: String,
@@ -54,15 +64,15 @@ const RideSchema = new Schema({
     },
   },
   driver: {
-    _id: { type: Schema.ObjectId, required: true, alias: 'driver.id' },
+    _id: { type: Schema.ObjectId, alias: 'driver.id' },
     name: String,
   },
   car: {
-    _id: { type: String, required: true, alias: 'car.id' },
+    _id: { type: String, alias: 'car.id' },
     label: String,
     model: {
-      _id: { type: String, required: true },
-      label: { type: String, required: true },
+      _id: { type: String },
+      label: { type: String },
     },
   },
   campus: {
@@ -73,9 +83,16 @@ const RideSchema = new Schema({
     },
   },
   comments: String,
-  passengersCount: Number,
+  userComments: String,
+  passengersCount: {
+    type: Number,
+    default: 1,
+  },
   phone: String,
-  luggage: Boolean,
+  luggage: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 RideSchema.plugin(createdAtPlugin);
@@ -94,6 +111,17 @@ RideSchema.pre('validate', async function beforeSave() {
       const campusId = this.campus._id;
       this.campus = await Campus.findById(campusId).lean();
     })(mongoose.model('Campus')),
+    (async (User) => {
+      const userId = this.requestedBy._id;
+      if (!userId) {
+        return;
+      }
+      const user = await User.findById(userId).lean();
+      this.requestedBy = {
+        ...user,
+        phone: user.phone.canonical,
+      };
+    })(mongoose.model('User')),
     (async (Car) => {
       const carId = this.car._id;
       this.car = await Car.findById(carId).lean();

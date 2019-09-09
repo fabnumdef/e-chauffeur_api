@@ -87,6 +87,9 @@ export function addGetToRouter(Model, {
       const id = params[paramId];
       try {
         ctx.body = await Model.findById(id).lean();
+        if (!ctx.body) {
+          throw new Error(`${Model.modelName} "${id}" not found`);
+        }
         ctx.log(
           ctx.log.INFO,
           `Find ${Model.modelName} with "${id}"`,
