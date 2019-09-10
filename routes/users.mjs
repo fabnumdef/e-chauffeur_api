@@ -127,6 +127,13 @@ const router = generateCRUD(User, {
         userBody.name = body.name;
       }
 
+      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.firstname) {
+        userBody.firstname = body.firstname;
+      }
+
+      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.lastname) {
+        userBody.lastname = body.lastname;
+      }
       const user = await User.findById(id);
 
       if (body.roles) {

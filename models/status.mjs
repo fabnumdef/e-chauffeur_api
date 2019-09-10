@@ -92,7 +92,7 @@ export default {
             break;
           case WAITING:
             await this.sendSMS(
-              `Votre chauffeur ${show('driver.name')} est arrivé au point de rencontre.`,
+              `Votre chauffeur ${show('driver.firstname')} est arrivé au point de rencontre.`,
             );
             break;
           case DELIVERED:

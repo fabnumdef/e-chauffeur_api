@@ -14,7 +14,8 @@ const PhoneSchema = new Schema({
   owner: {
     _id: { type: Schema.ObjectId, alias: 'owner.id' },
     email: String,
-    name: String,
+    firstname: String,
+    lastname: String,
   },
   campus: {
     _id: { type: String, alias: 'campus.id' },
