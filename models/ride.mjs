@@ -69,7 +69,8 @@ const RideSchema = new Schema({
   },
   driver: {
     _id: { type: Schema.ObjectId, alias: 'driver.id' },
-    name: String,
+    firstname: String,
+    lastname: String,
   },
   car: {
     _id: { type: String, alias: 'car.id' },
