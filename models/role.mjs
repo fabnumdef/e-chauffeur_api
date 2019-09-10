@@ -10,7 +10,7 @@ export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_LOGIN,
   rights.CAN_GET_RIDE_WITH_TOKEN,
   rights.CAN_GET_RIDE_POSITION,
-  rights.CAN_LIST_CAMPUS,
+  rights.CAN_LIST_CAMPUS_BASIC,
   rights.CAN_SEND_CREATION_TOKEN,
 );
 
@@ -19,7 +19,7 @@ export const ROLE_USER = new RoleList(
 
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
-  rights.CAN_GET_CAMPUS,
+  rights.CAN_GET_CAMPUS_BASIC,
 
   rights.CAN_REQUEST_RIDE,
   rights.CAN_GET_OWNED_RIDE,
@@ -34,6 +34,8 @@ export const ROLE_USER = new RoleList(
 
 export const ROLE_DRIVER = new RoleList(
   ...ROLE_USER,
+  rights.CAN_GET_CAMPUS,
+  rights.CAN_LIST_CAMPUS,
 
   rights.CAN_LIST_CAR_MODEL,
   rights.CAN_GET_CAR_MODEL,
