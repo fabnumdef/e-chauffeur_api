@@ -115,7 +115,7 @@ export function addDeleteToRouter(Model, {
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];
-      await Model.remove({ _id: id });
+      await Model.deleteOne({ _id: id });
       ctx.log(
         ctx.log.INFO,
         `${Model.modelName} "${id}" has been removed`,
