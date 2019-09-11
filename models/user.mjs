@@ -318,6 +318,10 @@ UserSchema.statics.findFromLatestPositions = async function findFromLatestPositi
   return this.find({ _id: { $in: positions.map((p) => p._id) } }).lean();
 };
 
+UserSchema.statics.findInIds = async function findInIds(ids = []) {
+  return this.find({ _id: { $in: ids } });
+};
+
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
   const email = encodeURIComponent(this.email);
   return `${config.get('user_website_url')}/edit-account?email=${email}&token=${token}`;

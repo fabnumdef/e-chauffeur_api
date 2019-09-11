@@ -93,6 +93,7 @@ export const CAN_GET_POI_LOCAL = campusRule();
 export const CAN_REMOVE_POI_LOCAL = campusRule();
 
 export const CAN_LIST_LOG = stdRule();
+export const CAN_GET_POSITION_HISTORY = stdRule();
 
 // @todo : scope there by campus
 export const CAN_EDIT_RIDE = stdRule();
