@@ -14,6 +14,7 @@ const REQUESTABLE = {
   poisDeparture: 'pois-departure',
   categories: 'categories',
   carModels: 'car-models',
+  statuses: 'statuses',
 };
 
 router.get(
@@ -46,6 +47,9 @@ router.get(
           break;
         case REQUESTABLE.carModels:
           v = await Campus.aggregateRidesByCarModel(ctx.params.campus_id, start, end);
+          break;
+        case REQUESTABLE.statuses:
+          v = await Campus.aggregateRidesByStatus(ctx.params.campus_id, start, end);
           break;
         default:
       }
