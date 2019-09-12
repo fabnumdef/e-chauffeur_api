@@ -63,6 +63,74 @@ GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(
   ]).allowDiskUse(true);
 };
 
+GeoTrackingSchema.statics.getHistory = async function getHistory(
+  after = new Date(Date.now - 10 * 1000),
+  before = new Date(),
+  campusId = null,
+) {
+  const GeoTracking = mongoose.model('GeoTracking');
+  const User = mongoose.model('User');
+  const $match = {
+    $or: [
+      {
+        start: {
+          $lte: before,
+        },
+        end: {
+          $gte: before,
+          $lte: after,
+        },
+      },
+      {
+        start: {
+          $gte: before,
+          $lte: after,
+        },
+        end: {
+          $gte: after,
+        },
+      },
+      {
+        start: {
+          $lte: before,
+        },
+        end: {
+          $gte: after,
+        },
+      },
+      {
+        start: {
+          $gte: before,
+          $lte: after,
+        },
+        end: {
+          $gte: before,
+          $lte: after,
+        },
+      },
+    ],
+  };
+  if (campusId) {
+    $match['campus._id'] = campusId;
+  }
+  const positions = await GeoTracking.aggregate([
+    { $match },
+    { $unwind: '$positions' },
+    {
+      $project: {
+        driverId: '$driver._id',
+        position: '$positions.location',
+        date: '$positions._id',
+      },
+    },
+    { $sort: { date: -1 } },
+    { $match: { date: { $gte: after, $lte: before } } },
+    { $group: { _id: '$driverId', date: { $first: '$date' }, position: { $first: '$position' } } },
+  ]).allowDiskUse(true);
+  const users = await User.findInIds(positions.map((position) => position._id));
+  return positions.map(({ _id, date, position }) => ({ driver: users.find((u) => u._id.equals(_id)), date, position }));
+};
+
 GeoTrackingSchema.statics.pushHourlyTrack = async function pushHourlyTrack(user, campus, position) {
   const GeoTracking = mongoose.model('GeoTracking');
   const start = DateTime.local().startOf('hours').toJSDate();

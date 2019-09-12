@@ -146,6 +146,7 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
+  rights.CAN_GET_POSITION_HISTORY,
 
   rights.CAN_CREATE_PHONE_MODEL,
   rights.CAN_EDIT_PHONE_MODEL,
