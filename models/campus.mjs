@@ -205,6 +205,16 @@ async function commonAggregateRides(custom, campus, start, end) {
   ]);
 }
 
+CampusSchema.statics.aggregateRidesByArrivalPOI = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$arrival._id', arrival: { $last: '$arrival' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByDeparturePOI = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$departure._id', departure: { $last: '$departure' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
 CampusSchema.statics.aggregateRidesByCategory = commonAggregateRides.bind(CampusSchema.statics, [
   { $group: { _id: '$category._id', category: { $last: '$category' }, total: { $sum: 1 } } },
   { $sort: { total: -1 } },

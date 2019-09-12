@@ -10,6 +10,8 @@ const router = new Router();
 
 const REQUESTABLE = {
   total: 'total',
+  poisArrival: 'pois-arrival',
+  poisDeparture: 'pois-departure',
   categories: 'categories',
 };
 
@@ -31,6 +33,12 @@ router.get(
       switch (r) {
         case REQUESTABLE.total:
           v = await Campus.countRides(ctx.params.campus_id, start, end);
+          break;
+        case REQUESTABLE.poisArrival:
+          v = await Campus.aggregateRidesByArrivalPOI(ctx.params.campus_id, start, end);
+          break;
+        case REQUESTABLE.poisDeparture:
+          v = await Campus.aggregateRidesByDeparturePOI(ctx.params.campus_id, start, end);
           break;
         case REQUESTABLE.categories:
           v = await Campus.aggregateRidesByCategory(ctx.params.campus_id, start, end);
