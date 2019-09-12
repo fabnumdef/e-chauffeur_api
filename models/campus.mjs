@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
+import { DRAFTED } from './status';
 
 const { Schema } = mongoose;
 
@@ -182,7 +183,31 @@ CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(dr
 
 CampusSchema.statics.countRides = async function countRides(campus, start, end) {
   const Ride = mongoose.model('Ride');
-  return Ride.countDocuments(Ride.filtersWithin(start, end));
+  return Ride.countDocuments({
+    ...Ride.filtersWithin(start, end),
+    'campus._id': campus,
+    status: { $ne: DRAFTED },
+  });
 };
+
+async function commonAggregateRides(custom, campus, start, end) {
+  const Ride = mongoose.model('Ride');
+  return Ride.aggregate([
+    {
+      $match: {
+        ...Ride.filtersWithin(start, end),
+        'campus._id': campus,
+        status: { $ne: DRAFTED },
+      },
+    },
+    { $sort: { createdAt: 1 } },
+    ...custom,
+  ]);
+}
+
+CampusSchema.statics.aggregateRidesByCategory = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$category._id', category: { $last: '$category' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
 
 export default mongoose.model('Campus', CampusSchema, 'campuses');

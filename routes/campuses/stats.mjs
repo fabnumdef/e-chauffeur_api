@@ -7,7 +7,11 @@ import resolveRights from '../../middlewares/check-rights';
 import { CAN_GET_CAMPUS_STATS } from '../../models/rights';
 
 const router = new Router();
-const REQUESTABLE = ['total'];
+
+const REQUESTABLE = {
+  total: 'total',
+  categories: 'categories',
+};
 
 router.get(
   '/',
@@ -19,14 +23,17 @@ router.get(
     const end = new Date(ctx.query.filters.end);
 
     const requested = Object.keys(mask(
-      REQUESTABLE.reduce((acc, curr) => Object.assign(acc, { [curr]: null }), {}),
+      Object.values(REQUESTABLE).reduce((acc, curr) => Object.assign(acc, { [curr]: null }), {}),
       (ctx.query || {}).mask || ',',
     ));
     ctx.body = (await Promise.all(requested.map(async (r) => {
       let v = null;
       switch (r) {
-        case 'total':
+        case REQUESTABLE.total:
           v = await Campus.countRides(ctx.params.campus_id, start, end);
+          break;
+        case REQUESTABLE.categories:
+          v = await Campus.aggregateRidesByCategory(ctx.params.campus_id, start, end);
           break;
         default:
       }
