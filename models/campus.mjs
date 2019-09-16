@@ -235,4 +235,9 @@ CampusSchema.statics.aggregateRidesByDriver = commonAggregateRides.bind(CampusSc
   { $sort: { total: -1 } },
 ]);
 
+CampusSchema.statics.aggregateRidesByPhonePresence = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: { $ne: ['$phone', null] }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
 export default mongoose.model('Campus', CampusSchema, 'campuses');
