@@ -15,6 +15,7 @@ const REQUESTABLE = {
   categories: 'categories',
   carModels: 'car-models',
   statuses: 'statuses',
+  drivers: 'drivers',
 };
 
 router.get(
@@ -44,6 +45,9 @@ router.get(
           break;
         case REQUESTABLE.categories:
           v = await Campus.aggregateRidesByCategory(ctx.params.campus_id, start, end);
+          break;
+        case REQUESTABLE.drivers:
+          v = await Campus.aggregateRidesByDriver(ctx.params.campus_id, start, end);
           break;
         case REQUESTABLE.carModels:
           v = await Campus.aggregateRidesByCarModel(ctx.params.campus_id, start, end);
