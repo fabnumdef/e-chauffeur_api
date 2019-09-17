@@ -17,6 +17,7 @@ const REQUESTABLE = {
   statuses: 'statuses',
   drivers: 'drivers',
   hasPhone: 'has-phone',
+  period: 'period',
 };
 
 router.get(
@@ -27,6 +28,8 @@ router.get(
   async (ctx) => {
     const start = new Date(ctx.query.filters.start);
     const end = new Date(ctx.query.filters.end);
+    const timeScope = ctx.query.filters['time-scope'] || 'week';
+    const timeUnit = ctx.query.filters['time-unit'] || 'day';
 
     const requested = Object.keys(mask(
       Object.values(REQUESTABLE).reduce((acc, curr) => Object.assign(acc, { [curr]: null }), {}),
@@ -63,6 +66,34 @@ router.get(
               true: (result.find(({ _id }) => _id === true) || {}).total || 0,
               false: (result.find(({ _id }) => _id === false) || {}).total || 0,
             };
+          }
+          break;
+        case REQUESTABLE.period:
+          {
+            const results = await Campus.aggregateRidesOverTime(
+              ctx.params.campus_id,
+              start,
+              end,
+              { timeUnit, timeScope },
+            );
+            if (timeUnit === 'day') {
+              v = Array.from({ length: 7 }).map((_, index) => {
+                const _id = index + 1;
+                return results.find((row) => row._id === _id) || { _id };
+              });
+            } else if (timeUnit === 'month') {
+              v = Array.from({ length: 12 }).map((_, index) => {
+                const _id = index + 1;
+                return results.find((row) => row._id === _id) || { _id };
+              });
+            } else if (timeUnit === 'hour') {
+              v = Array.from({ length: 24 }).map((_, index) => {
+                const _id = index;
+                return results.find((row) => row._id === _id) || { _id };
+              });
+            } else {
+              v = results;
+            }
           }
           break;
         default:
