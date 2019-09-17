@@ -11,6 +11,15 @@ const CampusSchema = new Schema({
     _id: { type: String, required: true, alias: 'id' },
     label: String,
   }],
+  workedDays: {
+    type: [{
+      // 1-7, where 1 is Monday and 7 is Sunday (ISO 8601)
+      type: Number,
+      min: 1,
+      max: 7,
+    }],
+    default: [1, 2, 3, 4, 5],
+  },
   location: {
     type: {
       type: String,

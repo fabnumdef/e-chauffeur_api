@@ -57,11 +57,13 @@ router.get(
           v = await Campus.aggregateRidesByStatus(ctx.params.campus_id, start, end);
           break;
         case REQUESTABLE.hasPhone:
-          const result = await Campus.aggregateRidesByPhonePresence(ctx.params.campus_id, start, end);
-          v = {
-            true: (result.find(({ _id }) => _id === true) || {}).total || 0,
-            false: (result.find(({ _id }) => _id === false) || {}).total || 0,
-          };
+          {
+            const result = await Campus.aggregateRidesByPhonePresence(ctx.params.campus_id, start, end);
+            v = {
+              true: (result.find(({ _id }) => _id === true) || {}).total || 0,
+              false: (result.find(({ _id }) => _id === false) || {}).total || 0,
+            };
+          }
           break;
         default:
       }
