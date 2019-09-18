@@ -73,7 +73,7 @@ export function addListToRouter(Model, {
 }
 
 export function addGetToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [], preMiddlewares = [],
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [], preMiddlewares = [], lean = true,
 } = {}) {
   this.get(
     url,
@@ -88,7 +88,11 @@ export function addGetToRouter(Model, {
       const { params } = ctx;
       const id = params[paramId];
       try {
-        ctx.body = await Model.findById(id).lean();
+        if (lean) {
+          ctx.body = await Model.findById(id).lean();
+        } else {
+          ctx.body = await Model.findById(id);
+        }
         if (!ctx.body) {
           throw new Error(`${Model.modelName} "${id}" not found`);
         }

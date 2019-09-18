@@ -38,6 +38,7 @@ const router = generateCRUD(Campus, {
     ],
   },
   get: {
+    lean: false,
     right: [CAN_GET_CAMPUS_BASIC, CAN_GET_CAMPUS],
     middlewares: [
       async (ctx, next) => {
