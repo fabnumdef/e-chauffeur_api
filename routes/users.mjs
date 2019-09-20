@@ -36,7 +36,7 @@ const router = generateCRUD(User, {
 
       const emailO = { email: body.email };
       const userExists = await User.findOne(emailO);
-      if (ctx.headers[X_SEND_TOKEN] && ctx.may(CAN_SEND_CREATION_TOKEN)) {
+      if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false') && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
           const { token } = await userExists.generateResetToken(emailO);
           try {
@@ -168,7 +168,7 @@ const router = generateCRUD(User, {
 
       ctx.body = await user.save();
 
-      if (ctx.headers[X_SEND_TOKEN]) {
+      if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false')) {
         const toSend = ctx.headers[X_SEND_TOKEN].split(',');
         if (toSend.includes('email') && !user.email_confirmed) {
           const { token } = await user.generateResetToken({ email: user.email });
