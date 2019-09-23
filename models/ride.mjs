@@ -146,7 +146,10 @@ RideSchema.pre('validate', async function beforeSave() {
 RideSchema.isNewAndValidated = false;
 RideSchema.pre('save', function preSave(next) {
   RideSchema.isNewAndValidated = false;
-  if (this.isNew && this.status === VALIDATED) {
+  if (
+    (this.isNew && this.status === VALIDATED)
+    || (!this.isNew && this.status === CREATED)
+  ) {
     RideSchema.isNewAndValidated = true;
     this.status = CREATED;
   }
