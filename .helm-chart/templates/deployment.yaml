@@ -32,7 +32,7 @@ spec:
             - name: SATISFACTION_QUESTIONNAIRE_URL
               value: "{{ .Values.env.SATISFACTION_QUESTIONNAIRE_URL }}"
             - name: TWILIO__SID
-              value: "{{ .Values.env.TOKEN__DURATION }}"
+              value: "{{ .Values.env.TWILIO__SID }}"
             - name: TWILIO__TOKEN
               value: "{{ .Values.env.TWILIO__TOKEN }}"
             - name: TWILIO__MESSAGING_SERVICE_SID

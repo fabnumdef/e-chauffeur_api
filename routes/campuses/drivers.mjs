@@ -21,7 +21,7 @@ router.get(
   maskOutput,
   async (ctx) => {
     let data;
-    const { offset, limit } = ctx.parseRangePagination(User);
+    const { offset, limit } = ctx.parseRangePagination(User, { max: 1000 });
     const total = await Campus.countDrivers(ctx.params.campus_id);
 
     if ((ctx.query && ctx.query.filters)

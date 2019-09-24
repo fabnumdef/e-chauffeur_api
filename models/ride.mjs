@@ -38,7 +38,6 @@ const RideSchema = new Schema({
     _id: { type: mongoose.Types.ObjectId, alias: 'owner.id' },
     firstname: String,
     lastname: String,
-    phone: String,
     email: String,
   },
   departure: {
@@ -124,11 +123,10 @@ RideSchema.pre('validate', async function beforeSave() {
       if (!userId) {
         return;
       }
-      const user = await User.findById(userId).lean();
-      this.owner = {
-        ...user,
-        phone: (user.phone || {}).canonical,
-      };
+      this.owner = await User.findById(userId).lean();
+      if (!this.phone && this.owner && this.owner.phone) {
+        this.phone = this.owner.phone;
+      }
     })(mongoose.model('User')),
     (async (Car) => {
       const carId = this.car._id;
@@ -146,7 +144,10 @@ RideSchema.pre('validate', async function beforeSave() {
 RideSchema.isNewAndValidated = false;
 RideSchema.pre('save', function preSave(next) {
   RideSchema.isNewAndValidated = false;
-  if (this.isNew && this.status === VALIDATED) {
+  if (
+    (this.isNew && this.status === VALIDATED)
+    || (!this.isNew && this.status === CREATED)
+  ) {
     RideSchema.isNewAndValidated = true;
     this.status = CREATED;
   }

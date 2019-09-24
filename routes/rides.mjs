@@ -68,6 +68,13 @@ const router = generateCRUD(Ride, {
       const { params: { id } } = ctx;
       const ride = await Ride.findById(id);
 
+      let previousDriverId;
+      if (ride.driver && ride.driver.id) {
+        previousDriverId = ride.driver.id.toString();
+        if (body.driver.id !== previousDriverId) {
+          previousDriverId = true;
+        }
+      }
       ride.set(body);
       await ride.save();
       ctx.body = ride;
@@ -81,11 +88,9 @@ const router = generateCRUD(Ride, {
         `campus/${ride.campus.id}`,
         `driver/${ride.driver.id}`,
       ];
-      if (ride.driver && ride.driver.id) {
-        const previousDriverId = ride.driver.id.toString();
-        if (body.driver.id !== previousDriverId) {
-          rooms.push(`driver/${previousDriverId}`);
-        }
+
+      if (previousDriverId && body.driver.id !== previousDriverId) {
+        rooms.push(`driver/${previousDriverId}`);
       }
 
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
