@@ -112,6 +112,9 @@ RideSchema.pre('validate', async function beforeSave() {
   if (this.status === DRAFTED) {
     this.end = DateTime.fromJSDate(this.start).plus(Duration.fromObject({ hours: 1 })).toJSDate();
   }
+  if (typeof this.driver === 'undefined' || !this.driver._id) {
+    this.driver = null;
+  }
 
   await Promise.all([
     (async (Campus) => {
