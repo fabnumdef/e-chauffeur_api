@@ -17,16 +17,10 @@ router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
     ctx.throw_and_log(400, 'To generate a JWT, token or password are required.');
   }
 
-  if (!user) {
+  if (!user
+  || (body.password && !(await user.comparePassword(body.password)))
+  || (body.token && !(await user.compareResetToken(body.token, body.email)))) {
     ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
-  }
-
-  if (body.password && !(await user.comparePassword(body.password))) {
-    ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
-  }
-
-  if (body.token && !(await user.compareResetToken(body.token, body.email))) {
-    ctx.throw_and_log(403, `Username and token do not match for user "${body.email}".`);
   }
 
   ctx.body = { token: user.emitJWT(!!body.password) };
