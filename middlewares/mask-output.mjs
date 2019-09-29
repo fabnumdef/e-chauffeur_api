@@ -22,7 +22,7 @@ export function cleanObject(e) {
     if (['__v'].includes(key)) {
       return;
     }
-    acc[key.replace ? key.replace('_', '') : key] = cleanObject(val);
+    acc[key.replace ? key.replace(/^_/g, '') : key] = cleanObject(val);
   });
 }
 
