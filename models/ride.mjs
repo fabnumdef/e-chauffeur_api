@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import lGet from 'lodash.get';
 import Luxon from 'luxon';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
@@ -126,9 +127,11 @@ RideSchema.pre('validate', async function beforeSave() {
       if (!userId) {
         return;
       }
-      this.owner = await User.findById(userId).lean();
-      if (!this.phone && this.owner && this.owner.phone) {
-        this.phone = this.owner.phone;
+      const owner = await User.findById(userId).lean();
+      const phone = lGet(owner, 'phone.canonical', null);
+      this.owner = owner;
+      if (phone && !this.phone && lGet(owner, 'phone.confirmed', false)) {
+        this.phone = phone;
       }
     })(mongoose.model('User')),
     (async (Car) => {
