@@ -120,6 +120,9 @@ UserSchema.pre('save', function preSave(next) {
   if (!this.isModified('password') || !this.password) {
     next();
   }
+  if (this.isModified('email')) {
+    this.email_confirmed = false;
+  }
   this.tokens = this.activeTokens;
   bcrypt
     .hash(this.password, SALT_WORK_FACTOR)

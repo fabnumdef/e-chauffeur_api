@@ -1,7 +1,9 @@
 import camelCase from 'lodash.camelcase';
 import lGet from 'lodash.get';
 import mask from 'json-mask';
-import { CANCELED_STATUSES, CREATE, DELIVERED } from '../models/status';
+import {
+  CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
+} from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
@@ -20,6 +22,7 @@ import {
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE_STATUS,
+  CAN_EDIT_OWNED_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
 
@@ -61,13 +64,21 @@ const router = generateCRUD(Ride, {
     },
   },
   update: {
-    right: CAN_EDIT_RIDE,
+    preMiddlewares: [
+      prefetchRideMiddleware(),
+    ],
+    right: [CAN_EDIT_RIDE, CAN_EDIT_OWNED_RIDE],
     async main(ctx) {
-      const { request: { body } } = ctx;
+      let { request: { body } } = ctx;
 
       const { params: { id } } = ctx;
       const ride = await Ride.findById(id);
-
+      if (!ctx.may(CAN_EDIT_RIDE)) {
+        if (ride.status !== DRAFTED) {
+          ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
+        }
+        body = mask(body, REQUEST_PRE_MASK);
+      }
       let previousDriverId;
       if (ride.driver && ride.driver.id) {
         previousDriverId = ride.driver.id.toString();
@@ -78,6 +89,9 @@ const router = generateCRUD(Ride, {
       ride.set(body);
       await ride.save();
       ctx.body = ride;
+      if (!ctx.may(CAN_EDIT_RIDE)) {
+        ctx.body = mask(ctx.body, REQUEST_POST_MASK);
+      }
       ctx.log(
         ctx.log.INFO,
         `${Ride.modelName} "${id}" has been modified`,
