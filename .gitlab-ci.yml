@@ -50,7 +50,7 @@ deploy_review:
     - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - helm init --upgrade --service-account tiller --force-upgrade
+    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
       --install
@@ -92,7 +92,7 @@ deploy_staging:
     - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - helm init --upgrade --service-account tiller --force-upgrade
+    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
       --install
