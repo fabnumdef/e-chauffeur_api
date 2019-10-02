@@ -86,6 +86,7 @@ const router = generateCRUD(Ride, {
           previousDriverId = true;
         }
       }
+      delete body.status;
       ride.set(body);
       await ride.save();
       ctx.body = ride;

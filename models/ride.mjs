@@ -146,29 +146,25 @@ RideSchema.pre('validate', async function beforeSave() {
   ]);
 });
 
-// @todo : Review this when passengers could command a ride
-RideSchema.isNewAndValidated = false;
 RideSchema.pre('save', function preSave(next) {
-  RideSchema.isNewAndValidated = false;
-  if (
-    (this.isNew && this.status === VALIDATED)
-    || (!this.isNew && this.status === CREATED)
-  ) {
-    RideSchema.isNewAndValidated = true;
+  // Hack SMS, to send SMS we have to pass in status mutation flow
+  if (this.isNew && this.status === VALIDATED) {
     this.status = CREATED;
   }
+
+  // Auto validation when document is created by regulator, of when it's edited by regulator.
+  // @todo: Clean that when we will review ride workflow
+  this.autoValidate = (this.isNew || !this.isModified('status')) && this.status === CREATED;
   next();
 });
 
-// @todo : Review this when passengers could command a ride
 RideSchema.post('save', async function postSave() {
-  if (RideSchema.isNewAndValidated) {
+  if (this.autoValidate) {
     const ride = await this.model('Ride').findById(this.id);
     ride[VALIDATE]();
     const rideUpdated = await ride.save();
     this.status = rideUpdated.status;
   }
-  RideSchema.isNewAndValidated = false;
 });
 
 RideSchema.statics.castId = (v) => {
