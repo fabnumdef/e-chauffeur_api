@@ -2,7 +2,7 @@ import {
   generateAdminJWTHeader as originalGenerateAdminJWTHeader,
   generateRegulatorJWTHeader as originalGenerateRegulatorJWTHeader,
   generateDriverJWTHeader,
-  generateSuperAdminJWTHeader,
+  generateSuperAdminJWTHeader, generateAnonymousJWTHeader, generateUserJWTHeader,
 } from '../request';
 import Campus, { generateDummyCampus } from '../models/campus';
 import Poi, { generateDummyPoi } from '../models/poi';
@@ -59,7 +59,8 @@ describe('Test the poi API endpoint', () => {
 
   it(...testList(Poi, {
     ...config,
-    canCall: config.canCall.concat(generateRegulatorJWTHeader),
+    cannotCall: [generateAnonymousJWTHeader],
+    canCall: config.canCall.concat([generateRegulatorJWTHeader, generateUserJWTHeader]),
   }));
 
   it(...testDelete(Poi, {
@@ -69,7 +70,8 @@ describe('Test the poi API endpoint', () => {
 
   it(...testGet(Poi, {
     ...config,
-    canCall: config.canCall.concat(generateRegulatorJWTHeader),
+    cannotCall: [generateAnonymousJWTHeader],
+    canCall: config.canCall.concat([generateRegulatorJWTHeader, generateUserJWTHeader]),
     route: ({ id }) => `${config.route}/${id}`,
   }));
 

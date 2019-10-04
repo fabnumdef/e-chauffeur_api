@@ -24,9 +24,6 @@ export default async function sendMail(to, options = {}) {
     html: '',
     ...options,
   };
-  if (!opts.html && opts.text) {
-    opts.html = `<p>${opts.text}</p>`;
-  }
   const transporter = Nodemailer.createTransport(conf);
   const mailOptions = { to, ...opts };
   return transporter.sendMail(mailOptions);

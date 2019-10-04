@@ -8,9 +8,9 @@ class RoleList extends Set {
 
 export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_LOGIN,
-  rights.CAN_GET_RIDE,
+  rights.CAN_GET_RIDE_WITH_TOKEN,
   rights.CAN_GET_RIDE_POSITION,
-  rights.CAN_LIST_CAMPUS,
+  rights.CAN_LIST_CAMPUS_BASIC,
   rights.CAN_SEND_CREATION_TOKEN,
 );
 
@@ -19,13 +19,23 @@ export const ROLE_USER = new RoleList(
 
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
+  rights.CAN_GET_CAMPUS_BASIC,
+
+  rights.CAN_REQUEST_RIDE,
+  rights.CAN_GET_OWNED_RIDE,
+  rights.CAN_EDIT_OWNED_RIDE,
+  rights.CAN_EDIT_OWNED_RIDE_STATUS,
+
+  rights.CAN_GET_POI_LOCAL,
+  rights.CAN_LIST_POI_LOCAL,
+  rights.CAN_GET_POI,
+  rights.CAN_LIST_POI,
 );
 
 export const ROLE_DRIVER = new RoleList(
   ...ROLE_USER,
-
-  rights.CAN_LIST_CAMPUS,
   rights.CAN_GET_CAMPUS,
+  rights.CAN_LIST_CAMPUS,
 
   rights.CAN_LIST_CAR_MODEL,
   rights.CAN_GET_CAR_MODEL,
@@ -78,17 +88,20 @@ export const ROLE_REGULATOR = new RoleList(
 
   rights.CAN_SEND_FEEDBACK,
 
-  rights.CAN_GET_POI_LOCAL,
-  rights.CAN_LIST_POI_LOCAL,
-
   rights.CAN_LIST_RIDE,
   rights.CAN_CREATE_RIDE,
   rights.CAN_EDIT_RIDE,
+  rights.CAN_GET_RIDE,
   rights.CAN_REVOKE_ROLE_LOCAL_DRIVER,
   rights.CAN_ADD_ROLE_LOCAL_DRIVER,
 
   rights.CAN_LIST_PHONE_LOCAL,
   rights.CAN_GET_PHONE_LOCAL,
+
+  rights.CAN_CREATE_TIME_SLOT,
+  rights.CAN_LIST_TIME_SLOT,
+  rights.CAN_EDIT_TIME_SLOT,
+  rights.CAN_REMOVE_TIME_SLOT,
 );
 
 export const ROLE_ADMIN = new RoleList(
@@ -129,12 +142,11 @@ export const ROLE_SUPERADMIN = new RoleList(
 
   rights.CAN_EDIT_POI,
   rights.CAN_CREATE_POI,
-  rights.CAN_GET_POI,
-  rights.CAN_LIST_POI,
 
   rights.CAN_REMOVE_POI,
 
   rights.CAN_LIST_LOG,
+  rights.CAN_GET_POSITION_HISTORY,
 
   rights.CAN_CREATE_PHONE_MODEL,
   rights.CAN_EDIT_PHONE_MODEL,

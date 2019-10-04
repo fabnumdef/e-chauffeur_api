@@ -34,7 +34,7 @@ export async function loggerMiddleware(ctx, next) {
 
   ctx.throw_and_log = (code, message) => {
     ctx.log(ctx.log.ERROR, message);
-    ctx.throw(code, message);
+    ctx.throw(code, typeof message === 'object' && !message.message ? JSON.stringify(message) : message);
   };
   await next();
 }

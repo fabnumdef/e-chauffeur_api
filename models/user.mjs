@@ -54,6 +54,9 @@ const UserSchema = new Schema({
       validator(v) {
         return [].concat(config.get('whitelist_domains')).reduce((acc, cur) => acc || v.endsWith(cur), false);
       },
+      message({ value }) {
+        return `"${value}" should ends with ${config.get('whitelist_domains').join(', ')}`;
+      },
     },
     index: { unique: true },
   },
@@ -80,22 +83,6 @@ const UserSchema = new Schema({
       name: { type: String, required: true },
     }],
   }],
-  workingHours: {
-    type: String,
-    default: '',
-    validate: {
-      validator(v) {
-        if (!v || v.length === 0) {
-          return true;
-        }
-        try {
-          return !!(new OpeningHours(v));
-        } catch (e) {
-          return false;
-        }
-      },
-    },
-  },
   tokens: [
     {
       _id: false,
@@ -122,7 +109,7 @@ UserSchema.pre('validate', function preValidate() {
 });
 UserSchema.pre('save', function preSave(next) {
   if (this.isModified('phone.original')) {
-    if (this.phone.original.length) {
+    if (this.phone.original && this.phone.original.length) {
       this.phone.canonical = phoneUtil.format(phoneUtil.parse(this.phone.original, 'FR'), PhoneNumberFormat.E164);
     } else {
       this.phone.canonical = null;
@@ -132,6 +119,9 @@ UserSchema.pre('save', function preSave(next) {
 
   if (!this.isModified('password') || !this.password) {
     next();
+  }
+  if (this.isModified('email')) {
+    this.email_confirmed = false;
   }
   this.tokens = this.activeTokens;
   bcrypt
@@ -145,15 +135,17 @@ UserSchema.pre('save', function preSave(next) {
 
 UserSchema.virtual('name')
   .get(function getName() {
-    return `${this.firstname} ${this.lastname}`;
+    return `${this.firstname || ''} ${this.lastname || ''}`;
   })
   .set(function setName(name) {
-    [this.firstname, this.lastname] = name.split(' ');
+    if (!this.firstname && !this.lastname) {
+      [this.firstname, this.lastname = ''] = name.split(' ') || [name];
+    }
   });
 
 UserSchema.virtual('activeTokens')
   .get(function getName() {
-    const [firsts] = chunk(orderBy(
+    const [firsts = []] = chunk(orderBy(
       this.tokens
         .filter((t) => t.attempts.length < 3 && t.expiration > new Date()),
       ['expiration'],
@@ -262,21 +254,12 @@ UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessible
   return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
 };
 
-UserSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
-  const eventsIntervals = Interval.merge(events.map((e) => e.toInterval()));
+UserSchema.methods.getAvailabilities = function isAvailable(start, end) {
   try {
     const oh = new OpeningHours(this.workingHours);
-    const ohIntervals = oh
+    return oh
       .getOpenIntervals(start, end)
       .map(([f, t]) => Interval.fromDateTimes(DateTime.fromJSDate(f), DateTime.fromJSDate(t)));
-    const intervals = [];
-    ohIntervals.forEach((i) => {
-      const diff = i.difference(...eventsIntervals);
-      if (diff) {
-        intervals.push(...diff);
-      }
-    });
-    return intervals;
   } catch (e) {
     return [];
   }
@@ -338,6 +321,10 @@ UserSchema.statics.findFromLatestPositions = async function findFromLatestPositi
   return this.find({ _id: { $in: positions.map((p) => p._id) } }).lean();
 };
 
+UserSchema.statics.findInIds = async function findInIds(ids = []) {
+  return this.find({ _id: { $in: ids } });
+};
+
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
   const email = encodeURIComponent(this.email);
   return `${config.get('user_website_url')}/edit-account?email=${email}&token=${token}`;
@@ -376,7 +363,6 @@ UserSchema.methods.generateResetToken = async function generateResetToken({ emai
     token: nanoid(RESET_TOKEN_ALPHABET, 6),
   };
   this.tokens.unshift(token);
-  await this.save();
   return token;
 };
 

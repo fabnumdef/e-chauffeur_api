@@ -8,6 +8,6 @@ describe('Test the / route', () => {
     const { text, statusCode } = await request()
       .get('/');
     expect(statusCode).to.equal(200);
-    expect(text).to.equal('OK');
+    expect(text).to.match(/^OK/);
   });
 });

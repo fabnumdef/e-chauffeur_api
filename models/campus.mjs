@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
+import { DRAFTED } from './status';
 
 const { Schema } = mongoose;
 
@@ -10,6 +11,15 @@ const CampusSchema = new Schema({
     _id: { type: String, required: true, alias: 'id' },
     label: String,
   }],
+  workedDays: {
+    type: [{
+      // 1-7, where 1 is Monday and 7 is Sunday (ISO 8601)
+      type: Number,
+      min: 1,
+      max: 7,
+    }],
+    default: [1, 2, 3, 4, 5],
+  },
   location: {
     type: {
       type: String,
@@ -94,57 +104,14 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 };
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
-  const UserEvent = mongoose.model('UserEvent');
+  const TimeSlot = mongoose.model('TimeSlot');
+  const slots = await TimeSlot.findWithin(date.start, date.end);
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
-  const userIds = users.map((u) => u._id);
-
-  const events = await UserEvent.find({
-    $or: [
-      {
-        start: {
-          $lte: date.start,
-        },
-        end: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-      },
-      {
-        start: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-        end: {
-          $gte: date.end,
-        },
-      },
-      {
-        start: {
-          $lte: date.start,
-        },
-        end: {
-          $gte: date.end,
-        },
-      },
-      {
-        start: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-        end: {
-          $gte: date.start,
-          $lte: date.end,
-        },
-      },
-    ],
-    'user._id': { $in: userIds },
-  });
 
   return users.map((u) => {
-    const e = events.filter((ev) => ev.user.id === u.id);
-    const availabilities = u.getAvailabilities(date.start, date.end, e);
+    const availabilities = slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id)));
     const user = u.toObject({ virtuals: true });
-    user.availabilities = availabilities;
+    user.availabilities = availabilities.map((s) => s.toObject({ virtuals: true }));
     return user;
   }).filter((u) => u.availabilities.length);
 };
@@ -225,7 +192,127 @@ CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(dr
 
 CampusSchema.statics.countRides = async function countRides(campus, start, end) {
   const Ride = mongoose.model('Ride');
-  return Ride.countDocuments(Ride.filtersWithin(start, end));
+  return Ride.countDocuments({
+    ...Ride.filtersWithin(start, end),
+    'campus._id': campus,
+    status: { $ne: DRAFTED },
+  });
+};
+
+async function commonAggregateRides(custom, campus, start, end) {
+  const Ride = mongoose.model('Ride');
+  return Ride.aggregate([
+    {
+      $match: {
+        ...Ride.filtersWithin(start, end),
+        'campus._id': campus,
+        status: { $ne: DRAFTED },
+      },
+    },
+    { $sort: { start: 1 } },
+    ...custom,
+  ]);
+}
+
+CampusSchema.statics.aggregateRidesByArrivalPOI = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$arrival._id', arrival: { $last: '$arrival' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByDeparturePOI = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$departure._id', departure: { $last: '$departure' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByCategory = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$category._id', category: { $last: '$category' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByStatus = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$status', total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByCarModel = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$car.model._id', model: { $last: '$car.model' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByDriver = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: '$driver._id', driver: { $last: '$driver' }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesByPhonePresence = commonAggregateRides.bind(CampusSchema.statics, [
+  { $group: { _id: { $ne: ['$phone', null] }, total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+]);
+
+CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverTime(
+  campus, start, end, { timeUnit = 'day', timeScope = 'week' },
+) {
+  const Ride = mongoose.model('Ride');
+  let averageKey;
+  switch (timeUnit) {
+    case 'month':
+      averageKey = { $month: '$start' };
+      break;
+    case 'day':
+      averageKey = { $isoDayOfWeek: '$start' };
+      break;
+    case 'hour':
+      averageKey = { $hour: '$start' };
+      break;
+    default:
+      throw new Error('Unexpected time-unit');
+  }
+  let format;
+  switch (timeScope) {
+    case 'year':
+      format = '%Y';
+      break;
+    case 'month':
+      format = '%Y-%m';
+      break;
+    case 'week':
+      format = '%Y-%V';
+      break;
+    case 'day':
+      format = '%Y-%m-%d';
+      break;
+    default:
+      throw new Error('Unexpected time-scope');
+  }
+  return Ride.aggregate([
+    {
+      $match: {
+        ...Ride.filtersWithin(start, end),
+        'campus._id': campus,
+        status: { $ne: DRAFTED },
+      },
+    },
+    { $sort: { start: 1 } },
+    { $project: { start: 1 } },
+    {
+      $group: {
+        _id: {
+          stageKey: { $dateToString: { format, date: '$start' } },
+          averageKey,
+        },
+        total: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.averageKey',
+        average: { $avg: '$total' },
+        minimum: { $min: '$total' },
+        maximum: { $max: '$total' },
+        total: { $sum: '$total' },
+      },
+    },
+  ]);
 };
 
 export default mongoose.model('Campus', CampusSchema, 'campuses');

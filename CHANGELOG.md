@@ -1,5 +1,9 @@
 # Changelog
-## Current
+## Version 1.4.0
+### Features
+* Change user firstname/lastname model
+* Add account management for anonymous
+### Fix
 * Fix POI search on label instead of name field 
 ## Version 1.3.1
 ### Features

@@ -50,15 +50,15 @@ deploy_review:
     - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - helm init --upgrade --service-account tiller --force-upgrade
+    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
-      --install --debug
+      --install
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${URL_REVIEW}"
-      --set imageCredentials.username="${CI_REGISTRY_USER}"
-      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
@@ -73,6 +73,8 @@ deploy_review:
       --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-staging"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}
@@ -90,15 +92,15 @@ deploy_staging:
     - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - helm init --upgrade --service-account tiller --force-upgrade
+    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
-      --install --debug
+      --install
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${STAGING_DOMAIN}"
-      --set imageCredentials.username="${CI_REGISTRY_USER}"
-      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
@@ -113,6 +115,8 @@ deploy_staging:
       --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}
@@ -132,12 +136,12 @@ deploy_prod:
     - helm init --upgrade --service-account tiller --force-upgrade
   script:
     - helm upgrade
-      --install --debug
+      --install
       --namespace e-chauffeur
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${PRODUCTION_DOMAIN}"
-      --set imageCredentials.username="${CI_REGISTRY_USER}"
-      --set imageCredentials.password="${CI_REGISTRY_PASSWORD}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.MONGODB="${PRODUCTION_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${PRODUCTION_SATISFACTION_QUESTIONNAIRE_URL}"
@@ -152,6 +156,8 @@ deploy_prod:
       --set env.MAIL__CONTACT_MAIL="${PRODUCTION_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${PRODUCTION_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${PRODUCTION_USER_WEBSITE_URL}"
+      --set-string env.WHITELIST_DOMAINS="${PRODUCTION_WHITELIST_DOMAINS}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
       --wait
       e-chauffeur-api-${CI_COMMIT_REF_SLUG}

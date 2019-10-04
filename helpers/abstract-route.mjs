@@ -73,20 +73,29 @@ export function addListToRouter(Model, {
 }
 
 export function addGetToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [], preMiddlewares = [], lean = true,
 } = {}) {
   this.get(
     url,
+    ...preMiddlewares,
     ...[right]
       .concat(rights)
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    ...middlewares,
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];
       try {
-        ctx.body = await Model.findById(id).lean();
+        if (lean) {
+          ctx.body = await Model.findById(id).lean();
+        } else {
+          ctx.body = await Model.findById(id);
+        }
+        if (!ctx.body) {
+          throw new Error(`${Model.modelName} "${id}" not found`);
+        }
         ctx.log(
           ctx.log.INFO,
           `Find ${Model.modelName} with "${id}"`,
@@ -110,7 +119,7 @@ export function addDeleteToRouter(Model, {
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];
-      await Model.remove({ _id: id });
+      await Model.deleteOne({ _id: id });
       ctx.log(
         ctx.log.INFO,
         `${Model.modelName} "${id}" has been removed`,
@@ -121,15 +130,17 @@ export function addDeleteToRouter(Model, {
 }
 
 export function addUpdateToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [], preMiddlewares = [],
 } = {}) {
   this.patch(
     url,
+    ...preMiddlewares,
     ...[right]
       .concat(rights)
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    ...middlewares,
     main || (async (ctx) => {
       const { request: { body }, params } = ctx;
       const id = params[paramId];

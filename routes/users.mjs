@@ -9,9 +9,13 @@ import {
   CAN_LIST_USER,
   CAN_REMOVE_USER,
 } from '../models/rights';
+import config from '../services/config';
 
 const X_SEND_TOKEN = 'x-send-token';
-
+const addDomainInError = (e) => [
+  400,
+  e.errors ? { whitelistDomains: config.get('whitelist_domains'), errors: e.errors } : e,
+];
 const router = generateCRUD(User, {
   create: {
     right: [CAN_CREATE_USER, CAN_SEND_CREATION_TOKEN],
@@ -32,24 +36,37 @@ const router = generateCRUD(User, {
 
       const emailO = { email: body.email };
       const userExists = await User.findOne(emailO);
-      if (ctx.headers[X_SEND_TOKEN] && ctx.may(CAN_SEND_CREATION_TOKEN)) {
+      if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false') && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
           const { token } = await userExists.generateResetToken(emailO);
+          try {
+            await userExists.save();
+          } catch (e) {
+            ctx.throw_and_log(...addDomainInError(e));
+          }
           await userExists.sendResetPasswordMail(token);
-          ctx.log(`Password reset requested by ${body.email}.`);
+          ctx.log(ctx.log.INFO, `Password reset requested by ${body.email}.`);
         } else {
-          const user = await User.create(emailO);
+          const user = new User(emailO);
           const { token } = await user.generateResetToken(emailO);
+          try {
+            await user.save();
+          } catch (e) {
+            ctx.throw_and_log(...addDomainInError(e));
+          }
           await user.sendRegistrationTokenMail(token);
-          ctx.log(`User creation requested by ${body.email}.`);
+          ctx.log(ctx.log.INFO, `User creation requested by ${body.email}.`);
         }
         ctx.status = 204;
       } else if (ctx.may(CAN_CREATE_USER)) {
         if (userExists) {
           ctx.throw_and_log(409, `User email ${body.email} already existing.`);
         }
-
-        ctx.body = await User.create(body);
+        try {
+          ctx.body = await User.create(body);
+        } catch (e) {
+          ctx.throw_and_log(...addDomainInError(e));
+        }
         ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
       } else {
         ctx.status = 403;
@@ -110,6 +127,13 @@ const router = generateCRUD(User, {
         userBody.name = body.name;
       }
 
+      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.firstname) {
+        userBody.firstname = body.firstname;
+      }
+
+      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.lastname) {
+        userBody.lastname = body.lastname;
+      }
       const user = await User.findById(id);
 
       if (body.roles) {
@@ -144,14 +168,24 @@ const router = generateCRUD(User, {
 
       ctx.body = await user.save();
 
-      if (ctx.headers[X_SEND_TOKEN]) {
+      if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false')) {
         const toSend = ctx.headers[X_SEND_TOKEN].split(',');
         if (toSend.includes('email') && !user.email_confirmed) {
           const { token } = await user.generateResetToken({ email: user.email });
+          try {
+            await user.save();
+          } catch (e) {
+            ctx.throw_and_log(...addDomainInError(e));
+          }
           await user.sendVerificationMail(token);
         }
         if (toSend.includes('phone') && !user.phone.confirmed) {
           const { token } = await user.generateResetToken({ phone: user.phone.canonical });
+          try {
+            await user.save();
+          } catch (e) {
+            ctx.throw_and_log(...addDomainInError(e));
+          }
           await user.sendVerificationSMS(token);
         }
       }

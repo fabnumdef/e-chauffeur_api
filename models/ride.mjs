@@ -1,12 +1,17 @@
 import mongoose from 'mongoose';
+import lGet from 'lodash.get';
+import Luxon from 'luxon';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
-import stateMachine, { CREATED, VALIDATED, VALIDATE } from './status';
+import stateMachine, {
+  DRAFTED, CREATED, VALIDATED, VALIDATE,
+} from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 
+const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
 
@@ -15,18 +20,27 @@ const RideSchema = new Schema({
     type: String,
     default: () => nanoid(12),
   },
-  status: { type: String, default: CREATED },
+  status: { type: String, default: DRAFTED },
   statusChanges: [{
     _id: false,
     status: { type: String, required: true },
     time: Date,
   }],
   category: {
-    _id: { type: String, required: true, alias: 'category.id' },
+    _id: { type: String, alias: 'category.id' },
     label: String,
   },
-  start: Date,
+  start: {
+    type: Date,
+    required: true,
+  },
   end: Date,
+  owner: {
+    _id: { type: mongoose.Types.ObjectId, alias: 'owner.id' },
+    firstname: String,
+    lastname: String,
+    email: String,
+  },
   departure: {
     _id: { type: String, required: true, alias: 'departure.id' },
     label: String,
@@ -54,15 +68,16 @@ const RideSchema = new Schema({
     },
   },
   driver: {
-    _id: { type: Schema.ObjectId, required: true, alias: 'driver.id' },
-    name: String,
+    _id: { type: Schema.ObjectId, alias: 'driver.id' },
+    firstname: String,
+    lastname: String,
   },
   car: {
-    _id: { type: String, required: true, alias: 'car.id' },
+    _id: { type: String, alias: 'car.id' },
     label: String,
     model: {
-      _id: { type: String, required: true },
-      label: { type: String, required: true },
+      _id: { type: String },
+      label: { type: String },
     },
   },
   campus: {
@@ -73,9 +88,16 @@ const RideSchema = new Schema({
     },
   },
   comments: String,
-  passengersCount: Number,
+  userComments: String,
+  passengersCount: {
+    type: Number,
+    default: 1,
+  },
   phone: String,
-  luggage: Boolean,
+  luggage: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 RideSchema.plugin(createdAtPlugin);
@@ -88,12 +110,30 @@ RideSchema.pre('validate', async function beforeSave() {
   } catch (e) {
     // Silent error
   }
+  if (this.status === DRAFTED) {
+    this.end = DateTime.fromJSDate(this.start).plus(Duration.fromObject({ hours: 1 })).toJSDate();
+  }
+  if (typeof this.driver === 'undefined' || !this.driver._id) {
+    this.driver = null;
+  }
 
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
       this.campus = await Campus.findById(campusId).lean();
     })(mongoose.model('Campus')),
+    (async (User) => {
+      const userId = this.owner._id;
+      if (!userId) {
+        return;
+      }
+      const owner = await User.findById(userId).lean();
+      const phone = lGet(owner, 'phone.canonical', null);
+      this.owner = owner;
+      if (phone && !this.phone && lGet(owner, 'phone.confirmed', false)) {
+        this.phone = phone;
+      }
+    })(mongoose.model('User')),
     (async (Car) => {
       const carId = this.car._id;
       this.car = await Car.findById(carId).lean();
@@ -106,26 +146,25 @@ RideSchema.pre('validate', async function beforeSave() {
   ]);
 });
 
-// @todo : Review this when passengers could command a ride
-RideSchema.isNewAndValidated = false;
 RideSchema.pre('save', function preSave(next) {
-  RideSchema.isNewAndValidated = false;
+  // Hack SMS, to send SMS we have to pass in status mutation flow
   if (this.isNew && this.status === VALIDATED) {
-    RideSchema.isNewAndValidated = true;
     this.status = CREATED;
   }
+
+  // Auto validation when document is created by regulator, of when it's edited by regulator.
+  // @todo: Clean that when we will review ride workflow
+  this.autoValidate = (this.isNew || !this.isModified('status')) && this.status === CREATED;
   next();
 });
 
-// @todo : Review this when passengers could command a ride
 RideSchema.post('save', async function postSave() {
-  if (RideSchema.isNewAndValidated) {
+  if (this.autoValidate) {
     const ride = await this.model('Ride').findById(this.id);
     ride[VALIDATE]();
     const rideUpdated = await ride.save();
     this.status = rideUpdated.status;
   }
-  RideSchema.isNewAndValidated = false;
 });
 
 RideSchema.statics.castId = (v) => {
@@ -191,10 +230,6 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, e
     this.filtersWithin(start, end, filters),
     ...rest,
   );
-};
-
-RideSchema.methods.isAccessibleByAnonymous = function isAccessibleByAnonymous(token) {
-  return this.token === token;
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {

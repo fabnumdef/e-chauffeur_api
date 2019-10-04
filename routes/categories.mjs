@@ -17,6 +17,23 @@ const router = generateCRUD(Category, {
     filters: {
       campus: 'campus._id',
     },
+    middlewares: [
+      async (ctx, next) => {
+        const searchParams = ctx.filters;
+        if (ctx.query && ctx.query.search) {
+          searchParams.$or = [
+            {
+              _id: new RegExp(ctx.query.search, 'i'),
+            },
+            {
+              label: new RegExp(ctx.query.search, 'i'),
+            },
+          ];
+        }
+        ctx.filters = searchParams;
+        await next();
+      },
+    ],
   },
   get: {
     right: CAN_GET_CATEGORY,
