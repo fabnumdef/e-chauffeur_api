@@ -1,4 +1,4 @@
-import Twilio from 'twilio';
+import https from 'https';
 import glob from 'glob';
 import nodeFs from 'fs';
 import nodePath from 'path';
@@ -12,22 +12,46 @@ const { fileURLToPath } = nodeUrl;
 
 const currentPath = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_LANG = 'fr';
+const token = config.get('sms_factor:token');
 
-const sid = config.get('twilio:sid');
-const token = config.get('twilio:token');
-const messagingServiceSid = config.get('twilio:messaging_service_sid');
+const options = {
+  hostname: 'api.smsfactor.com',
+  port: 443,
+  path: '/send',
+  method: 'POST',
+  headers: {
+    Accept: 'application/json',
+    Authorization: `Bearer ${token}`,
+  },
+};
 
-// eslint-disable-next-line import/prefer-default-export
 export async function sendSMS(to, body) {
-  if (!sid || !token || !messagingServiceSid) {
-    throw new Error('sid nor token nor sender is missing');
+  if (!token) {
+    throw new Error('Token is missing');
   }
-  const client = new Twilio(sid, token);
-  return client.messages.create({
-    body,
-    to,
-    messagingServiceSid,
+  const data = JSON.stringify({
+    sms: {
+      message: {
+        text: body,
+        sender: 'e-Chauffeur',
+      },
+      recipients: {
+        gsm: [
+          {
+            value: to,
+          },
+        ],
+      },
+    },
   });
+
+  const req = https.request(options, (res) => {
+    res.on('data', (d) => {
+      process.stdout.write(d);
+    });
+  });
+  req.write(data);
+  req.end();
 }
 
 function compileTemplates(path, ext) {

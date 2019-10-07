@@ -8,7 +8,7 @@ import stateMachine, {
   DRAFTED, CREATED, VALIDATED, VALIDATE,
 } from './status';
 import config from '../services/config';
-import { sendSMS } from '../services/twilio';
+import { sendSMS } from '../services/sms-factor';
 import createdAtPlugin from './helpers/created-at';
 
 const { DateTime, Duration } = Luxon;
