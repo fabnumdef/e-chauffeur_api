@@ -75,6 +75,14 @@ const UserSchema = new Schema({
       default: false,
     },
   },
+  gprd: {
+    type: Date,
+    validate: {
+      validator(v) {
+        return (!this.createdAt || (v >= this.createdAt)) && (v <= new Date());
+      },
+    },
+  },
   roles: [{
     _id: false,
     role: { type: String, required: true },
