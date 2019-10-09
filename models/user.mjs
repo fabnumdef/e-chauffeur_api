@@ -12,7 +12,7 @@ import nanoid from 'nanoid/generate';
 import gliphone from 'google-libphonenumber';
 import config from '../services/config';
 import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
-import { sendVerificationSMS } from '../services/twilio';
+import { sendVerificationSMS } from '../services/sms-factor';
 import createdAtPlugin from './helpers/created-at';
 import {
   CAN_ADD_ROLE_ADMIN,
