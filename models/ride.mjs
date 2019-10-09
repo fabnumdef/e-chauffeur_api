@@ -265,6 +265,10 @@ RideSchema.methods.sendSMS = async function sendUserSMS(body) {
   return null;
 };
 
+RideSchema.methods.compareTokens = function compareTokens(token) {
+  return this.token && token && this.token === token;
+};
+
 RideSchema.methods.getRideClientURL = function getRideClientURL() {
   return `${config.get('user_website_url')}/${this.id}?token=${this.token}`;
 };
