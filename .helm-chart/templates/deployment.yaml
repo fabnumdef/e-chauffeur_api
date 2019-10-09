@@ -65,6 +65,8 @@ spec:
               value: "{{ .Values.env.WHITELIST_DOMAINS }}"
             - name: VERSION
               value: "{{ .Values.env.VERSION }}"
+            - name: TZ
+              value: "Europe/Paris"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
