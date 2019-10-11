@@ -1,6 +1,8 @@
 import Luxon from 'luxon';
 import get from 'lodash.get';
+import config from '../services/config';
 
+const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime } = Luxon;
 
 export const DRAFTED = 'drafted';
@@ -73,7 +75,9 @@ export default {
           time: new Date(),
         });
         const show = (path) => get(this, path, '');
-        const start = DateTime.fromJSDate(this.start).toLocaleString(DateTime.DATETIME_SHORT);
+        const start = DateTime.fromJSDate(this.start)
+          .setZone(get(this, 'campus.timezone', DEFAULT_TIMEZONE))
+          .toLocaleString(DateTime.DATETIME_SHORT);
         switch (to) {
           case VALIDATED:
             await this.sendSMS(

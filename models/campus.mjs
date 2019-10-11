@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
+import timezoneValidator from 'timezone-validator';
 import createdAtPlugin from './helpers/created-at';
 import { DRAFTED } from './status';
+import config from '../services/config';
 
+const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { Schema } = mongoose;
 
 const CampusSchema = new Schema({
@@ -32,6 +35,18 @@ const CampusSchema = new Schema({
   phone: {
     drivers: String,
     everybody: String,
+  },
+  timezone: {
+    type: String,
+    default: process.env.TZ || DEFAULT_TIMEZONE,
+    validate: {
+      validator(v) {
+        return !v || timezoneValidator(v);
+      },
+      message({ value }) {
+        return `"${value}" seems to don't be a valid timezone`;
+      },
+    },
   },
 });
 

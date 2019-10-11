@@ -11,6 +11,7 @@ import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 
+const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
@@ -85,6 +86,10 @@ const RideSchema = new Schema({
     phone: {
       drivers: String,
       everybody: String,
+    },
+    timezone: {
+      type: String,
+      default: process.env.TZ || DEFAULT_TIMEZONE,
     },
   },
   comments: String,
@@ -263,6 +268,10 @@ RideSchema.methods.sendSMS = async function sendUserSMS(body) {
     console.error(e);
   }
   return null;
+};
+
+RideSchema.methods.compareTokens = function compareTokens(token) {
+  return this.token && token && this.token === token;
 };
 
 RideSchema.methods.getRideClientURL = function getRideClientURL() {

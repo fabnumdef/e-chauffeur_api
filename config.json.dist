@@ -29,5 +29,6 @@
     "html": "<p>:message</p>",
     "subject": "E-chauffeur : :firstname :lastname (:email)"
   },
-  "whitelist_domains": ["def.gouv.fr"]
+  "whitelist_domains": ["def.gouv.fr"],
+  "default_timezone": "Europe/Paris"
 }

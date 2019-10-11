@@ -16,10 +16,6 @@ COPY package*.json ./
 RUN npm install --unsafe-perm -g full-icu > /dev/null 2>&1
 ENV NODE_ICU_DATA="/usr/local/lib/node_modules/full-icu"
 
-ENV TZ=Europe/Paris
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
-
 RUN npm install --only=production
 
 FROM base

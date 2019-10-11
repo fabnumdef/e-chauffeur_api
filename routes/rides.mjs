@@ -205,7 +205,7 @@ router.get(
     const { params: { id }, query: { token } } = ctx;
     const ride = await Ride.findById(Ride.castId(id));
 
-    if (!ride.isAccessibleByAnonymous(token)) {
+    if (!ride.compareTokens(token)) {
       ctx.throw_and_log(401, `User not authorized to fetch the ride "${id}"`);
     }
 
