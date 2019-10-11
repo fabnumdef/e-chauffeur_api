@@ -1,4 +1,14 @@
 # Changelog
+## Current
+### Features
+### Fix
+## Version 1.4.1
+### Features
+* Add timezone inside campus entity
+* Save GDPR approve date in user entity 
+### Fix
+* Change default TZ env variable
+* Fix token check for ride view
 ## Version 1.4.0
 ### Features
 * Change user firstname/lastname model
