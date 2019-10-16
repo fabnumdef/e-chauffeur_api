@@ -23,6 +23,27 @@ const CampusSchema = new Schema({
     }],
     default: [1, 2, 3, 4, 5],
   },
+  workedHours: {
+    start: {
+      type: Number,
+      min: 0,
+      max: 24,
+      default: 5,
+    },
+    end: {
+      type: Number,
+      min: 0,
+      max: 24,
+      default: 23,
+    },
+  },
+  defaultRideDuration: {
+    type: Number,
+    validate(v) {
+      return [15, 20, 30, 60].indexOf(v) > -1;
+    },
+    default: 30,
+  },
   location: {
     type: {
       type: String,
@@ -120,7 +141,7 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
   const TimeSlot = mongoose.model('TimeSlot');
-  const slots = await TimeSlot.findWithin(date.start, date.end);
+  const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus } });
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
 
   return users.map((u) => {
