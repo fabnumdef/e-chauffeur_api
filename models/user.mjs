@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 import omit from 'lodash.omit';
 import orderBy from 'lodash.orderby';
 import chunk from 'lodash.chunk';
-import difference from 'lodash.difference';
+import differenceWith from 'lodash.differencewith';
+import isEqual from 'lodash.isequal';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Luxon from 'luxon';
@@ -286,8 +287,8 @@ UserSchema.methods.diffRoles = function diffRoles(roles = []) {
   const userRoles = expandRoles(...this.roles.toObject({ virtuals: true }));
   const paramRoles = expandRoles(...roles);
   return {
-    revoked: difference(userRoles, paramRoles),
-    added: difference(paramRoles, userRoles),
+    revoked: differenceWith(userRoles, paramRoles, isEqual),
+    added: differenceWith(paramRoles, userRoles, isEqual),
   };
 };
 
