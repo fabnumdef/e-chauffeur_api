@@ -140,7 +140,7 @@ const router = generateCRUD(User, {
         ctx.assert(
           user.checkRolesRightsIter(body.roles || [])
             .reduce(
-              (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), false) && acc,
+              (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), !(cur.length > 0)) && acc,
               true,
             ),
           403,
