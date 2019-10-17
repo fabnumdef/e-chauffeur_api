@@ -278,7 +278,7 @@ UserSchema.methods.diffRoles = function diffRoles(roles = []) {
   const expandRoles = (...array) => array
     .reduce(
       (acc, { role, campuses = [] }) => acc
-        .concat(campuses.map((campus) => ({ role, campus }))),
+        .concat(campuses.length > 0 ? campuses.map((campus) => ({ role, campus })) : [{ role }]),
       [],
     )
     .map(({ role, campus }) => ({
