@@ -98,6 +98,7 @@ deploy_staging:
     - helm upgrade
       --install
       --namespace e-chauffeur
+      --set replicaCount=3
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${STAGING_DOMAIN}"
       --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
@@ -140,6 +141,7 @@ deploy_prod:
     - helm upgrade
       --install
       --namespace e-chauffeur
+      --set replicaCount=3
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${PRODUCTION_DOMAIN}"
       --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
