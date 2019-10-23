@@ -13,6 +13,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 env:
+  REDIS__HOST: e-chauffeur-redis
   MONGODB: e-chauffeur-mongodb
   TOKEN__DURATION: 3600
   SATISFACTION_QUESTIONNAIRE_URL: null

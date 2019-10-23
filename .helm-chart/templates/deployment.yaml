@@ -25,6 +25,8 @@ spec:
           env:
             - name: MONGODB
               value: "{{ .Values.env.MONGODB }}"
+            - name: REDIS__HOST
+              value: "{{ .Values.env.REDIS__HOST }}"
             - name: TOKEN__DURATION
               value: "{{ .Values.env.TOKEN__DURATION }}"
             - name: TOKEN__SECRET
