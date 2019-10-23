@@ -1,4 +1,8 @@
 {
+  "redis": {
+    "host": null,
+    "port": 6379
+  },
   "port": 1337,
   "version": null,
   "token": {
