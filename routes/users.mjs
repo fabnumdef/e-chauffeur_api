@@ -63,6 +63,20 @@ const router = generateCRUD(User, {
           ctx.throw_and_log(409, `User email ${body.email} already existing.`);
         }
         try {
+          if (body.roles) {
+            const bodyWithoutRole = { ...body };
+            delete bodyWithoutRole.roles;
+            const user = new User(bodyWithoutRole);
+            ctx.assert(
+              user.checkRolesRightsIter(body.roles || [])
+                .reduce(
+                  (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), !(cur.length > 0)) && acc,
+                  true,
+                ),
+              403,
+              'You\'re not authorized to create this user',
+            );
+          }
           ctx.body = await User.create(body);
         } catch (e) {
           ctx.throw_and_log(...addDomainInError(e));
@@ -140,7 +154,7 @@ const router = generateCRUD(User, {
         ctx.assert(
           user.checkRolesRightsIter(body.roles || [])
             .reduce(
-              (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), false) && acc,
+              (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), !(cur.length > 0)) && acc,
               true,
             ),
           403,

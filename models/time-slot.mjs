@@ -31,38 +31,10 @@ TimeSlotSchema.statics.filtersWithin = function filtersWithin(after, before, f =
   filters.$or = [
     {
       start: {
-        $lte: before,
+        $lt: before,
       },
       end: {
-        $gte: before,
-        $lte: after,
-      },
-    },
-    {
-      start: {
-        $gte: before,
-        $lte: after,
-      },
-      end: {
-        $gte: after,
-      },
-    },
-    {
-      start: {
-        $lte: before,
-      },
-      end: {
-        $gte: after,
-      },
-    },
-    {
-      start: {
-        $gte: before,
-        $lte: after,
-      },
-      end: {
-        $gte: before,
-        $lte: after,
+        $gt: after,
       },
     },
   ];
