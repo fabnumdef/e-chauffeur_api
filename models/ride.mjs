@@ -4,9 +4,7 @@ import Luxon from 'luxon';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
-import stateMachine, {
-  DRAFTED, CREATED, VALIDATED, VALIDATE,
-} from './status';
+import stateMachine, { DRAFTED } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
@@ -149,27 +147,6 @@ RideSchema.pre('validate', async function beforeSave() {
       this.departure = pois.find(({ _id }) => _id === this.departure._id);
     })(mongoose.model('Poi')),
   ]);
-});
-
-RideSchema.pre('save', function preSave(next) {
-  // Hack SMS, to send SMS we have to pass in status mutation flow
-  if (this.isNew && this.status === VALIDATED) {
-    this.status = CREATED;
-  }
-
-  // Auto validation when document is created by regulator, of when it's edited by regulator.
-  // @todo: Clean that when we will review ride workflow
-  this.autoValidate = (this.isNew || !this.isModified('status')) && this.status === CREATED;
-  next();
-});
-
-RideSchema.post('save', async function postSave() {
-  if (this.autoValidate) {
-    const ride = await this.model('Ride').findById(this.id);
-    ride[VALIDATE]();
-    const rideUpdated = await ride.save();
-    this.status = rideUpdated.status;
-  }
 });
 
 RideSchema.statics.castId = (v) => {
