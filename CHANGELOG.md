@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Add Redis sync capability
 ### Fix
 ## Version 1.4.1
 ### Features
