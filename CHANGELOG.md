@@ -1,6 +1,8 @@
 # Changelog
 ## Current
 ### Features
+* Remove logic of automatic static validation
+* Add SMS on refusal
 ### Fix
 ## Version 1.4.2
 ### Features
