@@ -141,7 +141,7 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
   const TimeSlot = mongoose.model('TimeSlot');
-  const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus } });
+  const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus }, drivers: { $ne: null } });
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
 
   return users.map((u) => {
@@ -154,64 +154,17 @@ CampusSchema.statics.findDriversInDateInterval = async function findDriversInDat
 
 CampusSchema.statics.findCars = async function findCars(campus, start, end) {
   const Car = mongoose.model('Car');
-  const CarEvent = mongoose.model('CarEvent');
-  const carIds = (await Car.find({
+  const TimeSlot = mongoose.model('TimeSlot');
+  const slots = await TimeSlot.findWithin(start, end, { campus: { _id: campus }, cars: { $ne: null } });
+  const cars = (await Car.find({
     'campus._id': campus,
-  })).map((c) => c._id);
-
-  const cars = await Car.find({
-    _id: { $in: carIds },
-  });
-
-  const events = await CarEvent.find({
-    $or: [
-      {
-        start: {
-          $lte: start,
-        },
-        end: {
-          $gte: start,
-          $lte: end,
-        },
-      },
-      {
-        start: {
-          $gte: start,
-          $lte: end,
-        },
-        end: {
-          $gte: end,
-        },
-      },
-      {
-        start: {
-          $lte: start,
-        },
-        end: {
-          $gte: end,
-        },
-      },
-      {
-        start: {
-          $gte: start,
-          $lte: end,
-        },
-        end: {
-          $gte: start,
-          $lte: end,
-        },
-      },
-    ],
-    'car._id': { $in: carIds },
-  });
-
+  }));
   return cars.map((c) => {
-    const e = events.filter((ev) => ev.car.id === c.id);
-    const availabilities = c.getAvailabilities(start, end, e);
     const car = c.toObject({ virtuals: true });
-    car.availabilities = availabilities;
+    const unavailabilities = slots.filter((s) => s.cars.find((d) => d.id === c.id));
+    car.unavailabilities = unavailabilities.map((s) => s.toObject({ virtuals: true }));
     return car;
-  }).filter((u) => u.availabilities.length);
+  }).filter((u) => u.unavailabilities.length === 0);
 };
 
 CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(driver, status = []) {

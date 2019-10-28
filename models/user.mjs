@@ -6,8 +6,6 @@ import differenceWith from 'lodash.differencewith';
 import isEqual from 'lodash.isequal';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import Luxon from 'luxon';
-import OpeningHours from 'opening_hours';
 import validator from 'validator';
 import nanoid from 'nanoid/generate';
 import gliphone from 'google-libphonenumber';
@@ -44,8 +42,6 @@ const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
-// @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
-const { DateTime, Interval } = Luxon;
 
 const UserSchema = new Schema({
   email: {
@@ -261,17 +257,6 @@ UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessible
     .reduce((a, b) => a.concat(b), []);
   const Campus = mongoose.model('Campus');
   return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
-};
-
-UserSchema.methods.getAvailabilities = function isAvailable(start, end) {
-  try {
-    const oh = new OpeningHours(this.workingHours);
-    return oh
-      .getOpenIntervals(start, end)
-      .map(([f, t]) => Interval.fromDateTimes(DateTime.fromJSDate(f), DateTime.fromJSDate(t)));
-  } catch (e) {
-    return [];
-  }
 };
 
 UserSchema.methods.diffRoles = function diffRoles(roles = []) {
