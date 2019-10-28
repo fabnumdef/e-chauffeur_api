@@ -2,6 +2,11 @@
 ## Current
 ### Features
 ### Fix
+## Version 1.4.2
+### Features
+* Hours of campus are now configurable
+### Fix
+* Fix issue on rights / rules
 ## Version 1.4.1
 ### Features
 * Add timezone inside campus entity
