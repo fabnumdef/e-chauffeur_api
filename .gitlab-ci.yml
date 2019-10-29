@@ -60,6 +60,7 @@ deploy_review:
       --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
       --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.REDIS__HOST="${STAGING_REDIS__HOST}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
       --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
@@ -98,11 +99,13 @@ deploy_staging:
     - helm upgrade
       --install
       --namespace e-chauffeur
+      --set replicaCount=3
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${STAGING_DOMAIN}"
       --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
       --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.REDIS__HOST="${STAGING_REDIS__HOST}"
       --set env.MONGODB="${STAGING_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
       --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
@@ -142,11 +145,13 @@ deploy_prod:
     - helm upgrade
       --install
       --namespace e-chauffeur
+      --set replicaCount=3
       --set image.tag="${CI_COMMIT_REF_SLUG}"
       --set ingress.host="${PRODUCTION_DOMAIN}"
       --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
       --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
       --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.REDIS__HOST="${PRODUCTION_REDIS__HOST}"
       --set env.MONGODB="${PRODUCTION_MONGODB}"
       --set env.SATISFACTION_QUESTIONNAIRE_URL="${PRODUCTION_SATISFACTION_QUESTIONNAIRE_URL}"
       --set env.TWILIO__SID="${PRODUCTION_TWILIO__SID}"

@@ -4,6 +4,7 @@
 * Remove logic of automatic static validation
 * Add SMS on refusal
 * Refactor planning vehicule and remove dead/old code and lib
+* Add Redis sync capability
 ### Fix
 ## Version 1.4.2
 ### Features
