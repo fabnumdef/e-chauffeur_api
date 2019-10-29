@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Refactor planning vehicule and remove dead/old code and lib
 ### Fix
 ## Version 1.4.2
 ### Features
