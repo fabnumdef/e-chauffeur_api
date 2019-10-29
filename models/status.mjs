@@ -78,15 +78,35 @@ export default {
         const start = DateTime.fromJSDate(this.start)
           .setZone(get(this, 'campus.timezone', DEFAULT_TIMEZONE))
           .toLocaleString(DateTime.DATETIME_SHORT);
+        const hasOwner = !!get(this, 'owner._id', false);
         switch (to) {
           case VALIDATED:
             await this.sendSMS(
               'Bonjour, '
               + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
-              + `${start} `
-              + 'est prise en compte. '
+              + `${start} est prise en compte.`
               + `Pour l'annuler, appelez le ${show('campus.phone.everybody')}.`,
             );
+            break;
+          case REJECTED_CAPACITY:
+            if (hasOwner) {
+              await this.sendSMS(
+                'Bonjour, '
+                + `malheureusement, votre course de ${show('departure.label')} à ${show('arrival.label')} le `
+                + `${start} ne peut pas être assurée pour des raisons techniques ou humaines. `
+                + `En cas d'ugence, appelez le ${show('campus.phone.everybody')}.`,
+              );
+            }
+            break;
+          case REJECTED_BOUNDARY:
+            if (hasOwner) {
+              await this.sendSMS(
+                'Bonjour, '
+              + `malheureusement, votre course de ${show('departure.label')} à ${show('arrival.label')} le `
+              + `${start} ne semble pas être légitime, et a été refusée. `
+              + `En cas d'ugence, appelez le ${show('campus.phone.everybody')}.`,
+              );
+            }
             break;
           case STARTED:
             await this.sendSMS(
