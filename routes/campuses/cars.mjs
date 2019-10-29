@@ -25,7 +25,7 @@ router.get(
     }
     let sortedCars = [];
     const cars = await Campus.findCars(ctx.params.campus_id, start, end);
-    if (lastRidedCar) {
+    if (lastRidedCar && cars.find((c) => c.id === lastRidedCar.id)) {
       sortedCars.push(lastRidedCar);
       cars.forEach((car) => car._id !== lastRidedCar._id && sortedCars.push(car));
     } else {

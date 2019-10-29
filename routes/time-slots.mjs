@@ -6,7 +6,7 @@ import {
   CAN_LIST_TIME_SLOT,
   CAN_REMOVE_TIME_SLOT,
 } from '../models/rights';
-import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import { ensureThatFiltersExists, filtersToObject } from '../middlewares/query-helper';
 
 const router = generateCRUD(TimeSlot, {
   create: {
@@ -19,6 +19,7 @@ const router = generateCRUD(TimeSlot, {
     },
     middlewares: [
       ensureThatFiltersExists('after', 'before'),
+      filtersToObject('drivers', 'cars'),
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(TimeSlot, { max: 100 });

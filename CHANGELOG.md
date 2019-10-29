@@ -1,8 +1,16 @@
 # Changelog
 ## Current
 ### Features
+* Remove logic of automatic static validation
+* Add SMS on refusal
+* Refactor planning vehicule and remove dead/old code and lib
 * Add Redis sync capability
 ### Fix
+## Version 1.4.2
+### Features
+* Hours of campus are now configurable
+### Fix
+* Fix issue on rights / rules
 ## Version 1.4.1
 ### Features
 * Add timezone inside campus entity

@@ -82,6 +82,7 @@ deploy_review:
       .helm-chart
   except:
     refs:
+      - tags
       - master
       - develop
 
@@ -127,6 +128,9 @@ deploy_staging:
   only:
     refs:
       - develop
+  except:
+    refs:
+      - tags
 
 deploy_prod:
   stage: deploy
@@ -169,5 +173,7 @@ deploy_prod:
       .helm-chart
   only:
     refs:
-      - tags
       - master
+  except:
+    refs:
+      - tags

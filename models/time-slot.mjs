@@ -12,6 +12,13 @@ const TimeSlotSchema = new Schema({
     type: Date,
     required: true,
   },
+  cars: [{
+    _id: { type: String, alias: 'id' },
+    label: { type: String },
+    model: {
+      label: { type: String },
+    },
+  }],
   drivers: [{
     _id: { type: mongoose.Types.ObjectId, alias: 'id' },
     firstname: String,
