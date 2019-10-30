@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 import config from '../services/config';
 import resolveRights from '../middlewares/check-rights';
-import sendMail from '../services/mail';
+import { prepareSendMailFromTemplate } from '../services/mail';
 import { CAN_SEND_FEEDBACK } from '../models/rights';
 
 const router = new Router();
@@ -22,7 +22,12 @@ router.post(
 
     const subject = `[Feedback] by ${name} : ${email}`;
 
-    await sendMail(to, {
+    const sendFeedbackMail = prepareSendMailFromTemplate(
+      'feedback',
+      subject,
+    );
+
+    await sendFeedbackMail(to, {
       subject,
       text: message,
     });

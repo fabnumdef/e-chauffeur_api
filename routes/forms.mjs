@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import sendMail from '../services/mail';
+import { prepareSendMailFromTemplate } from '../services/mail';
 import config from '../services/config';
 
 const router = new Router();
@@ -13,7 +13,7 @@ router.post(
 
     const to = config.get('mail:feedback_mail');
     if (!message || !email) {
-      ctx.throw_and_log(400, 'Feedback message and type should be set');
+      ctx.throw_and_log(400, 'Feedback message and email should be set');
     }
 
     const subject = `[Contact] by ${name} : ${email}`;
@@ -21,9 +21,14 @@ router.post(
     // Parse line breaker of textarea
     const formattedMessage = message.replace(/(\r\n|\n\r|\r|\n)/g, '<br>');
 
-    await sendMail(to, {
+    const sendContactMail = prepareSendMailFromTemplate(
+      'feedback',
       subject,
-      text: formattedMessage,
+    );
+
+    await sendContactMail(to, {
+      subject,
+      message: formattedMessage,
     });
 
     ctx.body = { message: 'Feedback sent' };
