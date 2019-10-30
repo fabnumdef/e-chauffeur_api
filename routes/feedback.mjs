@@ -1,12 +1,9 @@
 import Router from 'koa-router';
-import _get from 'lodash.get';
-import Luxon from 'luxon';
 import config from '../services/config';
 import resolveRights from '../middlewares/check-rights';
 import sendMail from '../services/mail';
 import { CAN_SEND_FEEDBACK } from '../models/rights';
 
-const { DateTime } = Luxon;
 const router = new Router();
 
 router.post(
@@ -18,16 +15,12 @@ router.post(
       state: { user: { name, email } },
     } = ctx;
 
-    const base = _get(ctx.state.user, 'roles[0].campuses[0].name', 'NC');
-
     const to = config.get('mail:feedback_mail');
     if (!message || !type) {
       ctx.throw_and_log(400, 'Feedback message and type should be set');
     }
 
-    const date = DateTime.local().setLocale('fr').toFormat('dd/LL-HH:mm');
-
-    const subject = `[${date}][${type}][${base}] From Feedback page by ${name} : ${email}`;
+    const subject = `[Feedback] by ${name} : ${email}`;
 
     await sendMail(to, {
       subject,
