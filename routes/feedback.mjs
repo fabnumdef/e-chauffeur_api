@@ -20,16 +20,20 @@ router.post(
       ctx.throw_and_log(400, 'Feedback message and type should be set');
     }
 
-    const subject = `[Feedback] by ${name} : ${email}`;
+    const subject = `[Feedback] sent by ${name}`;
 
     const sendFeedbackMail = prepareSendMailFromTemplate(
       'feedback',
       subject,
     );
 
+    const formattedMessage = message.replace(/(\r\n|\n\r|\r|\n)/g, '<br>');
+
     await sendFeedbackMail(to, {
-      subject,
-      text: message,
+      data: {
+        message: formattedMessage,
+        email,
+      },
     });
 
     ctx.body = { message: 'Feedback sent' };

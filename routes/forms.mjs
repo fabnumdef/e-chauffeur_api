@@ -12,11 +12,11 @@ router.post(
     } = ctx;
 
     const to = config.get('mail:feedback_mail');
-    if (!message || !email) {
-      ctx.throw_and_log(400, 'Feedback message and email should be set');
+    if (!message || !email || !name) {
+      ctx.throw_and_log(400, 'Feedback message, email and name should be set');
     }
 
-    const subject = `[Contact] by ${name} : ${email}`;
+    const subject = `[Contact] sent by ${name}`;
 
     // Parse line breaker of textarea
     const formattedMessage = message.replace(/(\r\n|\n\r|\r|\n)/g, '<br>');
@@ -27,8 +27,10 @@ router.post(
     );
 
     await sendContactMail(to, {
-      subject,
-      message: formattedMessage,
+      data: {
+        message: formattedMessage,
+        email,
+      },
     });
 
     ctx.body = { message: 'Feedback sent' };
