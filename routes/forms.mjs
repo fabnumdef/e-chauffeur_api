@@ -8,7 +8,11 @@ router.post(
   '/contact',
   async (ctx) => {
     const {
-      request: { body: { message, firstname: name, email } },
+      request: {
+        body: {
+          message, firstname: name, email, gsbdd: base,
+        },
+      },
     } = ctx;
 
     const to = config.get('mail:feedback_mail');
@@ -16,7 +20,7 @@ router.post(
       ctx.throw_and_log(400, 'Feedback message, email and name should be set');
     }
 
-    const subject = `[Contact] sent by ${name}`;
+    const subject = `[Contact][Base: ${base}] sent by ${name}`;
 
     // Parse line breaker of textarea
     const formattedMessage = message.replace(/(\r\n|\n\r|\r|\n)/g, '<br>');
