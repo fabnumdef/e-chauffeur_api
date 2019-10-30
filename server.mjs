@@ -5,15 +5,17 @@ import services from './services';
 import app from './app';
 import io from './io';
 import config from './services/config';
+import { pubClient, subClient } from './services/redis';
 
 (async () => {
   await services;
   const server = http.createServer(app.callback());
-  app.io = socketIo(server);
-  const redisConfig = config.get('redis');
-  if (redisConfig && redisConfig.host) {
-    app.io.adapter(redisAdapter(redisConfig));
-  }
+
+  app.io = socketIo(server, {
+    serveClient: false,
+    cookie: false,
+    adapter: (pubClient && subClient) ? redisAdapter({ pubClient, subClient }) : undefined,
+  });
   io(app.io);
   server.listen(config.get('port') || 1337);
 })();
