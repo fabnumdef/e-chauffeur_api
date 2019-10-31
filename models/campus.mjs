@@ -96,7 +96,7 @@ CampusSchema.statics.countDrivers = async function countDrivers(campus) {
   return CampusSchema.statics.countUsers(campus, driverFilter());
 };
 
-CampusSchema.statics.Users = async function findUsers(campus, pagination, filters = {}) {
+CampusSchema.statics.findUsers = async function findUsers(campus, pagination, filters = {}) {
   const User = mongoose.model('User');
   const f = { ...campusFilter(campus), ...filters };
   if (pagination) {
@@ -106,13 +106,13 @@ CampusSchema.statics.Users = async function findUsers(campus, pagination, filter
 };
 
 CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
-  return CampusSchema.statics.Users(campus, pagination, driverFilter());
+  return CampusSchema.statics.findUsers(campus, pagination, driverFilter());
 };
 
 CampusSchema.statics.findUser = async function findUser(campus, id, filters = {}) {
   const f = { _id: id, ...campusFilter(campus), ...filters };
   const User = mongoose.model('User');
-  return User.findOne(f).lean();
+  return User.findOne(f);
 };
 
 CampusSchema.statics.findDriver = async function findDriver(campus, id) {

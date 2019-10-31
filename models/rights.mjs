@@ -56,6 +56,12 @@ export const CAN_CREATE_CAMPUS_DRIVER = campusRule();
 export const CAN_EDIT_CAMPUS_DRIVER = campusRule();
 export const CAN_REMOVE_CAMPUS_DRIVER = campusRule();
 
+export const CAN_LIST_CAMPUS_USER = campusRule();
+export const CAN_GET_CAMPUS_USER = campusRule();
+export const CAN_CREATE_CAMPUS_USER = campusRule();
+export const CAN_EDIT_CAMPUS_USER = campusRule();
+export const CAN_REMOVE_CAMPUS_USER = campusRule();
+
 export const CAN_LIST_PHONE_LOCAL = campusRule();
 export const CAN_GET_PHONE_LOCAL = campusRule();
 export const CAN_CREATE_PHONE_LOCAL = campusRule();
