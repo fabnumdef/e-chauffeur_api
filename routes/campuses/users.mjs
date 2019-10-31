@@ -143,7 +143,7 @@ router.del(
     const user = await Campus.findUser(ctx.params.campus_id, ctx.params.id);
     ctx.assert(!isEmpty(user), 404, 'User not found.');
     ctx.assert(
-      !user.roles || !user.roles.find(({ role }) => role === 'ROLE_SUPERADMIN'),
+      !user.roles || !user.roles.find(({ role }) => role === 'ROLE_SUPERADMIN' || role === 'ROLE_ADMIN'),
       403,
       'You\'re not authorized to delete this user',
     );
