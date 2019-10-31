@@ -40,7 +40,7 @@ function compileTemplates(path, ext) {
     }, {});
 }
 
-function prepareSendMailFromTemplate(template, subject) {
+export function prepareSendMailFromTemplate(template, subject) {
   const path = resolve(join(currentPath, '..', 'templates', 'mail', template));
   const templates = {
     txt: compileTemplates(path, '.txt.hbs'),
