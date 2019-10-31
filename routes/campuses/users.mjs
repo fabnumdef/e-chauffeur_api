@@ -101,15 +101,23 @@ router.patch(
       delete body.password;
     }
     if (body.roles) {
-      body.roles = body.roles.map(({ role, campuses }) => {
+      body.roles = body.roles.map(({ role }) => {
+        const userRole = user.roles.find((r) => r.role === role);
+        const campuses = userRole ? userRole.campuses : [];
         const r = {
           role,
         };
         if (campuses && campuses.length) {
-          r.campuses = campuses.find((c) => c._id === campus.id) ? campuses
-            : campuses.concat([{ id: campus._id, name: campus.name }]);
+          r.campuses = campuses.find((c) => c._id === campus._id) ? campuses
+            : campuses.concat([{
+              id: campus._id,
+              name: campus.name,
+            }]);
         } else {
-          r.campuses = [{ id: campus._id, name: campus.name }];
+          r.campuses = [{
+            id: campus._id,
+            name: campus.name,
+          }];
         }
         return r;
       });
@@ -123,7 +131,6 @@ router.patch(
         'You\'re not authorized to change this role',
       );
     }
-    delete body.roles;
     user.set(body);
     ctx.body = await user.save();
   },
