@@ -1,6 +1,7 @@
 import mask from 'json-mask';
 import generateCRUD from '../helpers/abstract-route';
 import Campus from '../models/campus';
+import usersRoutes from './campuses/users';
 import driversRoutes from './campuses/drivers';
 import driversPositionsRoutes from './campuses/drivers-positions';
 import carsRoutes from './campuses/cars';
@@ -57,6 +58,7 @@ const router = generateCRUD(Campus, {
   },
 });
 
+router.use('/:campus_id/users', usersRoutes);
 router.use('/:campus_id/drivers', driversRoutes);
 router.use('/:campus_id/drivers-positions', driversPositionsRoutes);
 router.use('/:campus_id/cars', carsRoutes);
