@@ -51,24 +51,19 @@ router.post(
           message,
           uxGrade,
           recommandationGrade,
-          gsbdd: base,
+          rideId,
         },
-      },
-      state: {
-        user: { name, email },
       },
     } = ctx;
 
     await Rating.create({
-      name,
-      email,
-      base,
+      rideId,
       uxGrade,
       recommandationGrade,
       message,
     });
 
-    ctx.body = { message: 'Rating sent' };
+    ctx.status = 204;
   },
 );
 

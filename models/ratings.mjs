@@ -4,15 +4,7 @@ import createdAtPlugin from './helpers/created-at';
 const { Schema } = mongoose;
 
 const RatingSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  base: {
+  rideId: {
     type: String,
     required: true,
   },
