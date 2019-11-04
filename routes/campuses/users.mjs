@@ -37,7 +37,15 @@ router.get(
   resolveRights(CAN_GET_CAMPUS_USER),
   maskOutput,
   async (ctx) => {
-    ctx.body = await Campus.findUser(ctx.params.campus_id, ctx.params.id);
+    try {
+      ctx.body = await Campus.findUser(ctx.params.campus_id, ctx.params.id);
+    } catch (e) {
+      if (e.name === 'CastError') {
+        ctx.throw_and_log(500, e.message);
+      } else {
+        ctx.throw_and_log(...addDomainInError(e));
+      }
+    }
   },
 );
 
