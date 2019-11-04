@@ -50,7 +50,7 @@ const router = generateCRUD(Ride, {
         delete body.status;
         body.owner = user;
       }
-      const ride = await Ride.create(Object.assign(body));
+      const ride = await Ride.create(body);
       ctx.body = ride;
       if (!ctx.may(CAN_CREATE_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
