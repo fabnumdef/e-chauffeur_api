@@ -46,6 +46,9 @@ router.get(
         ctx.throw_and_log(...addDomainInError(e));
       }
     }
+    if (!ctx.body) {
+      ctx.throw_and_log(404, `User "${ctx.params.id}" not found`)();
+    }
   },
 );
 

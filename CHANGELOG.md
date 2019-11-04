@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Add /campuses/{id}/users route 
 * Remove logic of automatic static validation
 * Add SMS on refusal
 * Refactor planning vehicule and remove dead/old code and lib
