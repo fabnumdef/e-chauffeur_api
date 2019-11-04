@@ -59,9 +59,7 @@ router.post(
       },
     } = ctx;
 
-    console.log(message, uxGrade, recommandationGrade, base);
-
-    const newRating = Rating.create({
+    await Rating.create({
       name,
       email,
       base,
@@ -70,38 +68,7 @@ router.post(
       message,
     });
 
-    const to = config.get('mail:feedback_mail');
-
-    if (!base || !uxGrade || !recommandationGrade) {
-      ctx.throw_and_log(400, 'Feedback grades and base should be set');
-    }
-
-    const subject = `[Rating][Base: ${base}] sent by ${name}`;
-
-    let formattedMessage;
-    if (message) {
-      formattedMessage = message.replace(/(\r\n|\n\r|\r|\n)/g, '<br>');
-    }
-
-    const sendContactMail = prepareSendMailFromTemplate(
-      'satisfaction',
-      subject,
-    );
-
-    await sendContactMail(to, {
-      data: {
-        name,
-        email,
-        uxGrade,
-        recommandationGrade,
-        message: formattedMessage,
-      },
-    });
-
-    ctx.body = {
-      rating: await newRating,
-      message: 'Rating sent',
-    };
+    ctx.body = { message: 'Rating sent' };
   },
 );
 
