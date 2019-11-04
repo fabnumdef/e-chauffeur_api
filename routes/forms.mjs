@@ -1,4 +1,5 @@
 import Router from 'koa-router';
+import mongoose from 'mongoose';
 import { prepareSendMailFromTemplate } from '../services/mail';
 import config from '../services/config';
 import Rating from '../models/ratings';
@@ -56,8 +57,10 @@ router.post(
       },
     } = ctx;
 
+    const ride = { _id: mongoose.Types.ObjectId(rideId) };
+
     await Rating.create({
-      rideId,
+      ride,
       uxGrade,
       recommandationGrade,
       message,

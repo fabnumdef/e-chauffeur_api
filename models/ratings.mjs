@@ -4,9 +4,12 @@ import createdAtPlugin from './helpers/created-at';
 const { Schema } = mongoose;
 
 const RatingSchema = new Schema({
-  rideId: {
-    type: String,
-    required: true,
+  ride: {
+    _id: {
+      type: Schema.Types.ObjectId,
+      alias: 'ride.id',
+      required: true,
+    },
   },
   uxGrade: {
     type: Number,
