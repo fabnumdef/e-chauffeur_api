@@ -153,6 +153,10 @@ router.del(
   async (ctx) => {
     const user = await Campus.findUser(ctx.params.campus_id, ctx.params.id);
     ctx.assert(!isEmpty(user), 404, 'User not found.');
+    /*
+     @todo Refactor this when we will have something more generic to control rights,
+     because it is not done anywhere in del request for now
+     */
     ctx.assert(
       !user.roles || !user.roles.find(({ role }) => role === 'ROLE_SUPERADMIN' || role === 'ROLE_ADMIN'),
       403,

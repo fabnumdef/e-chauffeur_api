@@ -102,7 +102,8 @@ CampusSchema.statics.findUsers = async function findUsers(campus, pagination, fi
   if (pagination) {
     return User.find(f).skip(pagination.offset).limit(pagination.limit).lean();
   }
-  return User.find(f).lean();
+  // todo : add .lean() when we will have resolve the issue with password sent with .lean()
+  return User.find(f);
 };
 
 CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
