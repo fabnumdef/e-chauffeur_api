@@ -27,6 +27,7 @@ export function addCreateToRouter(Model, {
 
         Object.assign(body, { _id: body.id });
       }
+
       ctx.body = await Model.create(body);
       ctx.log(ctx.log.INFO, `${Model.modelName} "${body.id}" has been created`);
     }),

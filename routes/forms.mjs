@@ -43,35 +43,4 @@ router.post(
   },
 );
 
-router.post(
-  '/rating',
-  async (ctx) => {
-    const {
-      request: {
-        body: {
-          message,
-          uxGrade,
-          recommandationGrade,
-          rideId,
-        },
-      },
-    } = ctx;
-
-    if (!rideId || !uxGrade || !recommandationGrade) {
-      ctx.throw_and_log(400, 'RideId, uxGrade & recommandationGrade should be set');
-    }
-
-    const ride = { _id: mongoose.Types.ObjectId(rideId) };
-
-    await Rating.create({
-      ride,
-      uxGrade,
-      recommandationGrade,
-      message,
-    });
-
-    ctx.status = 204;
-  },
-);
-
 export default router.routes();
