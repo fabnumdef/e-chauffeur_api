@@ -165,5 +165,5 @@ export const ROLE_SUPERADMIN = new RoleList(
 
   rights.CAN_LIST_ALL_CAMPUSES,
 
-  rights.CAN_GET_RATING,
+  rights.CAN_LIST_RATING,
 );

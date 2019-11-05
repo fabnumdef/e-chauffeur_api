@@ -27,7 +27,6 @@ export function addCreateToRouter(Model, {
 
         Object.assign(body, { _id: body.id });
       }
-
       ctx.body = await Model.create(body);
       ctx.log(ctx.log.INFO, `${Model.modelName} "${body.id}" has been created`);
     }),
@@ -69,7 +68,6 @@ export function addListToRouter(Model, {
         total, offset, count: data.length, limit,
       });
       ctx.body = data;
-      console.log(data);
     }),
   );
 }

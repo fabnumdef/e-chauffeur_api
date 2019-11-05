@@ -2,7 +2,7 @@ import generateCRUD from '../helpers/abstract-route';
 import Rating from '../models/rating';
 import {
   CAN_CREATE_RATING,
-  CAN_GET_RATING,
+  CAN_LIST_RATING,
 } from '../models/rights';
 
 const router = generateCRUD(Rating, {
@@ -10,7 +10,7 @@ const router = generateCRUD(Rating, {
     right: [CAN_CREATE_RATING],
   },
   list: {
-    right: [CAN_GET_RATING],
+    right: [CAN_LIST_RATING],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Rating, { max: 1000 });
       const [total, data] = await Promise.all([

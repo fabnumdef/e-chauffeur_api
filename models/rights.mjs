@@ -134,4 +134,4 @@ export const CAN_LIST_TIME_SLOT = campusRule();
 export const CAN_REMOVE_TIME_SLOT = campusRule();
 
 export const CAN_CREATE_RATING = stdRule();
-export const CAN_GET_RATING = stdRule();
+export const CAN_LIST_RATING = stdRule();
