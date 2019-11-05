@@ -1,4 +1,5 @@
 import nanoid from 'nanoid';
+import mongoose from 'mongoose';
 import User, { generateDummyUser } from '../models/user';
 import request from '../request';
 
@@ -33,8 +34,9 @@ describe('Test /forms/rating API endpoint', () => {
   });
 
   it('Should return 204', async () => {
+    const id = mongoose.Types.ObjectId().toString();
     const args = {
-      rideId: nanoid(),
+      rideId: id,
       uxGrade: 3,
       recommandationGrade: 2,
     };
