@@ -1,7 +1,11 @@
+import chai from 'chai';
 import nanoid from 'nanoid';
 import mongoose from 'mongoose';
 import User, { generateDummyUser } from '../models/user';
 import request from '../request';
+import Rating from '../models/rating';
+
+const { expect } = chai;
 
 describe('Test /forms/rating API endpoint', () => {
   const PASSWORD = 'foobar';
@@ -44,5 +48,22 @@ describe('Test /forms/rating API endpoint', () => {
       .set('Authorization', `Bearer ${token}`)
       .send(args)
       .expect(204);
+  });
+
+  it('Should create a rating in database', async () => {
+    const id = nanoid();
+    const args = {
+      rideId: mongoose.Types.ObjectId().toString(),
+      uxGrade: 3,
+      recommandationGrade: 2,
+      message: `This is a message with a unique id : ${id}`,
+    };
+    await request()
+      .post('/forms/rating')
+      .set('Authorization', `Bearer ${token}`)
+      .send(args);
+
+    const testRating = await Rating.findOne({ message: `This is a message with a unique id : ${id}` });
+    expect(testRating).to.be.an.instanceof(Rating);
   });
 });
