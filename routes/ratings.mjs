@@ -11,6 +11,27 @@ const router = generateCRUD(Rating, {
   },
   list: {
     right: [CAN_GET_RATING],
+    async main(ctx) {
+      const { offset, limit } = ctx.parseRangePagination(Rating, { max: 1000 });
+      const [total, data] = await Promise.all([
+        Rating.countDocuments(ctx.filters),
+        Rating.find(ctx.filters).skip(offset).limit(limit).sort({ createdAt: 'desc' })
+          .lean(),
+      ]);
+
+      ctx.log(
+        ctx.log.INFO,
+        `Find query in ${Rating.modelName}`,
+        {
+          filters: ctx.filters, offset, limit, total,
+        },
+      );
+
+      ctx.setRangePagination(Rating, {
+        total, offset, count: data.length, limit,
+      });
+      ctx.body = data;
+    },
   },
 });
 

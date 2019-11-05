@@ -1,8 +1,6 @@
 import Router from 'koa-router';
-import mongoose from 'mongoose';
 import { prepareSendMailFromTemplate } from '../services/mail';
 import config from '../services/config';
-import Rating from '../models/rating';
 
 const router = new Router();
 

@@ -69,6 +69,7 @@ export function addListToRouter(Model, {
         total, offset, count: data.length, limit,
       });
       ctx.body = data;
+      console.log(data);
     }),
   );
 }

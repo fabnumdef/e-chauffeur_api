@@ -12,7 +12,6 @@ export const ROLE_ANONYMOUS = new RoleList(
   rights.CAN_GET_RIDE_POSITION,
   rights.CAN_LIST_CAMPUS_BASIC,
   rights.CAN_SEND_CREATION_TOKEN,
-  rights.CAN_CREATE_RATING,
 );
 
 export const ROLE_USER = new RoleList(
@@ -31,6 +30,8 @@ export const ROLE_USER = new RoleList(
   rights.CAN_LIST_POI_LOCAL,
   rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
+
+  rights.CAN_CREATE_RATING,
 );
 
 export const ROLE_DRIVER = new RoleList(
