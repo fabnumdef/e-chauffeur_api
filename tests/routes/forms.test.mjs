@@ -34,9 +34,8 @@ describe('Test /forms/rating API endpoint', () => {
   });
 
   it('Should return 204', async () => {
-    const id = mongoose.Types.ObjectId().toString();
     const args = {
-      rideId: id,
+      rideId: mongoose.Types.ObjectId().toString(),
       uxGrade: 3,
       recommandationGrade: 2,
     };
