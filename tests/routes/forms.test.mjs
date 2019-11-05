@@ -9,7 +9,7 @@ describe('Test /forms/rating API endpoint', () => {
   const token = user.emitJWT();
 
   it('Should return 400 if required datas are missing in request body', async () => {
-    const arrayOfTests = [
+    const arrayOfArgs = [
       {
         uxGrade: 3,
         recommandationGrade: 2,
@@ -24,7 +24,7 @@ describe('Test /forms/rating API endpoint', () => {
       },
     ];
 
-    await Promise.all(arrayOfTests.map(async (args) => {
+    await Promise.all(arrayOfArgs.map(async (args) => {
       await request()
         .post('/forms/rating')
         .set('Authorization', `Bearer ${token}`)
