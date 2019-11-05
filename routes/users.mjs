@@ -89,6 +89,7 @@ const router = generateCRUD(User, {
   },
   get: {
     right: CAN_GET_USER,
+    lean: false,
   },
   delete: {
     right: CAN_REMOVE_USER,
@@ -112,6 +113,7 @@ const router = generateCRUD(User, {
         await next();
       },
     ],
+    lean: false,
   },
   update: {
     paramId: 'user_id',

@@ -34,7 +34,7 @@ export function addCreateToRouter(Model, {
 }
 
 export function addListToRouter(Model, {
-  url = '/', right, rights = [], main, filters = {}, middlewares = [],
+  url = '/', right, rights = [], main, filters = {}, middlewares = [], lean = true,
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -53,7 +53,8 @@ export function addListToRouter(Model, {
       const { offset, limit } = ctx.parseRangePagination(Model);
       const [total, data] = await Promise.all([
         Model.countDocuments(ctx.filters),
-        Model.find(ctx.filters).skip(offset).limit(limit).lean(),
+        lean ? Model.find(ctx.filters).skip(offset).limit(limit).lean()
+          : Model.find(ctx.filters).skip(offset).limit(limit),
       ]);
 
       ctx.log(

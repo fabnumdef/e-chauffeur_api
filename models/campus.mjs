@@ -100,10 +100,8 @@ CampusSchema.statics.findUsers = async function findUsers(campus, pagination, fi
   const User = mongoose.model('User');
   const f = { ...campusFilter(campus), ...filters };
   if (pagination) {
-    // todo : add .lean() when we will have resolve the issue with password sent with .lean()
     return User.find(f).skip(pagination.offset).limit(pagination.limit);
   }
-  // todo : add .lean() when we will have resolve the issue with password sent with .lean()
   return User.find(f);
 };
 
