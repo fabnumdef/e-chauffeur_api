@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import mongoose from 'mongoose';
 import { prepareSendMailFromTemplate } from '../services/mail';
 import config from '../services/config';
-import Rating from '../models/ratings';
+import Rating from '../models/rating';
 
 const router = new Router();
 
@@ -56,6 +56,10 @@ router.post(
         },
       },
     } = ctx;
+
+    if (!rideId || !uxGrade || !recommandationGrade) {
+      ctx.throw_and_log(400, 'RideId, uxGrade & recommandationGrade should be set');
+    }
 
     const ride = { _id: mongoose.Types.ObjectId(rideId) };
 
