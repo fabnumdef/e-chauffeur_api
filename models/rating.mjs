@@ -31,6 +31,7 @@ RatingSchema.pre('validate', async function beforeSave() {
     const err = new Error();
     err.status = 404;
     err.message = 'Ride does not exist in database';
+    throw err;
   }
 });
 
