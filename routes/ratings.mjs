@@ -7,12 +7,12 @@ import {
 
 const router = generateCRUD(Rating, {
   create: {
-    right: [CAN_CREATE_RATING],
+    right: CAN_CREATE_RATING,
   },
   list: {
-    right: [CAN_LIST_RATING],
+    right: CAN_LIST_RATING,
     async main(ctx) {
-      const { offset, limit } = ctx.parseRangePagination(Rating, { max: 1000 });
+      const { offset, limit } = ctx.parseRangePagination(Rating);
       const [total, data] = await Promise.all([
         Rating.countDocuments(ctx.filters),
         Rating.find(ctx.filters).skip(offset).limit(limit).sort({ createdAt: 'desc' })

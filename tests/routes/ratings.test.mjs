@@ -6,25 +6,17 @@ import {
   generateSuperAdminJWTHeader,
   generateAdminJWTHeader,
   generateAnonymousJWTHeader,
-  generateUserJWTHeader,
 } from '../request';
 
 const config = {
   route: '/ratings',
-  async generateDummyObject() {
-    const toDropLater = [];
-
-    const dummyRating = await generateDummyRating();
-
-    return [dummyRating, toDropLater];
-  },
+  generateDummyObject: generateDummyRating,
 };
 
 describe('Test the rating API endpoint', () => {
   it(...testCreate(Rating, {
     ...config,
-    canCall: [generateUserJWTHeader],
-    cannotCall: [generateAnonymousJWTHeader],
+    canCall: [generateAnonymousJWTHeader],
   }));
   it(...testList(Rating, {
     ...config,

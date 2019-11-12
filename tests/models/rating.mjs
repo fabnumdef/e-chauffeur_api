@@ -8,6 +8,9 @@ export const generateDummyRating = () => ({
   _id: new ObjectId(),
   ride: {
     _id: new ObjectId(),
+    campus: {
+      _id: 'RandomId',
+    },
   },
   uxGrade: 3,
   recommandationGrade: 2,
