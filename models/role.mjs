@@ -30,6 +30,8 @@ export const ROLE_USER = new RoleList(
   rights.CAN_LIST_POI_LOCAL,
   rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
+
+  rights.CAN_REMOVE_USER_SELF,
 );
 
 export const ROLE_DRIVER = new RoleList(
