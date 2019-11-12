@@ -25,7 +25,7 @@ export const CAN_CREATE_USER = stdRule();
 export const CAN_LIST_USER = stdRule();
 export const CAN_GET_USER = stdRule();
 export const CAN_REMOVE_USER = stdRule();
-export const CAN_REMOVE_USER_SELF = selfEditingUserRule();
+export const CAN_REMOVE_SELF_USER = selfEditingUserRule();
 
 export const CAN_SEND_CREATION_TOKEN = stdRule();
 
