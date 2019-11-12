@@ -28,6 +28,7 @@ describe('Test the users route', () => {
 
   it(...testDelete(User, {
     ...config,
+
     route: ({ id }) => `${config.route}/${id}`,
   }));
 
@@ -56,6 +57,27 @@ describe('Test the users route', () => {
           .patch(`/users/${user.id}`)
           .set('Authorization', `Bearer ${user.emitJWT()}`);
         expect(statusCode).to.equal(200);
+      }
+    } finally {
+      await User.deleteOne(dummyUser);
+    }
+  });
+
+  it('User should be able to delete his account', async () => {
+    const dummyUser = generateDummyUser();
+    const user = await User.create(dummyUser);
+    try {
+      {
+        const { statusCode } = await request()
+          .delete(`/users/${user.id}`)
+          .set(...generateUserJWTHeader());
+        expect(statusCode).to.equal(403);
+      }
+      {
+        const { statusCode } = await request()
+          .delete(`/users/${user.id}`)
+          .set('Authorization', `Bearer ${user.emitJWT()}`);
+        expect(statusCode).to.equal(204);
       }
     } finally {
       await User.deleteOne(dummyUser);
