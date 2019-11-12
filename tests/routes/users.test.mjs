@@ -28,7 +28,6 @@ describe('Test the users route', () => {
 
   it(...testDelete(User, {
     ...config,
-
     route: ({ id }) => `${config.route}/${id}`,
   }));
 
