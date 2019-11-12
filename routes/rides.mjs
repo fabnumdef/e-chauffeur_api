@@ -16,7 +16,7 @@ import {
   CAN_EDIT_RIDE_STATUS,
   CAN_GET_RIDE,
   CAN_GET_RIDE_POSITION,
-  CAN_LIST_RIDE,
+  CAN_LIST_RIDE, CAN_LIST_SELF_RIDE,
 
   CAN_REQUEST_RIDE,
   CAN_GET_OWNED_RIDE,
@@ -132,7 +132,7 @@ const router = generateCRUD(Ride, {
     },
   },
   list: {
-    right: CAN_LIST_RIDE,
+    right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
     filters: {
       campus: 'campus._id',
     },

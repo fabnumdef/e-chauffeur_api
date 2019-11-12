@@ -113,6 +113,7 @@ export const CAN_EDIT_OWNED_RIDE = ownedRideRule();
 export const CAN_LIST_RIDE = stdRule();
 export const CAN_GET_RIDE = stdRule();
 export const CAN_GET_RIDE_POSITION = stdRule();
+export const CAN_LIST_SELF_RIDE = selfEditingUserRule();
 
 export const CAN_SEND_FEEDBACK = stdRule();
 
