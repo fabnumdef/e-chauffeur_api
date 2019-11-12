@@ -123,7 +123,7 @@ export default {
             await this.sendSMS(
               'Merci d\'avoir fait appel à notre offre de mobilité. '
               + `Vous pouvez évaluer le service e-Chauffeur :
-              ${this.getSatisfactionQuestionnaireURL()}?rideId=${this.id}&campusId=${show('campus.id')}`,
+              ${this.getSatisfactionQuestionnaireURL()}?rideId=${this.id}}`,
             );
             break;
           case CANCEL_TECHNICAL:

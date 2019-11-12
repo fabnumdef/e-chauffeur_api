@@ -7,10 +7,7 @@ const { Types: { ObjectId } } = mongoose;
 export const generateDummyRating = () => ({
   _id: new ObjectId(),
   ride: {
-    _id: new ObjectId(),
-    campus: {
-      _id: 'RandomId',
-    },
+    _id: '5dc13bfc07ab78491c3924f4',
   },
   uxGrade: 3,
   recommandationGrade: 2,

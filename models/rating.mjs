@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
+import Ride from './ride';
 
 const { Schema } = mongoose;
 
@@ -30,5 +31,16 @@ const RatingSchema = new Schema({
 });
 
 RatingSchema.plugin(createdAtPlugin);
+
+RatingSchema.pre('validate', async function (next) {
+  const ride = await Ride.findById(this.ride._id).lean();
+  if (!ride) {
+    const err = new Error();
+    err.status = 404;
+    err.message = 'Ride does not exist in database';
+  }
+  this.ride.campus._id = ride.campus._id;
+  next();
+});
 
 export default mongoose.model('Rating', RatingSchema, 'ratings');
