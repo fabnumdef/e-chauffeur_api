@@ -57,6 +57,7 @@
     "timezone-validator": "^1.0.2",
     "twilio": "^3.36.0",
     "validator": "^11.1.0",
+    "web-push": "^3.4.1",
     "winston": "^3.2.1",
     "winston-mongodb": "^5.0.0"
   },

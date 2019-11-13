@@ -1,6 +1,7 @@
 import camelCase from 'lodash.camelcase';
 import lGet from 'lodash.get';
 import mask from 'json-mask';
+import Luxon from 'luxon';
 import {
   CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
 } from '../models/status';
@@ -9,6 +10,7 @@ import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
+import NotificationDevice from '../models/notification-device';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
@@ -25,6 +27,8 @@ import {
   CAN_EDIT_OWNED_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
+
+const { DateTime } = Luxon;
 
 function ioEmit(ctx, data, eventName = '', rooms = []) {
   let { app: { io } } = ctx;
@@ -61,6 +65,19 @@ const router = generateCRUD(Ride, {
         `campus/${ride.campus.id}`,
         `driver/${ride.driver.id}`,
       ]);
+      NotificationDevice.findOneByUser(ride.driver.id).then((device) => {
+        if (device) {
+          const payload = {
+            message: `Nouvelle course à ${DateTime.fromJSDate(ride.start).setLocale('fr').toFormat('HH\'h\'mm')}`,
+            body: `De ${ride.departure.label} à ${ride.arrival.label}`,
+          };
+          device.notify(payload).catch((e) => {
+            if (e.name === 'WebPushError') {
+              NotificationDevice.deleteOne({ _id: device._id.toString() }).then();
+            }
+          });
+        }
+      });
     },
   },
   update: {
