@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import * as rights from './rights';
 
 class RoleList extends Set {
@@ -5,6 +6,18 @@ class RoleList extends Set {
     super(items.reduce((acc, row) => acc.concat(row instanceof Set ? Array.from(row) : row), []));
     this.name = name;
     this.inheritance = items.filter((i) => i instanceof Set);
+  }
+
+  get inheritanceList() {
+    return this.inheritance.concat(this.inheritance.reduce((acc, list) => acc.concat(list.inheritanceList), []));
+  }
+
+  hasRolesInInheritance(roles = []) {
+    return roles.reduce((bool, role) => bool && this.hasRoleInInheritance(role), true);
+  }
+
+  hasRoleInInheritance(role) {
+    return this.inheritanceList.reduce((bool, row) => bool || row.name === role, false);
   }
 }
 const roles = {};
@@ -36,6 +49,8 @@ export const ROLE_USER = new RoleList(
   rights.CAN_LIST_POI_LOCAL,
   rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
+
+  rights.CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 );
 roles.ROLE_USER = ROLE_USER;
 

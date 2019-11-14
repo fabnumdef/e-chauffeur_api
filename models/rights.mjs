@@ -2,7 +2,7 @@
 // of the tree
 // eslint-disable-next-line import/no-cycle
 import {
-  stdRule, campusRule, selfEditingUserRule, roleEditingRule, ownedRideRule, tokenRideRule,
+  stdRule, campusRule, selfEditingUserRule, roleEditingRule, ownedRideRule, tokenRideRule, onlyLowerRightsRule,
 } from './rules';
 
 export const CAN_LOGIN = stdRule('CAN_LOGIN');
@@ -25,6 +25,7 @@ export const CAN_CREATE_USER = stdRule('CAN_CREATE_USER');
 export const CAN_LIST_USER = stdRule('CAN_LIST_USER');
 export const CAN_GET_USER = stdRule('CAN_GET_USER');
 export const CAN_REMOVE_USER = stdRule('CAN_REMOVE_USER');
+export const CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS = onlyLowerRightsRule('CAN_EDIT_USER_WITH_LOWER_RIGHTS');
 
 export const CAN_SEND_CREATION_TOKEN = stdRule('CAN_SEND_CREATION_TOKEN');
 

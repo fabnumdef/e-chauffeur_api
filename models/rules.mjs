@@ -3,6 +3,8 @@ import nanoid from 'nanoid';
 // It's not really a cycle import, we're not importing the same part of the tree
 // eslint-disable-next-line import/no-cycle
 import { CAN_LIST_ALL_CAMPUSES } from './rights';
+// eslint-disable-next-line import/no-cycle
+import * as roles from './role';
 import { getPrefetchedRide } from '../helpers/prefetch-ride';
 
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
@@ -41,8 +43,18 @@ export const tokenRideRule = ruleGenerator((_, ctx) => {
   const ride = getPrefetchedRide(ctx, ctx.params.id);
   return ride.token === ctx.query.token;
 });
+
 export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
   const { user } = ctx.state;
   const ride = entity || getPrefetchedRide(ctx, ctx.params.id);
   return ride.owner && ride.owner.id && ride.owner.id.toString() === user.id;
+});
+
+export const onlyLowerRightsRule = ruleGenerator((_, ctx, userToEdit) => {
+  const { user } = ctx.state;
+  // @todo: Ensure that campus is well scoped
+  return user.roles.reduce(
+    (acc, { role }) => acc && roles[role].hasRolesInInheritance(userToEdit.roles.map(({ role: r }) => r)),
+    true,
+  );
 });
