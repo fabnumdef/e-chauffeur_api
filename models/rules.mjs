@@ -41,8 +41,8 @@ export const tokenRideRule = ruleGenerator((_, ctx) => {
   const ride = getPrefetchedRide(ctx, ctx.params.id);
   return ride.token === ctx.query.token;
 });
-export const ownedRideRule = ruleGenerator((_, ctx) => {
+export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
   const { user } = ctx.state;
-  const ride = getPrefetchedRide(ctx, ctx.params.id);
+  const ride = entity || getPrefetchedRide(ctx, ctx.params.id);
   return ride.owner && ride.owner.id && ride.owner.id.toString() === user.id;
 });
