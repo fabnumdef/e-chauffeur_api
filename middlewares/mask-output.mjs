@@ -28,8 +28,10 @@ export function cleanObject(e) {
 
 export default async (ctx, next) => {
   await next();
+/*
   if (typeof ctx.body === 'object') {
     ctx.body = cleanObject(ctx.body);
     ctx.body = mask(ctx.body, (ctx.query || {}).mask || ',');
   }
+*/
 };

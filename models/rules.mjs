@@ -26,7 +26,10 @@ export const campusRule = ruleGenerator(({ campuses = [] }, ctx) => {
  * @return {symbol}
  */
 export const selfEditingUserRule = ruleGenerator((_, ctx) => {
-  const userParam = lGet(ctx, 'params.user_id', null);
+  let userParam = lGet(ctx, 'params.user_id', null);
+  if (!userParam) {
+    userParam = lGet(ctx.request, 'query.filters.userId', null);
+  }
   const loggedUser = lGet(ctx, 'state.user.id', null);
   return userParam && loggedUser && userParam === loggedUser;
 });
