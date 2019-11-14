@@ -223,7 +223,8 @@ router.post(
     body.user = {
       _id: ctx.params.userId,
     };
-    ctx.body = await NotificationDevice.findOneAndUpdateByUser(body);
+    await NotificationDevice.findOneAndUpdateByUser(body);
+    ctx.status = 204;
   },
 );
 
