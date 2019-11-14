@@ -65,6 +65,7 @@ const router = generateCRUD(Ride, {
         `campus/${ride.campus.id}`,
         `driver/${ride.driver.id}`,
       ]);
+      // Todo: add this to a queue system to ensure this will be executed
       NotificationDevice.findOneByUser(ride.driver.id).then((device) => {
         if (device) {
           const payload = {
@@ -73,7 +74,7 @@ const router = generateCRUD(Ride, {
           };
           device.notify(payload).catch((e) => {
             if (e.name === 'WebPushError') {
-              NotificationDevice.deleteOne({ _id: device._id.toString() }).then();
+              NotificationDevice.deleteOne({ _id: device._id.toString() }).exec();
             }
           });
         }
