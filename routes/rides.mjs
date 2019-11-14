@@ -185,6 +185,7 @@ const router = generateCRUD(Ride, {
         const idFilter = {
           'owner._id': ctx.query.filters.userId,
         };
+
         ctx.filters = {
           $and: [
             {
