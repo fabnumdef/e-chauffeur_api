@@ -177,11 +177,12 @@ const router = generateCRUD(Ride, {
       const start = new Date(ctx.query.filters.start);
       const end = new Date(ctx.query.filters.end);
 
-      let total;
-      let data;
+      const total = null;
+      const data = null;
+
+      const dateFilters = Ride.filtersWithin(start, end);
 
       if (ctx.query.filters.userId) {
-        const dateFilters = Ride.filtersWithin(start, end);
         const idFilter = {
           'owner._id': ctx.query.filters.userId,
         };
@@ -195,13 +196,32 @@ const router = generateCRUD(Ride, {
             },
           ],
         };
-        total = await Ride.countDocuments(ctx.filters);
-        data = await Ride.find(ctx.filters).skip(offset).limit(limit).lean();
-      } else {
-        total = await Ride.countDocumentsWithin(start, end, ctx.filters);
-        data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
       }
 
+      if (ctx.query.filters.status) {
+        /* const statusFilter = {
+          $nor: [
+            {
+              status: ctx.query.filters.status,
+            },
+          ],
+        }; */
+
+        /*   ctx.filters = {
+             $and: [
+               {
+                 ...idFilter,
+               },
+               {
+                 ...statusFilter,
+               },
+             ],
+           };
+         }
+
+         total = await Ride.countDocuments(ctx.filters);
+         data = await Ride.find(ctx.filters).skip(offset).limit(limit).lean(); */
+      }
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,
       });
