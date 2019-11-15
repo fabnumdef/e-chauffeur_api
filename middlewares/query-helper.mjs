@@ -17,14 +17,13 @@ export const filtersToObject = (...filtersToParse) => async (ctx, next) => {
 };
 
 export const formatFilters = async (ctx, next) => {
-  console.log('In formatFilters middleware', true);
-
   const filters = Object.keys(ctx.request.query.filters).map((key) => ({ [key]: ctx.request.query.filters[key] }));
   let alreadySet = false;
 
   const queryFilter = filters.reduce((acc, current) => {
     let newAcc;
     const key = Object.keys(current).join('');
+
     switch (key) {
       case 'userId':
         newAcc = {
@@ -36,6 +35,7 @@ export const formatFilters = async (ctx, next) => {
           ],
         };
         break;
+      // fall-through on purpose
       // eslint-disable-next-line no-fallthrough
       case 'start':
       case 'end': {
