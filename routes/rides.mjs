@@ -23,6 +23,7 @@ import {
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE_STATUS,
   CAN_EDIT_OWNED_RIDE,
+  CAN_DELETE_SELF_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
 
@@ -189,6 +190,9 @@ const router = generateCRUD(Ride, {
         { filters: ctx.filters, offset, limit },
       );
     },
+  },
+  delete: {
+    right: [CAN_DELETE_SELF_RIDE],
   },
 });
 

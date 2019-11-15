@@ -114,6 +114,7 @@ export const CAN_LIST_RIDE = stdRule();
 export const CAN_GET_RIDE = stdRule();
 export const CAN_GET_RIDE_POSITION = stdRule();
 export const CAN_LIST_SELF_RIDE = selfEditingUserRule();
+export const CAN_DELETE_SELF_RIDE = selfEditingUserRule();
 
 export const CAN_SEND_FEEDBACK = stdRule();
 

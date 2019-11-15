@@ -62,18 +62,25 @@ export const formatFilters = async (ctx, next) => {
         };
         break;
       }
-      case 'current':
+      case 'current': {
+        let queryType = '$nor';
+        if (current.current === 'false') {
+          queryType = '$and';
+        }
         newAcc = {
           $and: [
             ...acc.$and,
             {
-              $nor: {
-                status: 'delivered',
-              },
+              [queryType]: [
+                {
+                  status: 'delivered',
+                },
+              ],
             },
           ],
         };
         break;
+      }
       default:
         newAcc = {
           $and: [
