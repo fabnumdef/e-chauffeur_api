@@ -9,7 +9,7 @@ import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
-import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import { formatFilters } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
@@ -169,62 +169,19 @@ const router = generateCRUD(Ride, {
           }));
         }
       },
-      ensureThatFiltersExists('start', 'end'),
+      formatFilters,
     ],
     async main(ctx) {
       // @todo: Add right on max
       const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
-      const start = new Date(ctx.query.filters.start);
-      const end = new Date(ctx.query.filters.end);
 
-      const total = null;
-      const data = null;
+      const total = await Ride.countDocuments(ctx.filters);
+      const data = await Ride.find(ctx.filters).skip(offset).limit(limit).lean();
 
-      const dateFilters = Ride.filtersWithin(start, end);
-
-      if (ctx.query.filters.userId) {
-        const idFilter = {
-          'owner._id': ctx.query.filters.userId,
-        };
-        ctx.filters = {
-          $and: [
-            {
-              ...idFilter,
-            },
-            {
-              ...dateFilters,
-            },
-          ],
-        };
-      }
-
-      if (ctx.query.filters.status) {
-        /* const statusFilter = {
-          $nor: [
-            {
-              status: ctx.query.filters.status,
-            },
-          ],
-        }; */
-
-        /*   ctx.filters = {
-             $and: [
-               {
-                 ...idFilter,
-               },
-               {
-                 ...statusFilter,
-               },
-             ],
-           };
-         }
-
-         total = await Ride.countDocuments(ctx.filters);
-         data = await Ride.find(ctx.filters).skip(offset).limit(limit).lean(); */
-      }
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,
       });
+
       ctx.body = data;
       ctx.log(
         ctx.log.INFO,
