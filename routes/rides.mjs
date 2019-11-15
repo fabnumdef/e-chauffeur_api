@@ -139,6 +139,7 @@ const router = generateCRUD(Ride, {
     },
     middlewares: [
       contentNegociation,
+      formatFilters,
       maskOutput,
       async (ctx, next) => {
         await next();
@@ -170,7 +171,6 @@ const router = generateCRUD(Ride, {
           }));
         }
       },
-      formatFilters,
     ],
     async main(ctx) {
       // @todo: Add right on max
