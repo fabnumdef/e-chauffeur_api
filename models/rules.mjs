@@ -1,4 +1,5 @@
 import lGet from 'lodash.get';
+import lXor from 'lodash.xor';
 import nanoid from 'nanoid';
 // It's not really a cycle import, we're not importing the same part of the tree
 // eslint-disable-next-line import/no-cycle
@@ -52,9 +53,10 @@ export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
 
 export const onlyLowerRightsRule = ruleGenerator((_, ctx, userToEdit) => {
   const { user } = ctx.state;
-  // @todo: Ensure that campus is well scoped
   return user.roles.reduce(
-    (acc, { role }) => acc && roles[role].hasRolesInInheritance(userToEdit.roles.map(({ role: r }) => r)),
+    (acc, { campuses = [], role }) => acc && userToEdit.roles.map(
+      (u) => lXor(campuses, u.campuses).length <= 0 && roles[role].hasRoleInInheritance(u.role),
+    ),
     true,
   );
 });

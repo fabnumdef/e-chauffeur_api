@@ -12,10 +12,6 @@ class RoleList extends Set {
     return this.inheritance.concat(this.inheritance.reduce((acc, list) => acc.concat(list.inheritanceList), []));
   }
 
-  hasRolesInInheritance(roles = []) {
-    return roles.reduce((bool, role) => bool && this.hasRoleInInheritance(role), true);
-  }
-
   hasRoleInInheritance(role) {
     return this.inheritanceList.reduce((bool, row) => bool || row.name === role, false);
   }
