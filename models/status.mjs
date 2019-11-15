@@ -125,19 +125,19 @@ export default {
               + `Vous pouvez évaluer le service e-Chauffeur : ${this.getSatisfactionQuestionnaireURL()}`,
             );
             break;
-          case CANCEL_TECHNICAL:
+          case CANCELED_TECHNICAL:
             await this.sendSMS(
               `Un problème technique nous oblige à annuler votre course vers ${show('arrival.label')} `
               + `le ${start}.`,
             );
             break;
-          case CANCEL_REQUESTED_CUSTOMER:
+          case CANCELED_REQUESTED_CUSTOMER:
             await this.sendSMS(
               `Nous confirmons l'annulation de la course vers ${show('arrival.label')} `
               + `le ${start}.`,
             );
             break;
-          case CANCEL_CUSTOMER_MISSING:
+          case CANCELED_CUSTOMER_MISSING:
             await this.sendSMS(
               `Suite à votre absence, votre course vers ${show('arrival.label')} `
               + `le ${start} a été annulée.`,
