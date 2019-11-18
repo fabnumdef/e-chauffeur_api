@@ -135,7 +135,11 @@ router.patch(
       );
     }
     user.set(body);
-    ctx.body = await user.save();
+    try {
+      ctx.body = await user.save();
+    } catch (e) {
+      ctx.throw_and_log(...addDomainInError(e));
+    }
   },
 );
 

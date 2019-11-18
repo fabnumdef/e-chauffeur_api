@@ -7,6 +7,7 @@
 * Refactor planning vehicule and remove dead/old code and lib
 * Add Redis sync capability
 ### Fix
+* Fix errors on post/patch /users /campuses/{id}/users /campuses/{id}/drivers
 ## Version 1.4.2
 ### Features
 * Hours of campus are now configurable
