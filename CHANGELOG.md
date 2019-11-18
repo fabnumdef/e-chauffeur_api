@@ -5,6 +5,7 @@
 * Add SMS on refusal
 * Refactor planning vehicule and remove dead/old code and lib
 * Add Redis sync capability
+* Add rating form route and model
 ### Fix
 ## Version 1.4.2
 ### Features
