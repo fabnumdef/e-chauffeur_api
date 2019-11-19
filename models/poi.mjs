@@ -31,6 +31,14 @@ PoiSchema.virtual('campus.id')
     this.campus._id = id;
   });
 
+PoiSchema.statics.processDocumentsToAddEnable = async function () {
+  const docs = await this.find();
+  await Promise.all(docs.map(async (doc) => {
+    if (doc.enabled) {
+      await this.findByIdAndUpdate(doc._id, { enabled: true });
+    }
+  }));
+};
 
 PoiSchema.index({
   _id: 'text',

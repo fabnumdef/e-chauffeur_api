@@ -30,8 +30,30 @@ const router = generateCRUD(Poi, {
     right: [CAN_LIST_POI, CAN_LIST_POI_LOCAL],
     filters: {
       campus: 'campus._id',
+      withDisabled: 'enabled',
     },
     middlewares: [
+      async (ctx, next) => {
+        const { enabled } = ctx.filters;
+        if (!enabled || enabled === 'false') {
+          ctx.filters.enabled = { $ne: false };
+        } else {
+          delete ctx.filters.enabled;
+        }
+        await next();
+      },
+      async (ctx, next) => {
+        const filters = Object.keys(ctx.filters).map((key) => ({
+          [key]: ctx.filters[key],
+        }));
+
+        ctx.filters = {
+          $and: [
+            ...filters,
+          ],
+        };
+        await next();
+      },
       async (ctx, next) => {
         const searchParams = ctx.filters;
         if (ctx.query && ctx.query.search) {
@@ -50,6 +72,9 @@ const router = generateCRUD(Poi, {
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
+
+      await Poi.processDocumentsToAddEnable();
+
       const [total, data] = await Promise.all([
         Poi.countDocuments(ctx.filters),
         Poi.find(ctx.filters).skip(offset).limit(limit).lean(),
