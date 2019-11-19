@@ -47,11 +47,14 @@ const router = generateCRUD(Poi, {
           [key]: ctx.filters[key],
         }));
 
-        ctx.filters = {
-          $and: [
-            ...filters,
-          ],
-        };
+        if (filters.length > 0) {
+          ctx.filters = {
+            $and: [
+              ...filters,
+            ],
+          };
+        }
+
         await next();
       },
       async (ctx, next) => {
