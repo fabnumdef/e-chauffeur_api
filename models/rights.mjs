@@ -38,6 +38,7 @@ export const CAN_GET_USER_EVENT = stdRule();
 export const CAN_REMOVE_USER_EVENT = stdRule();
 
 export const CAN_EDIT_CAMPUS = stdRule();
+export const CAN_EDIT_SELF_CAMPUS = selfEditingUserRule();
 export const CAN_CREATE_CAMPUS = stdRule();
 export const CAN_LIST_CAMPUS = stdRule();
 export const CAN_LIST_CAMPUS_BASIC = stdRule();
