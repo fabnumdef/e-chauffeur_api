@@ -19,6 +19,10 @@ const PoiSchema = new Schema({
     _id: { type: String },
     name: String,
   },
+  enabled: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 PoiSchema.plugin(createdAtPlugin);
