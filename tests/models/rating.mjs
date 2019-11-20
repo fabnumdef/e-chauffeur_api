@@ -6,7 +6,7 @@ import Ride from '../../models/ride';
 const { Types: { ObjectId } } = mongoose;
 
 export const generateDummyRating = async () => {
-  const [ride] = await Ride.find();
+  const ride = await Ride.findOne();
   const rideId = ride._id.toString();
   return {
     _id: new ObjectId(),
