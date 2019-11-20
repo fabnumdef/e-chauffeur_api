@@ -46,6 +46,7 @@ export const ROLE_USER = new RoleList(
   rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
 
+  rights.CAN_REMOVE_SELF_USER,
   rights.CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 );
 roles.ROLE_USER = ROLE_USER;

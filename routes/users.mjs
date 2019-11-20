@@ -7,7 +7,7 @@ import {
   CAN_EDIT_USER_SENSITIVE_DATA,
   CAN_GET_USER,
   CAN_LIST_USER,
-  CAN_REMOVE_USER,
+  CAN_REMOVE_USER, CAN_REMOVE_SELF_USER,
   CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 } from '../models/rights';
 import config from '../services/config';
@@ -93,7 +93,8 @@ const router = generateCRUD(User, {
     lean: false,
   },
   delete: {
-    right: CAN_REMOVE_USER,
+    paramId: 'user_id',
+    right: [CAN_REMOVE_USER, CAN_REMOVE_SELF_USER],
   },
   list: {
     right: CAN_LIST_USER,

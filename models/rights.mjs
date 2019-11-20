@@ -19,12 +19,14 @@ export const CAN_LIST_CAR_EVENT = stdRule('CAN_LIST_CAR_EVENT');
 export const CAN_GET_CAR_EVENT = stdRule('CAN_GET_CAR_EVENT');
 export const CAN_REMOVE_CAR_EVENT = stdRule('CAN_REMOVE_CAR_EVENT');
 
+
 export const CAN_EDIT_USER = stdRule('CAN_EDIT_USER');
 export const CAN_EDIT_USER_SENSITIVE_DATA = stdRule('CAN_EDIT_USER_SENSITIVE_DATA');
 export const CAN_CREATE_USER = stdRule('CAN_CREATE_USER');
 export const CAN_LIST_USER = stdRule('CAN_LIST_USER');
 export const CAN_GET_USER = stdRule('CAN_GET_USER');
 export const CAN_REMOVE_USER = stdRule('CAN_REMOVE_USER');
+export const CAN_REMOVE_SELF_USER = selfEditingUserRule('CAN_REMOVE_SELF_USER');
 export const CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS = onlyLowerRightsRule('CAN_EDIT_USER_WITH_LOWER_RIGHTS');
 
 export const CAN_SEND_CREATION_TOKEN = stdRule('CAN_SEND_CREATION_TOKEN');

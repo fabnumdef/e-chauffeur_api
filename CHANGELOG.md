@@ -10,6 +10,7 @@
 * Add SMS on refusal
 * Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
+* User can delete his own account
 * Standardize email content
 ### Fix
 * Fix potential leak of hashed password
