@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import omit from 'lodash.omit';
 import orderBy from 'lodash.orderby';
 import chunk from 'lodash.chunk';
 import differenceWith from 'lodash.differencewith';
@@ -13,6 +12,7 @@ import config from '../services/config';
 import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
 import { sendVerificationSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
+import cleanObjectPlugin from './helpers/object-cleaner';
 import {
   CAN_ADD_ROLE_ADMIN,
   CAN_ADD_ROLE_DRIVER,
@@ -36,6 +36,7 @@ const {
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
+const MODEL_NAME = 'User';
 const SALT_WORK_FACTOR = 10;
 const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
@@ -63,7 +64,10 @@ const UserSchema = new Schema({
   },
   firstname: String,
   lastname: String,
-  password: String,
+  password: {
+    type: String,
+    canEmit: false,
+  },
   phone: {
     original: String,
     canonical: String,
@@ -106,6 +110,7 @@ const UserSchema = new Schema({
 });
 
 UserSchema.plugin(createdAtPlugin);
+UserSchema.plugin(cleanObjectPlugin, MODEL_NAME);
 
 UserSchema.pre('validate', function preValidate() {
   if (this.isModified('email')) {
@@ -158,10 +163,6 @@ UserSchema.virtual('activeTokens')
     ), 10);
     return firsts;
   });
-
-UserSchema.methods.toCleanObject = function toCleanObject(...params) {
-  return omit(this.toObject ? this.toObject(...params) : this, ['password']);
-};
 
 UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
   const u = this.toCleanObject({ versionKey: false });
@@ -242,13 +243,6 @@ UserSchema.methods.confirmEmail = async function confirmEmail(token) {
 
   this.email_confirmed = true;
   return true;
-};
-
-UserSchema.statics.cleanObject = (o, ...params) => {
-  const User = mongoose.model('User');
-
-  const user = new User(o);
-  return user.toCleanObject(...params);
 };
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
@@ -360,4 +354,4 @@ UserSchema.methods.generateResetToken = async function generateResetToken({ emai
   return token;
 };
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model(MODEL_NAME, UserSchema);
