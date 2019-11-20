@@ -3,8 +3,8 @@
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model
 * Add rating form route and model
-* User can delete his own account
 * Add push notifications
+* User can delete his own account
 ### Fix
 * rides and ratings routes tests
 ## Version 1.4.3
