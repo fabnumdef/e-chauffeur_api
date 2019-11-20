@@ -73,14 +73,6 @@ PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams
   return queryFilter;
 };
 
-PoiSchema.statics.findWithin = function findWithin(filter) {
-  return this.find(filter);
-};
-
-PoiSchema.statics.countDocumentsWithin = function countDocumentsWithin(filter) {
-  return this.countDocuments(filter);
-};
-
 PoiSchema.index({
   _id: 'text',
   label: 'text',

@@ -38,8 +38,8 @@ const router = generateCRUD(Poi, {
       const filter = Poi.formatFilters(ctx.filters, ctx.query, ctx.query.search);
 
       const [total, data] = await Promise.all([
-        Poi.countDocumentsWithin(filter),
-        Poi.findWithin(filter).skip(offset).limit(limit).lean(),
+        Poi.countDocuments(filter),
+        Poi.find(filter).skip(offset).limit(limit).lean(),
       ]);
 
       ctx.log(
