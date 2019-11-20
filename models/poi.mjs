@@ -36,19 +36,22 @@ PoiSchema.virtual('campus.id')
   });
 
 PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams, searchParams) {
-  let queryFilter;
-  const filters = Object.keys(rawFilters).map((key) => ({
-    [key]: rawFilters[key],
-  }));
+  let queryFilter = rawFilters;
 
-  if (!filters.enabled || filters.enabled === 'false') {
-    filters.enabled = { $ne: false };
+  if (queryFilter.enabled === 'true') {
+    delete queryFilter.enabled;
+  } else {
+    queryFilter.enabled = { $ne: false };
   }
 
-  if (filters.length > 0) {
+  queryFilter = Object.keys(queryFilter).map((key) => ({
+    [key]: queryFilter[key],
+  }));
+
+  if (queryFilter.length > 0) {
     queryFilter = {
       $and: [
-        ...filters,
+        ...queryFilter,
       ],
     };
   }
@@ -63,17 +66,19 @@ PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams
       },
     ];
   }
-  console.log(queryFilter);
+
+  if (queryFilter.length < 1) {
+    return null;
+  }
   return queryFilter;
 };
 
-PoiSchema.statics.processDocumentsToAddEnable = async function () {
-  const docs = await this.find();
-  await Promise.all(docs.map(async (doc) => {
-    if (doc.enabled) {
-      await this.findByIdAndUpdate(doc._id, { enabled: true });
-    }
-  }));
+PoiSchema.statics.findWithin = function findWithin(filter) {
+  return this.find(filter);
+};
+
+PoiSchema.statics.countDocumentsWithin = function countDocumentsWithin(filter) {
+  return this.countDocuments(filter);
 };
 
 PoiSchema.index({
