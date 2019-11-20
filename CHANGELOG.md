@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Refactor rights to be able to check inheritance and add rights on model
 ### Fix
 ## Version 1.4.3
 ### Features
