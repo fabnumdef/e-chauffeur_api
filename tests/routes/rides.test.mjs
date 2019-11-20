@@ -14,27 +14,23 @@ let toDropAfter = [];
 
 describe('Test the rides route', () => {
   before(async () => {
-    try {
-      dummyCampus = await createDummyCampus();
-      const dummyDeparture = await createDummyPoi();
-      const dummyArrival = await createDummyPoi();
-      const newRide = generateDummyRide({
-        start: new Date(),
-        end: new Date(),
-        campus: dummyCampus,
-        departure: dummyDeparture,
-        arrival: dummyArrival,
-      });
-      const dummyRide = await Ride.create(newRide);
-      toDropAfter = [
-        dummyCampus,
-        dummyDeparture,
-        dummyArrival,
-        dummyRide,
-      ];
-    } catch (err) {
-      throw new Error(err);
-    }
+    dummyCampus = await createDummyCampus();
+    const dummyDeparture = await createDummyPoi();
+    const dummyArrival = await createDummyPoi();
+    const newRide = generateDummyRide({
+      start: new Date(),
+      end: new Date(),
+      campus: dummyCampus,
+      departure: dummyDeparture,
+      arrival: dummyArrival,
+    });
+    const dummyRide = await Ride.create(newRide);
+    toDropAfter = [
+      dummyCampus,
+      dummyDeparture,
+      dummyArrival,
+      dummyRide,
+    ];
   });
 
   it('It should response the GET method', async () => {
