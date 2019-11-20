@@ -115,6 +115,7 @@ const router = generateCRUD(Ride, {
     preMiddlewares: [
       prefetchRideMiddleware(),
     ],
+    lean: false,
     right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
       const { params: { id } } = ctx;
@@ -132,6 +133,7 @@ const router = generateCRUD(Ride, {
     },
   },
   list: {
+    lean: false,
     right: CAN_LIST_RIDE,
     filters: {
       campus: 'campus._id',

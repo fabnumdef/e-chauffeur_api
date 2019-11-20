@@ -47,7 +47,7 @@ export function prepareSendMailFromTemplate(template, subject) {
     html: compileTemplates(path, '.html.hbs'),
   };
 
-  return (to, { data = {}, lang = DEFAULT_LANG }) => {
+  return async (to, { data = {}, lang = DEFAULT_LANG }) => {
     if (!templates.txt[lang] && !templates.html[lang]) {
       throw new Error('No mail template found');
     }
@@ -59,7 +59,8 @@ export function prepareSendMailFromTemplate(template, subject) {
     if (templates.html[lang]) {
       opts.html = templates.html[lang](data);
     }
-    return sendMail(to, opts);
+    // @todo: async in queue management
+    sendMail(to, opts);
   };
 }
 

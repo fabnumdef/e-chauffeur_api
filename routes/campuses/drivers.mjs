@@ -12,8 +12,13 @@ import {
 } from '../../models/rights';
 import User from '../../models/user';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import config from '../../services/config';
 
 const router = new Router();
+const addDomainInError = (e) => [
+  400,
+  e.errors ? { whitelistDomains: config.get('whitelist_domains'), errors: e.errors } : e,
+];
 
 router.get(
   '/',
@@ -103,8 +108,11 @@ router.post(
             },
           ],
       });
-
-    ctx.body = await User.create(body);
+    try {
+      ctx.body = await User.create(body);
+    } catch (e) {
+      ctx.throw_and_log(...addDomainInError(e));
+    }
   },
 );
 
@@ -123,7 +131,11 @@ router.patch(
     }
     delete body.roles;
     driver.set(body);
-    ctx.body = await driver.save();
+    try {
+      ctx.body = await driver.save();
+    } catch (e) {
+      ctx.throw_and_log(...addDomainInError(e));
+    }
   },
 );
 

@@ -78,65 +78,45 @@ CampusSchema.index({
   name: 'text',
 });
 
-const filterDriver = (campus) => [
-  {
-    $unwind: '$roles',
-  },
-  {
-    $match: {
-      'roles.campuses._id': campus,
-      'roles.role': 'ROLE_DRIVER',
-    },
-  },
-];
+const campusFilter = (campus) => ({
+  'roles.campuses._id': campus,
+});
 
+const driverFilter = () => ({
+  'roles.role': 'ROLE_DRIVER',
+});
 
-CampusSchema.statics.countDrivers = async function findDrivers(campus) {
+CampusSchema.statics.countUsers = async function countUsers(campus, filters = {}) {
   const User = mongoose.model('User');
-  const filter = filterDriver(campus);
-  filter.push({
-    $group: {
-      _id: '$_id',
-    },
-  });
+  const f = { ...campusFilter(campus), ...filters };
+  return User.count(f);
+};
 
-  const users = await User.aggregate(filter).allowDiskUse(true);
-  return users.length;
+CampusSchema.statics.countDrivers = async function countDrivers(campus) {
+  return CampusSchema.statics.countUsers(campus, driverFilter());
+};
+
+CampusSchema.statics.findUsers = async function findUsers(campus, pagination, filters = {}) {
+  const User = mongoose.model('User');
+  const f = { ...campusFilter(campus), ...filters };
+  if (pagination) {
+    return User.find(f).skip(pagination.offset).limit(pagination.limit);
+  }
+  return User.find(f);
 };
 
 CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
+  return CampusSchema.statics.findUsers(campus, pagination, driverFilter());
+};
+
+CampusSchema.statics.findUser = async function findUser(campus, id, filters = {}) {
+  const f = { _id: id, ...campusFilter(campus), ...filters };
   const User = mongoose.model('User');
-  const filter = filterDriver(campus);
-  filter.push(
-    {
-      $group: {
-        _id: '$_id',
-      },
-    },
-  );
-
-  if (pagination) {
-    filter.push(
-      {
-        $skip: pagination.offset,
-      },
-      {
-        $limit: pagination.limit,
-      },
-    );
-  }
-  const usersIds = await User.aggregate(filter).allowDiskUse(true);
-
-  const users = await User.find({
-    _id: { $in: usersIds },
-  });
-
-  return users;
+  return User.findOne(f);
 };
 
 CampusSchema.statics.findDriver = async function findDriver(campus, id) {
-  const driver = (await CampusSchema.statics.findDrivers(campus)).filter((d) => d._id.toString() === id);
-  return (!driver.length) ? {} : driver.shift();
+  return CampusSchema.statics.findUser(campus, id, driverFilter());
 };
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
