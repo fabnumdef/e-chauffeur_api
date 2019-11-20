@@ -175,7 +175,7 @@ const router = generateCRUD(Ride, {
       const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
 
       const total = await Ride.countDocumentsWithin(ctx.query.filters);
-      const data = await Ride.findWithin(ctx.query.filters).skip(offset).limit(limit).lean();
+      const data = await Ride.findWithin(ctx.query.filters).skip(offset).limit(limit);
 
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,
@@ -190,7 +190,7 @@ const router = generateCRUD(Ride, {
     },
   },
   delete: {
-    right: [CAN_DELETE_SELF_RIDE],
+    right: CAN_DELETE_SELF_RIDE,
   },
 });
 
