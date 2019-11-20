@@ -3,6 +3,7 @@
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model
 ### Fix
+* rides and ratings routes tests
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 
