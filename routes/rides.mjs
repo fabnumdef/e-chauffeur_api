@@ -54,7 +54,7 @@ const router = generateCRUD(Ride, {
         delete body.status;
         body.owner = user;
       }
-      const ride = await Ride.create(Object.assign(body));
+      const ride = await Ride.create(body);
       ctx.body = ride;
       if (!ctx.may(CAN_CREATE_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
@@ -133,6 +133,7 @@ const router = generateCRUD(Ride, {
     preMiddlewares: [
       prefetchRideMiddleware(),
     ],
+    lean: false,
     right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
       const { params: { id } } = ctx;
@@ -150,6 +151,7 @@ const router = generateCRUD(Ride, {
     },
   },
   list: {
+    lean: false,
     right: CAN_LIST_RIDE,
     filters: {
       campus: 'campus._id',
