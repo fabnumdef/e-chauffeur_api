@@ -35,11 +35,9 @@ const router = generateCRUD(Poi, {
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
 
-      const filter = Poi.formatFilters(ctx.filters, ctx.query, ctx.query.search);
-
       const [total, data] = await Promise.all([
-        Poi.countDocuments(filter),
-        Poi.find(filter).skip(offset).limit(limit).lean(),
+        Poi.countDocumentsWithin(ctx.filters, ctx.query, ctx.query.search),
+        Poi.findWithin(ctx.filters, ctx.query, ctx.query.search).skip(offset).limit(limit).lean(),
       ]);
 
       ctx.log(

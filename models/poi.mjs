@@ -36,41 +36,49 @@ PoiSchema.virtual('campus.id')
   });
 
 PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams, searchParams) {
-  let queryFilter = rawFilters;
+  const queryFilter = { ...rawFilters };
 
-  if (queryFilter.enabled === 'true') {
-    delete queryFilter.enabled;
-  } else {
-    queryFilter.enabled = { $ne: false };
+  if (queryFilter.enabled !== 'true') {
+    queryFilter.$or = [
+      { enabled: { $ne: false } },
+      { enabled: { $exists: false } },
+    ];
   }
 
-  queryFilter = Object.keys(queryFilter).map((key) => ({
-    [key]: queryFilter[key],
-  }));
-
-  if (queryFilter.length > 0) {
-    queryFilter = {
-      $and: [
-        ...queryFilter,
-      ],
-    };
-  }
+  delete queryFilter.enabled;
 
   if (queryParams && searchParams) {
-    queryFilter.$or = [
+    queryFilter.$and = [
+      { $or: [...queryFilter.$or] },
       {
-        _id: new RegExp(searchParams, 'i'),
-      },
-      {
-        label: new RegExp(searchParams, 'i'),
+        $or: [
+          {
+            _id: new RegExp(searchParams, 'i'),
+          },
+          {
+            label: new RegExp(searchParams, 'i'),
+          },
+        ],
       },
     ];
+
+    delete queryFilter.$or;
   }
 
   if (queryFilter.length < 1) {
     return null;
   }
   return queryFilter;
+};
+
+PoiSchema.statics.countDocumentsWithin = function countDocumentsWithin(...params) {
+  const filter = this.formatFilters(...params);
+  return this.countDocuments(filter);
+};
+
+PoiSchema.statics.findWithin = function findWithin(...params) {
+  const filter = this.formatFilters(...params);
+  return this.find(filter);
 };
 
 PoiSchema.index({
