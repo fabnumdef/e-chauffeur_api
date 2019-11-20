@@ -2,6 +2,9 @@
 ## Current
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model
+* Add rating form route and model
+* Add push notifications
+* User can delete his own account
 ### Fix
 * rides and ratings routes tests
 ## Version 1.4.3
@@ -11,8 +14,6 @@
 * Add SMS on refusal
 * Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
-* Add rating form route and model
-* User can delete his own account
 * Standardize email content
 ### Fix
 * Fix potential leak of hashed password
