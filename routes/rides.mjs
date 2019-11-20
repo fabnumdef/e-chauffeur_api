@@ -9,7 +9,6 @@ import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
-import { formatFilters } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
@@ -139,7 +138,6 @@ const router = generateCRUD(Ride, {
     },
     middlewares: [
       contentNegociation,
-      formatFilters,
       maskOutput,
       async (ctx, next) => {
         await next();
@@ -176,8 +174,8 @@ const router = generateCRUD(Ride, {
       // @todo: Add right on max
       const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
 
-      const total = await Ride.countDocuments(ctx.filters);
-      const data = await Ride.find(ctx.filters).skip(offset).limit(limit).lean();
+      const total = await Ride.countDocumentsWithin(ctx.query.filters);
+      const data = await Ride.findWithin(ctx.query.filters).skip(offset).limit(limit).lean();
 
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,

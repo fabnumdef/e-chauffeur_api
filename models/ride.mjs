@@ -157,6 +157,87 @@ RideSchema.statics.castId = (v) => {
   }
 };
 
+RideSchema.statics.formatFilters = function (rawFilters) {
+  const filters = Object.keys(rawFilters).map((key) => ({ [key]: rawFilters[key] }));
+  let alreadySet = false;
+
+  const queryFilter = filters.reduce((acc, current) => {
+    const newAcc = { ...acc };
+    const key = Object.keys(current).join('');
+    switch (key) {
+      case 'userId':
+        newAcc.$and = [
+          ...acc.$and,
+          {
+            'owner._id': current.userId,
+          },
+        ];
+        break;
+      // fall-through on purpose
+      // eslint-disable-next-line no-fallthrough
+      case 'start':
+      case 'end': {
+        const startAndEnd = filters
+          .filter((filter) => (filter.start || filter.end));
+
+        if (startAndEnd.length < 2) {
+          const err = new Error();
+          err.status = 404;
+          err.message = 'Start and end not found';
+          throw err;
+        }
+        if (alreadySet) {
+          return acc;
+        }
+
+        alreadySet = true;
+
+        newAcc.$and = [
+          ...acc.$and,
+          {
+            ...this.filtersWithin(
+              startAndEnd.find((obj) => obj.start).start,
+              startAndEnd.find((obj) => obj.end).end,
+            ),
+          },
+        ];
+        break;
+      }
+      case 'current': {
+        let queryType = '$nor';
+        if (current.current === 'false') {
+          queryType = '$and';
+        }
+
+        newAcc.$and = [
+          ...acc.$and,
+          {
+            [queryType]: [
+              {
+                status: 'delivered',
+              },
+            ],
+          },
+        ];
+        break;
+      }
+      default:
+        newAcc.$and = [
+          ...acc.$and,
+          {
+            ...current,
+          },
+        ];
+    }
+    return newAcc;
+  }, { $and: [] });
+
+  if (queryFilter.$and.length < 1) {
+    return rawFilters;
+  }
+  return queryFilter;
+};
+
 RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
   const filters = f;
   filters.$or = [
@@ -200,16 +281,16 @@ RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
   return filters;
 };
 
-RideSchema.statics.findWithin = function findWithin(start, end, filters = {}, ...rest) {
+RideSchema.statics.findWithin = function findWithin(filters = {}, ...rest) {
   return this.find(
-    this.filtersWithin(start, end, filters),
+    this.formatFilters(filters),
     ...rest,
   );
 };
 
-RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, end, filters = {}, ...rest) {
+RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(filters = {}, ...rest) {
   return this.countDocuments(
-    this.filtersWithin(start, end, filters),
+    this.formatFilters(filters),
     ...rest,
   );
 };
