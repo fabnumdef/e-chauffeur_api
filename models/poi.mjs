@@ -36,33 +36,26 @@ PoiSchema.virtual('campus.id')
   });
 
 PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams, searchParams) {
-  const queryFilter = { ...rawFilters };
+  let queryFilter = { ...rawFilters };
 
   if (queryFilter.enabled !== 'true') {
-    queryFilter.$or = [
-      { enabled: { $ne: false } },
-      { enabled: { $exists: false } },
-    ];
+    queryFilter = {
+      ...queryFilter,
+      enabled: { $ne: false },
+    };
   }
 
   delete queryFilter.enabled;
 
   if (queryParams && searchParams) {
-    queryFilter.$and = [
-      { $or: [...queryFilter.$or] },
+    queryFilter.$or = [
       {
-        $or: [
-          {
-            _id: new RegExp(searchParams, 'i'),
-          },
-          {
-            label: new RegExp(searchParams, 'i'),
-          },
-        ],
+        _id: new RegExp(searchParams, 'i'),
+      },
+      {
+        label: new RegExp(searchParams, 'i'),
       },
     ];
-
-    delete queryFilter.$or;
   }
 
   if (queryFilter.length < 1) {
