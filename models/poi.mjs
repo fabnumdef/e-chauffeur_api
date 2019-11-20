@@ -45,8 +45,6 @@ PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams
     };
   }
 
-  delete queryFilter.enabled;
-
   if (queryParams && searchParams) {
     queryFilter.$or = [
       {
