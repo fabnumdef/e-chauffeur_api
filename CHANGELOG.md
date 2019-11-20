@@ -6,6 +6,7 @@
 * User can delete his own account
 * Add push notifications
 ### Fix
+* rides and ratings routes tests
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 
