@@ -9,6 +9,7 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import nanoid from 'nanoid/generate';
 import gliphone from 'google-libphonenumber';
+import Luxon from 'luxon';
 import config from '../services/config';
 import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
 import { sendVerificationSMS } from '../services/twilio';
@@ -26,6 +27,7 @@ import {
 } from './rights';
 import * as rolesImport from './role';
 
+const { DateTime } = Luxon;
 const { normalizeEmail } = validator;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const {
@@ -66,6 +68,7 @@ const UserSchema = new Schema({
   firstname: String,
   lastname: String,
   password: String,
+  passwordExpiration: Date,
   phone: {
     original: String,
     canonical: String,
@@ -142,6 +145,9 @@ UserSchema.pre('save', function preSave(next) {
     .hash(this.password, SALT_WORK_FACTOR)
     .then((password) => {
       this.password = password;
+      if (!this.isModified('passwordExpiration')) {
+        this.passwordExpiration = DateTime.local().plus({ months: 4 }).toJSDate();
+      }
       next();
     })
     .catch((err) => next(err));
@@ -173,6 +179,9 @@ UserSchema.methods.toCleanObject = function toCleanObject(...params) {
 };
 
 UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
+  if (this.passwordExpiration && this.passwordExpiration < new Date()) {
+    throw new ExpiredPasswordError('Password expired');
+  }
   const u = this.toCleanObject({ versionKey: false });
   u.id = u._id;
   u.isRenewable = isRenewable;
