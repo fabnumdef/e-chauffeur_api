@@ -144,3 +144,6 @@ export const CAN_REMOVE_TIME_SLOT = campusRule('CAN_REMOVE_TIME_SLOT');
 
 export const CAN_ACCESS_OWN_DATA_ON_RIDE = ownedRideRule('CAN_ACCESS_OWN_DATA_ON_RIDE');
 export const CAN_ACCESS_PERSONAL_DATA_ON_RIDE = campusRule('CAN_ACCESS_PERSONAL_DATA_ON_RIDE');
+
+export const CAN_CREATE_RATING = stdRule('CAN_CREATE_RATING');
+export const CAN_LIST_RATING = stdRule('CAN_LIST_RATING');

@@ -10,6 +10,7 @@
 * Add SMS on refusal
 * Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
+* Add rating form route and model
 * User can delete his own account
 * Standardize email content
 ### Fix
