@@ -35,7 +35,7 @@ PoiSchema.virtual('campus.id')
     this.campus._id = id;
   });
 
-PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams, searchParams) {
+PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams) {
   let queryFilter = { ...rawFilters };
 
   if (queryFilter.enabled !== 'true') {
@@ -43,17 +43,17 @@ PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams
       ...queryFilter,
       enabled: { $ne: false },
     };
+  } else {
+    delete queryFilter.enabled;
   }
 
-  delete queryFilter.enabled;
-
-  if (queryParams && searchParams) {
+  if (queryParams && queryParams.search) {
     queryFilter.$or = [
       {
-        _id: new RegExp(searchParams, 'i'),
+        _id: new RegExp(queryParams.search, 'i'),
       },
       {
-        label: new RegExp(searchParams, 'i'),
+        label: new RegExp(queryParams.search, 'i'),
       },
     ];
   }
