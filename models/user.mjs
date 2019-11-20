@@ -39,6 +39,8 @@ const {
 const SALT_WORK_FACTOR = 10;
 const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
+const PASSWORD_TEST = /.{8,}/;
+export class ExpiredPasswordError extends Error {}
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
@@ -112,6 +114,7 @@ UserSchema.pre('validate', function preValidate() {
     this.email = normalizeEmail(this.email);
   }
 });
+
 UserSchema.pre('save', function preSave(next) {
   if (this.isModified('phone.original')) {
     if (this.phone.original && this.phone.original.length) {
@@ -122,13 +125,19 @@ UserSchema.pre('save', function preSave(next) {
     this.phone.confirmed = false;
   }
 
-  if (!this.isModified('password') || !this.password) {
-    next();
-  }
   if (this.isModified('email')) {
     this.email_confirmed = false;
   }
   this.tokens = this.activeTokens;
+
+  if (!this.isModified('password') || !this.password) {
+    next();
+  }
+
+  if (!PASSWORD_TEST.test(this.password)) {
+    throw new Error('Password should match security criteria');
+  }
+
   bcrypt
     .hash(this.password, SALT_WORK_FACTOR)
     .then((password) => {
