@@ -37,15 +37,7 @@ router.get(
   resolveRights(CAN_GET_CAMPUS_USER),
   maskOutput,
   async (ctx) => {
-    try {
-      ctx.body = await Campus.findUser(ctx.params.campus_id, ctx.params.id);
-    } catch (e) {
-      if (e.name === 'CastError') {
-        ctx.throw_and_log(500, e.message);
-      } else {
-        ctx.throw_and_log(...addDomainInError(e));
-      }
-    }
+    ctx.body = await Campus.findUser(ctx.params.campus_id, ctx.params.id);
     if (!ctx.body) {
       ctx.throw_and_log(404, `User "${ctx.params.id}" not found`)();
     }
@@ -143,7 +135,11 @@ router.patch(
       );
     }
     user.set(body);
-    ctx.body = await user.save();
+    try {
+      ctx.body = await user.save();
+    } catch (e) {
+      ctx.throw_and_log(...addDomainInError(e));
+    }
   },
 );
 
