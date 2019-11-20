@@ -19,27 +19,23 @@ let toDropAfter = [];
 
 describe('Test the rating API endpoint', async () => {
   before(async () => {
-    try {
-      const dummyCampus = await createDummyCampus();
-      const dummyDeparture = await createDummyPoi();
-      const dummyArrival = await createDummyPoi();
-      const newRide = generateDummyRide({
-        start: new Date(),
-        end: new Date(),
-        campus: dummyCampus,
-        departure: dummyDeparture,
-        arrival: dummyArrival,
-      });
-      const dummyRide = await Ride.create(newRide);
-      toDropAfter = [
-        dummyCampus,
-        dummyDeparture,
-        dummyArrival,
-        dummyRide,
-      ];
-    } catch (err) {
-      throw new Error(err);
-    }
+    const dummyCampus = await createDummyCampus();
+    const dummyDeparture = await createDummyPoi();
+    const dummyArrival = await createDummyPoi();
+    const newRide = generateDummyRide({
+      start: new Date(),
+      end: new Date(),
+      campus: dummyCampus,
+      departure: dummyDeparture,
+      arrival: dummyArrival,
+    });
+    const dummyRide = await Ride.create(newRide);
+    toDropAfter = [
+      dummyCampus,
+      dummyDeparture,
+      dummyArrival,
+      dummyRide,
+    ];
   });
 
   it(...testCreate(Rating, {
