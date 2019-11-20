@@ -32,55 +32,12 @@ const router = generateCRUD(Poi, {
       campus: 'campus._id',
       withDisabled: 'enabled',
     },
-    middlewares: [
-      async (ctx, next) => {
-        const { enabled } = ctx.filters;
-        if (!enabled || enabled === 'false') {
-          ctx.filters.enabled = { $ne: false };
-        } else {
-          delete ctx.filters.enabled;
-        }
-        await next();
-      },
-      async (ctx, next) => {
-        const filters = Object.keys(ctx.filters).map((key) => ({
-          [key]: ctx.filters[key],
-        }));
-
-        if (filters.length > 0) {
-          ctx.filters = {
-            $and: [
-              ...filters,
-            ],
-          };
-        }
-
-        await next();
-      },
-      async (ctx, next) => {
-        const searchParams = ctx.filters;
-        if (ctx.query && ctx.query.search) {
-          searchParams.$or = [
-            {
-              _id: new RegExp(ctx.query.search, 'i'),
-            },
-            {
-              label: new RegExp(ctx.query.search, 'i'),
-            },
-          ];
-        }
-        ctx.filters = searchParams;
-        await next();
-      },
-    ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
 
-      await Poi.processDocumentsToAddEnable();
-
       const [total, data] = await Promise.all([
-        Poi.countDocuments(ctx.filters),
-        Poi.find(ctx.filters).skip(offset).limit(limit).lean(),
+        Poi.countDocumentsWithin(ctx.filters, ctx.query, ctx.query.search),
+        Poi.findWithin(ctx.filters, ctx.query, ctx.query.search).skip(offset).limit(limit).lean(),
       ]);
 
       ctx.log(

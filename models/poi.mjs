@@ -35,6 +35,37 @@ PoiSchema.virtual('campus.id')
     this.campus._id = id;
   });
 
+PoiSchema.statics.formatFilters = function (rawFilters, queryParams, searchParams) {
+  let queryFilter;
+  const filters = Object.keys(rawFilters).map((key) => ({
+    [key]: rawFilters[key],
+  }));
+
+  if (!filters.enabled || filters.enabled === 'false') {
+    filters.enabled = { $ne: false };
+  }
+
+  if (filters.length > 0) {
+    queryFilter = {
+      $and: [
+        ...filters,
+      ],
+    };
+  }
+
+  if (queryParams && searchParams) {
+    queryFilter.$or = [
+      {
+        _id: new RegExp(searchParams, 'i'),
+      },
+      {
+        label: new RegExp(searchParams, 'i'),
+      },
+    ];
+  }
+  return queryFilter;
+};
+
 PoiSchema.statics.processDocumentsToAddEnable = async function () {
   const docs = await this.find();
   await Promise.all(docs.map(async (doc) => {
