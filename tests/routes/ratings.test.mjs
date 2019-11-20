@@ -24,45 +24,13 @@ const config = {
 };
 
 describe('Test the rating API endpoint', async () => {
-  const toDropLater = [];
   before(async () => {
     try {
-      const dummyCampus = await createDummyCampus();
-      toDropLater.push(dummyCampus);
-
-
-      const dummyCarModel = await createDummyCarModel();
-      toDropLater.push(dummyCarModel);
-
-      const dummyCar = await createDummyCar({
-        model: dummyCarModel,
-        campus: dummyCampus,
-      });
-      toDropLater.push(dummyCar);
-
-      const dummyDeparture = await createDummyPoi();
-      const dummyArrival = await createDummyPoi();
-      toDropLater.push(dummyDeparture);
-      toDropLater.push(dummyArrival);
-
-      const dummyDriver = generateDummyUser();
-      const dummyCategory = generateDummyCategory();
-      const date = DateTime.local();
       const dummyRide = generateDummyRide({
-        campus: dummyCampus,
-        car: dummyCar,
-        driver: dummyDriver,
-        departure: dummyDeparture,
-        arrival: dummyArrival,
-        category: dummyCategory,
-        start: date.minus(tenMinutes)
-          .toJSDate(),
-        end: date.plus(tenMinutes)
-          .toJSDate(),
+        start: new Date(),
+        end: new Date(),
       });
-      const rideModel = new Ride(dummyRide);
-      const savedRide = await rideModel.save();
-      toDropLater.push(savedRide);
+      await Ride.create(dummyRide);
     } catch (e) {
       throw new Error('Ride creation failed');
     }
@@ -79,6 +47,7 @@ describe('Test the rating API endpoint', async () => {
   }));
 
   after(async () => {
-    await Promise.all(toDropLater.map((entity) => entity.remove()));
+    const rides = await Ride.find();
+    await Promise.all(rides.map(({ _id }) => Ride.deleteOne({ _id })));
   });
 });
