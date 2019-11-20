@@ -1,6 +1,7 @@
 import camelCase from 'lodash.camelcase';
 import lGet from 'lodash.get';
 import mask from 'json-mask';
+import Luxon from 'luxon';
 import {
   CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
 } from '../models/status';
@@ -9,6 +10,7 @@ import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
+import NotificationDevice from '../models/notification-device';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
@@ -25,6 +27,8 @@ import {
   CAN_EDIT_OWNED_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
+
+const { DateTime } = Luxon;
 
 function ioEmit(ctx, data, eventName = '', rooms = []) {
   let { app: { io } } = ctx;
@@ -50,7 +54,7 @@ const router = generateCRUD(Ride, {
         delete body.status;
         body.owner = user;
       }
-      const ride = await Ride.create(Object.assign(body));
+      const ride = await Ride.create(body);
       ctx.body = ride;
       if (!ctx.may(CAN_CREATE_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
@@ -61,6 +65,20 @@ const router = generateCRUD(Ride, {
         `campus/${ride.campus.id}`,
         `driver/${ride.driver.id}`,
       ]);
+      // Todo: add this to a queue system to ensure this will be executed
+      NotificationDevice.findOneByUser(ride.driver.id).then((device) => {
+        if (device) {
+          const payload = {
+            message: `Nouvelle course à ${DateTime.fromJSDate(ride.start).setLocale('fr').toFormat('HH\'h\'mm')}`,
+            body: `De ${ride.departure.label} à ${ride.arrival.label}`,
+          };
+          device.notify(payload).catch((e) => {
+            if (e.name === 'WebPushError') {
+              NotificationDevice.deleteOne({ _id: device._id.toString() }).exec();
+            }
+          });
+        }
+      });
     },
   },
   update: {
@@ -115,6 +133,7 @@ const router = generateCRUD(Ride, {
     preMiddlewares: [
       prefetchRideMiddleware(),
     ],
+    lean: false,
     right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
       const { params: { id } } = ctx;
@@ -132,6 +151,7 @@ const router = generateCRUD(Ride, {
     },
   },
   list: {
+    lean: false,
     right: CAN_LIST_RIDE,
     filters: {
       campus: 'campus._id',

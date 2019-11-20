@@ -32,5 +32,9 @@
     "subject": "E-chauffeur : :firstname :lastname (:email)"
   },
   "whitelist_domains": ["def.gouv.fr"],
-  "default_timezone": "Europe/Paris"
+  "default_timezone": "Europe/Paris",
+  "vapid": {
+    "public_key": "",
+    "private_key": ""
+  }
 }

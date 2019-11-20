@@ -9,6 +9,7 @@
     "serve": "LOG=database node --experimental-modules --es-module-specifier-resolution=node server.mjs",
     "nodemon": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
+    "generate-vapid": "node generate-vapid-key.js",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules --es-module-specifier-resolution=node tests/generate-state-schema.js",
     "import-fixtures": "node --experimental-modules --es-module-specifier-resolution=node fixtures"
@@ -45,7 +46,10 @@
     "lodash.omit": "^4.5.0",
     "lodash.omitby": "^4.6.0",
     "lodash.orderby": "^4.6.0",
+    "lodash.pickby": "^4.6.0",
+    "lodash.set": "^4.3.2",
     "lodash.transform": "^4.6.0",
+    "lodash.xor": "^4.5.0",
     "luxon": "^1.21.1",
     "mongoose": "^5.7.10",
     "nanoid": "^2.1.6",
@@ -60,6 +64,7 @@
     "timezone-validator": "^1.0.2",
     "twilio": "^3.37.0",
     "validator": "^11.1.0",
+    "web-push": "^3.4.1",
     "winston": "^3.2.1",
     "winston-mongodb": "^5.0.1"
   },
