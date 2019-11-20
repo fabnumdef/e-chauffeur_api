@@ -5,6 +5,8 @@
 * Add rating form route and model
 * Add push notifications
 * User can delete his own account
+* Add password constraint
+* Add password expiration
 ### Fix
 * rides and ratings routes tests
 ## Version 1.4.3
