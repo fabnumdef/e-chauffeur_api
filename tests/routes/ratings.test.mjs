@@ -8,13 +8,14 @@ import {
   generateAnonymousJWTHeader,
 } from '../request';
 import Ride, { generateDummyRide } from '../models/ride';
-import Campus, { createDummyCampus } from '../models/campus';
-import Poi, { createDummyPoi } from '../models/poi';
+import { createDummyCampus } from '../models/campus';
+import { createDummyPoi } from '../models/poi';
 
 const config = {
   route: '/ratings',
   generateDummyObject: generateDummyRating,
 };
+let toDropAfter = [];
 
 describe('Test the rating API endpoint', async () => {
   before(async () => {
@@ -29,7 +30,13 @@ describe('Test the rating API endpoint', async () => {
         departure: dummyDeparture,
         arrival: dummyArrival,
       });
-      await Ride.create(newRide);
+      const dummyRide = await Ride.create(newRide);
+      toDropAfter = [
+        dummyCampus,
+        dummyDeparture,
+        dummyArrival,
+        dummyRide,
+      ];
     } catch (err) {
       throw new Error(err);
     }
@@ -46,12 +53,6 @@ describe('Test the rating API endpoint', async () => {
   }));
 
   after(async () => {
-    const rides = await Ride.find();
-    const pois = await Poi.find();
-    const campuses = await Campus.find();
-
-    await Promise.all(rides.map(({ _id }) => Ride.deleteOne({ _id })));
-    await Promise.all(pois.map(({ _id }) => Poi.deleteOne({ _id })));
-    await Promise.all(campuses.map(({ _id }) => Campus.deleteOne({ _id })));
+    await Promise.all(toDropAfter.map((entity) => entity.remove()));
   });
 });
