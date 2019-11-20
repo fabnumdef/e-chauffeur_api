@@ -35,7 +35,7 @@ PoiSchema.virtual('campus.id')
     this.campus._id = id;
   });
 
-PoiSchema.statics.formatFilters = function (rawFilters, queryParams, searchParams) {
+PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams, searchParams) {
   let queryFilter;
   const filters = Object.keys(rawFilters).map((key) => ({
     [key]: rawFilters[key],
@@ -63,6 +63,7 @@ PoiSchema.statics.formatFilters = function (rawFilters, queryParams, searchParam
       },
     ];
   }
+  console.log(queryFilter);
   return queryFilter;
 };
 
