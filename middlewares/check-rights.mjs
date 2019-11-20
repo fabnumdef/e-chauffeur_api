@@ -27,7 +27,8 @@ export const injectUserMayMiddleware = async (ctx, next) => {
   ctx.may = function userMay(right, ...params) {
     return list.reduce(
       (acc, row) => acc || (
-        roles[row.role].has(right)
+        row
+        && [...roles[row.role]].find((r) => r && right && r.id === right.id)
         && right.rule(
           row,
           ctx,

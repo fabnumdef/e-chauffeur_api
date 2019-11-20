@@ -8,6 +8,7 @@ import {
   CAN_GET_USER,
   CAN_LIST_USER,
   CAN_REMOVE_USER,
+  CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 } from '../models/rights';
 import config from '../services/config';
 
@@ -181,7 +182,11 @@ const router = generateCRUD(User, {
       if (!user.email_confirmed && body.email && body.email_token) {
         await user.confirmEmail(body.email_token);
       }
-
+      ctx.assert(
+        ctx.may(CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS, user),
+        403,
+        'You\'re not authorized to update this user',
+      );
       ctx.body = await user.save();
 
       if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false')) {
