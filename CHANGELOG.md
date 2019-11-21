@@ -16,6 +16,8 @@
 * Add SMS on refusal
 * Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
+* Add filter management to pois list route
+* Add enabled field to Poi model
 * Add right to list user own rides and delete it
 * Standardize email content
 ### Fix

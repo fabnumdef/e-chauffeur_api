@@ -19,6 +19,10 @@ const PoiSchema = new Schema({
     _id: { type: String },
     name: String,
   },
+  enabled: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 PoiSchema.plugin(createdAtPlugin);
@@ -31,6 +35,44 @@ PoiSchema.virtual('campus.id')
     this.campus._id = id;
   });
 
+PoiSchema.statics.formatFilters = function formatFilters(rawFilters, queryParams) {
+  let queryFilter = { ...rawFilters };
+
+  if (queryFilter.enabled !== 'true') {
+    queryFilter = {
+      ...queryFilter,
+      enabled: { $ne: false },
+    };
+  } else {
+    delete queryFilter.enabled;
+  }
+
+  if (queryParams && queryParams.search) {
+    queryFilter.$or = [
+      {
+        _id: new RegExp(queryParams.search, 'i'),
+      },
+      {
+        label: new RegExp(queryParams.search, 'i'),
+      },
+    ];
+  }
+
+  if (queryFilter.length < 1) {
+    return null;
+  }
+  return queryFilter;
+};
+
+PoiSchema.statics.countDocumentsWithin = function countDocumentsWithin(...params) {
+  const filter = this.formatFilters(...params);
+  return this.countDocuments(filter);
+};
+
+PoiSchema.statics.findWithin = function findWithin(...params) {
+  const filter = this.formatFilters(...params);
+  return this.find(filter);
+};
 
 PoiSchema.index({
   _id: 'text',
