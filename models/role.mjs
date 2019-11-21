@@ -1,22 +1,38 @@
+// eslint-disable-next-line import/no-cycle
 import * as rights from './rights';
 
 class RoleList extends Set {
-  constructor(...items) {
-    super(items);
+  constructor(name, ...items) {
+    super(items.reduce((acc, row) => acc.concat(row instanceof Set ? Array.from(row) : row), []));
+    this.name = name;
+    this.inheritance = items.filter((i) => i instanceof Set);
+  }
+
+  get inheritanceList() {
+    return this.inheritance.concat(this.inheritance.reduce((acc, list) => acc.concat(list.inheritanceList), []));
+  }
+
+  hasRoleInInheritance(role) {
+    return this.inheritanceList.reduce((bool, row) => bool || row.name === role, false);
   }
 }
+const roles = {};
 
 export const ROLE_ANONYMOUS = new RoleList(
+  'ROLE_ANONYMOUS',
   rights.CAN_LOGIN,
   rights.CAN_GET_RIDE_WITH_TOKEN,
   rights.CAN_GET_RIDE_POSITION,
   rights.CAN_LIST_CAMPUS_BASIC,
   rights.CAN_SEND_CREATION_TOKEN,
+  rights.CAN_CREATE_RATING,
 );
+roles.ROLE_ANONYMOUS = ROLE_ANONYMOUS;
 
 export const ROLE_USER = new RoleList(
-  ...ROLE_ANONYMOUS,
-
+  'ROLE_USER',
+  ROLE_ANONYMOUS,
+  rights.CAN_ACCESS_OWN_DATA_ON_RIDE,
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
   rights.CAN_GET_CAMPUS_BASIC,
@@ -25,15 +41,22 @@ export const ROLE_USER = new RoleList(
   rights.CAN_GET_OWNED_RIDE,
   rights.CAN_EDIT_OWNED_RIDE,
   rights.CAN_EDIT_OWNED_RIDE_STATUS,
+  rights.CAN_LIST_SELF_RIDE,
+  rights.CAN_DELETE_SELF_RIDE,
 
   rights.CAN_GET_POI_LOCAL,
   rights.CAN_LIST_POI_LOCAL,
   rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
+
+  rights.CAN_REMOVE_SELF_USER,
+  rights.CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 );
+roles.ROLE_USER = ROLE_USER;
 
 export const ROLE_DRIVER = new RoleList(
-  ...ROLE_USER,
+  'ROLE_DRIVER',
+  ROLE_USER,
   rights.CAN_GET_CAMPUS,
   rights.CAN_LIST_CAMPUS,
 
@@ -48,10 +71,12 @@ export const ROLE_DRIVER = new RoleList(
   rights.CAN_EDIT_RIDE_STATUS,
   rights.CAN_LIST_CAMPUS_DRIVER_RIDE,
 );
+roles.ROLE_DRIVER = ROLE_DRIVER;
 
 export const ROLE_REGULATOR = new RoleList(
-  ...ROLE_DRIVER,
-
+  'ROLE_REGULATOR',
+  ROLE_DRIVER,
+  rights.CAN_ACCESS_PERSONNAL_DATA_ON_RIDE,
   rights.CAN_LIST_USER,
   rights.CAN_GET_USER,
   rights.CAN_EDIT_USER,
@@ -103,10 +128,11 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_EDIT_TIME_SLOT,
   rights.CAN_REMOVE_TIME_SLOT,
 );
+roles.ROLE_REGULATOR = ROLE_REGULATOR;
 
 export const ROLE_ADMIN = new RoleList(
-  ...ROLE_REGULATOR,
-
+  'ROLE_ADMIN',
+  ROLE_REGULATOR,
   rights.CAN_EDIT_POI_LOCAL,
   rights.CAN_CREATE_POI_LOCAL,
   rights.CAN_REMOVE_POI_LOCAL,
@@ -126,10 +152,11 @@ export const ROLE_ADMIN = new RoleList(
 
   rights.CAN_EDIT_USER_SENSITIVE_DATA,
 );
+roles.ROLE_ADMIN = ROLE_ADMIN;
 
 export const ROLE_SUPERADMIN = new RoleList(
-  ...ROLE_ADMIN,
-
+  'ROLE_SUPERADMIN',
+  ROLE_ADMIN,
   rights.CAN_EDIT_CAR_MODEL,
   rights.CAN_CREATE_CAR_MODEL,
   rights.CAN_REMOVE_CAR_MODEL,
@@ -168,4 +195,11 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_ADD_ROLE_DRIVER,
 
   rights.CAN_LIST_ALL_CAMPUSES,
+
+  rights.CAN_LIST_RATING,
 );
+roles.ROLE_SUPERADMIN = ROLE_SUPERADMIN;
+
+export const keys = Object.keys(roles)
+  .map((r) => ({ [r]: roles[r].name }))
+  .reduce((acc, r) => Object.assign(acc, r), {});
