@@ -5,7 +5,7 @@ import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
 import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from './rights';
-import stateMachine, { DRAFTED } from './status';
+import stateMachine, { DRAFTED, DELIVERED } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
@@ -176,9 +176,45 @@ RideSchema.statics.castId = (v) => {
   }
 };
 
-RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
-  const filters = f;
-  filters.$or = [
+RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilter) {
+  let filter = {
+    ...rawFilters,
+    ...queryFilter,
+    ...this.filtersWithin(queryFilter.start, queryFilter.end),
+  };
+
+  delete filter.start;
+  delete filter.end;
+
+
+  if (filter.current) {
+    let status;
+    if (filter.current === 'false') {
+      status = { status: DELIVERED };
+    } else {
+      status = { $nor: [{ status: DELIVERED }] };
+    }
+
+    filter = {
+      ...filter,
+      ...status,
+    };
+
+    delete filter.current;
+  }
+
+
+  if (!filter) {
+    return null;
+  }
+  return filter;
+};
+
+RideSchema.statics.filtersWithin = function filtersWithin(rawStart, rawEnd) {
+  const queryFilter = {};
+  const start = new Date(rawStart);
+  const end = new Date(rawEnd);
+  queryFilter.$or = [
     {
       start: {
         $lte: start,
@@ -216,21 +252,15 @@ RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
       },
     },
   ];
-  return filters;
+  return queryFilter;
 };
 
-RideSchema.statics.findWithin = function findWithin(start, end, filters = {}, ...rest) {
-  return this.find(
-    this.filtersWithin(start, end, filters),
-    ...rest,
-  );
+RideSchema.statics.findWithin = function findWithin(...params) {
+  return this.find(this.formatFilters(...params));
 };
 
-RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, end, filters = {}, ...rest) {
-  return this.countDocuments(
-    this.filtersWithin(start, end, filters),
-    ...rest,
-  );
+RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(...params) {
+  return this.countDocuments(this.formatFilters(...params));
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {

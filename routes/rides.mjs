@@ -18,13 +18,14 @@ import {
   CAN_EDIT_RIDE_STATUS,
   CAN_GET_RIDE,
   CAN_GET_RIDE_POSITION,
-  CAN_LIST_RIDE,
+  CAN_LIST_RIDE, CAN_LIST_SELF_RIDE,
 
   CAN_REQUEST_RIDE,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE_STATUS,
   CAN_EDIT_OWNED_RIDE,
+  CAN_DELETE_SELF_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
 
@@ -152,9 +153,10 @@ const router = generateCRUD(Ride, {
   },
   list: {
     lean: false,
-    right: CAN_LIST_RIDE,
+    right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
     filters: {
       campus: 'campus._id',
+      userId: 'owner._id',
     },
     middlewares: [
       contentNegociation,
@@ -194,11 +196,10 @@ const router = generateCRUD(Ride, {
     async main(ctx) {
       // @todo: Add right on max
       const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
-      const start = new Date(ctx.query.filters.start);
-      const end = new Date(ctx.query.filters.end);
 
-      const total = await Ride.countDocumentsWithin(start, end, ctx.filters);
-      const data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
+      const total = await Ride.countDocumentsWithin(ctx.filters, ctx.query.filters);
+      const data = await Ride.findWithin(ctx.filters, ctx.query.filters).skip(offset).limit(limit);
+
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,
       });
@@ -210,6 +211,9 @@ const router = generateCRUD(Ride, {
         { filters: ctx.filters, offset, limit },
       );
     },
+  },
+  delete: {
+    right: CAN_DELETE_SELF_RIDE,
   },
 });
 

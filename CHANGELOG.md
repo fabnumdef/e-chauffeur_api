@@ -16,6 +16,7 @@
 * Add SMS on refusal
 * Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
+* Add right to list user own rides and delete it
 * Standardize email content
 ### Fix
 * Fix potential leak of hashed password

@@ -41,6 +41,8 @@ export const ROLE_USER = new RoleList(
   rights.CAN_GET_OWNED_RIDE,
   rights.CAN_EDIT_OWNED_RIDE,
   rights.CAN_EDIT_OWNED_RIDE_STATUS,
+  rights.CAN_LIST_SELF_RIDE,
+  rights.CAN_DELETE_SELF_RIDE,
 
   rights.CAN_GET_POI_LOCAL,
   rights.CAN_LIST_POI_LOCAL,
