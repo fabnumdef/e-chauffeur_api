@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import nanoid from 'nanoid/generate';
 import gliphone from 'google-libphonenumber';
+import Luxon from 'luxon';
 import config from '../services/config';
 import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
 import { sendVerificationSMS } from '../services/twilio';
@@ -26,6 +27,7 @@ import {
 } from './rights';
 import * as rolesImport from './role';
 
+const { DateTime } = Luxon;
 const { normalizeEmail } = validator;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const {
@@ -40,6 +42,8 @@ const MODEL_NAME = 'User';
 const SALT_WORK_FACTOR = 10;
 const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
+const PASSWORD_TEST = /.{8,}/;
+export class ExpiredPasswordError extends Error {}
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
@@ -68,6 +72,7 @@ const UserSchema = new Schema({
     type: String,
     canEmit: false,
   },
+  passwordExpiration: Date,
   phone: {
     original: String,
     canonical: String,
@@ -117,6 +122,7 @@ UserSchema.pre('validate', function preValidate() {
     this.email = normalizeEmail(this.email);
   }
 });
+
 UserSchema.pre('save', function preSave(next) {
   if (this.isModified('phone.original')) {
     if (this.phone.original && this.phone.original.length) {
@@ -127,17 +133,26 @@ UserSchema.pre('save', function preSave(next) {
     this.phone.confirmed = false;
   }
 
-  if (!this.isModified('password') || !this.password) {
-    next();
-  }
   if (this.isModified('email')) {
     this.email_confirmed = false;
   }
   this.tokens = this.activeTokens;
+
+  if (!this.isModified('password') || !this.password) {
+    next();
+  }
+
+  if (!PASSWORD_TEST.test(this.password)) {
+    throw new Error('Password should match security criteria');
+  }
+
   bcrypt
     .hash(this.password, SALT_WORK_FACTOR)
     .then((password) => {
       this.password = password;
+      if (!this.isModified('passwordExpiration')) {
+        this.passwordExpiration = DateTime.local().plus({ months: 4 }).toJSDate();
+      }
       next();
     })
     .catch((err) => next(err));
@@ -165,6 +180,9 @@ UserSchema.virtual('activeTokens')
   });
 
 UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
+  if (this.passwordExpiration && this.passwordExpiration < new Date()) {
+    throw new ExpiredPasswordError('Password expired');
+  }
   const u = this.toCleanObject({ versionKey: false });
   u.id = u._id;
   u.isRenewable = isRenewable;

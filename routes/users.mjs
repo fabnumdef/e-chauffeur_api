@@ -1,5 +1,6 @@
 import generateCRUD from '../helpers/abstract-route';
 import User from '../models/user';
+import NotificationDevice from '../models/notification-device';
 import {
   CAN_CREATE_USER, CAN_EDIT_SELF_USER_NAME, CAN_EDIT_SELF_USER_PASSWORD,
   CAN_SEND_CREATION_TOKEN,
@@ -220,5 +221,17 @@ const router = generateCRUD(User, {
     },
   },
 });
+
+router.post(
+  '/:userId/subscribe-device',
+  async (ctx) => {
+    const { request: { body } } = ctx;
+    body.user = {
+      _id: ctx.params.userId,
+    };
+    await NotificationDevice.findOneAndUpdateByUser(body);
+    ctx.status = 204;
+  },
+);
 
 export default router.routes();
