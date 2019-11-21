@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import omit from 'lodash.omit';
 import orderBy from 'lodash.orderby';
 import chunk from 'lodash.chunk';
 import differenceWith from 'lodash.differencewith';
@@ -9,10 +8,12 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import nanoid from 'nanoid/generate';
 import gliphone from 'google-libphonenumber';
+import Luxon from 'luxon';
 import config from '../services/config';
 import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } from '../services/mail';
 import { sendVerificationSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
+import cleanObjectPlugin from './helpers/object-cleaner';
 import {
   CAN_ADD_ROLE_ADMIN,
   CAN_ADD_ROLE_DRIVER,
@@ -26,6 +27,7 @@ import {
 } from './rights';
 import * as rolesImport from './role';
 
+const { DateTime } = Luxon;
 const { normalizeEmail } = validator;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const {
@@ -36,9 +38,12 @@ const {
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
+const MODEL_NAME = 'User';
 const SALT_WORK_FACTOR = 10;
 const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
+const PASSWORD_TEST = /.{8,}/;
+export class ExpiredPasswordError extends Error {}
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
@@ -63,7 +68,11 @@ const UserSchema = new Schema({
   },
   firstname: String,
   lastname: String,
-  password: String,
+  password: {
+    type: String,
+    canEmit: false,
+  },
+  passwordExpiration: Date,
   phone: {
     original: String,
     canonical: String,
@@ -106,12 +115,14 @@ const UserSchema = new Schema({
 });
 
 UserSchema.plugin(createdAtPlugin);
+UserSchema.plugin(cleanObjectPlugin, MODEL_NAME);
 
 UserSchema.pre('validate', function preValidate() {
   if (this.isModified('email')) {
     this.email = normalizeEmail(this.email);
   }
 });
+
 UserSchema.pre('save', function preSave(next) {
   if (this.isModified('phone.original')) {
     if (this.phone.original && this.phone.original.length) {
@@ -122,17 +133,26 @@ UserSchema.pre('save', function preSave(next) {
     this.phone.confirmed = false;
   }
 
-  if (!this.isModified('password') || !this.password) {
-    next();
-  }
   if (this.isModified('email')) {
     this.email_confirmed = false;
   }
   this.tokens = this.activeTokens;
+
+  if (!this.isModified('password') || !this.password) {
+    next();
+  }
+
+  if (!PASSWORD_TEST.test(this.password)) {
+    throw new Error('Password should match security criteria');
+  }
+
   bcrypt
     .hash(this.password, SALT_WORK_FACTOR)
     .then((password) => {
       this.password = password;
+      if (!this.isModified('passwordExpiration')) {
+        this.passwordExpiration = DateTime.local().plus({ months: 4 }).toJSDate();
+      }
       next();
     })
     .catch((err) => next(err));
@@ -159,11 +179,10 @@ UserSchema.virtual('activeTokens')
     return firsts;
   });
 
-UserSchema.methods.toCleanObject = function toCleanObject(...params) {
-  return omit(this.toObject ? this.toObject(...params) : this, ['password']);
-};
-
 UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
+  if (this.passwordExpiration && this.passwordExpiration < new Date()) {
+    throw new ExpiredPasswordError('Password expired');
+  }
   const u = this.toCleanObject({ versionKey: false });
   u.id = u._id;
   u.isRenewable = isRenewable;
@@ -242,13 +261,6 @@ UserSchema.methods.confirmEmail = async function confirmEmail(token) {
 
   this.email_confirmed = true;
   return true;
-};
-
-UserSchema.statics.cleanObject = (o, ...params) => {
-  const User = mongoose.model('User');
-
-  const user = new User(o);
-  return user.toCleanObject(...params);
 };
 
 UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessibles() {
@@ -360,4 +372,4 @@ UserSchema.methods.generateResetToken = async function generateResetToken({ emai
   return token;
 };
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model(MODEL_NAME, UserSchema);

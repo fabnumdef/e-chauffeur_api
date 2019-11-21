@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 import jwt from 'koa-jwt';
 import config from '../services/config';
-import User from '../models/user';
+import User, { ExpiredPasswordError } from '../models/user';
 import Campus from '../models/campus';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
@@ -23,7 +23,14 @@ router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
     ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
   }
 
-  ctx.body = { token: user.emitJWT(!!body.password) };
+  try {
+    ctx.body = { token: user.emitJWT(!!body.password) };
+  } catch (e) {
+    if (e instanceof ExpiredPasswordError) {
+      ctx.throw_and_log(401, 'Password expired');
+    }
+    throw e;
+  }
 });
 
 router.post(
@@ -38,7 +45,14 @@ router.post(
     if (!user) {
       ctx.throw_and_log(404, `User "${ctx.state.user.id}" not found.`);
     }
-    ctx.body = { token: user.emitJWT() };
+    try {
+      ctx.body = { token: user.emitJWT() };
+    } catch (e) {
+      if (e instanceof ExpiredPasswordError) {
+        ctx.throw_and_log(401, 'Password expired');
+      }
+      throw e;
+    }
   },
 );
 

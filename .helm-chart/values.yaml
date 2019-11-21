@@ -30,6 +30,8 @@ env:
   MAIL__HTML: "<p>:message</p>"
   MAIL__TEXT: ":message"
   MAIL__SUBJECT: ":gsbdd - :firstname :lastname (:email - :phone)."
+  VAPID__PUBLIC_KEY: null
+  VAPID__PRIVATE_KEY: null
   REDIRECT_TARGET: null
   USER_WEBSITE_URL: null
   WHITELIST_DOMAINS: null

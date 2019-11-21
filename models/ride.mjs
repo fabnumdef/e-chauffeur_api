@@ -4,12 +4,15 @@ import Luxon from 'luxon';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
+import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from './rights';
 import stateMachine, { DRAFTED } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
+import cleanObjectPlugin from './helpers/object-cleaner';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
+const MODEL_NAME = 'Ride';
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
@@ -35,10 +38,22 @@ const RideSchema = new Schema({
   },
   end: Date,
   owner: {
-    _id: { type: mongoose.Types.ObjectId, alias: 'owner.id' },
-    firstname: String,
-    lastname: String,
-    email: String,
+    _id: {
+      type: mongoose.Types.ObjectId,
+      alias: 'owner.id',
+    },
+    firstname: {
+      type: String,
+      canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+    },
+    lastname: {
+      type: String,
+      canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+    },
+    email: {
+      type: String,
+      canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+    },
   },
   departure: {
     _id: { type: String, required: true, alias: 'departure.id' },
@@ -91,7 +106,10 @@ const RideSchema = new Schema({
     },
   },
   comments: String,
-  userComments: String,
+  userComments: {
+    type: String,
+    canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+  },
   passengersCount: {
     type: Number,
     default: 1,
@@ -104,6 +122,7 @@ const RideSchema = new Schema({
 });
 
 RideSchema.plugin(createdAtPlugin);
+RideSchema.plugin(cleanObjectPlugin, MODEL_NAME);
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
@@ -289,4 +308,4 @@ RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQue
   return `${config.get('satisfaction_questionnaire_url')}`;
 };
 
-export default mongoose.model('Ride', RideSchema);
+export default mongoose.model(MODEL_NAME, RideSchema);

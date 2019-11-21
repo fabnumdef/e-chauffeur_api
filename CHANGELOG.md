@@ -1,13 +1,27 @@
 # Changelog
 ## Current
 ### Features
+* Refactor rights to be able to check inheritance and add rights on model
+* Add rating form route and model
+* Add push notifications
+* User can delete his own account
+* Add password constraint
+* Add password expiration
+### Fix
+* rides and ratings routes tests
+## Version 1.4.3
+### Features
 * Add /campuses/{id}/users route 
 * Remove logic of automatic static validation
 * Add SMS on refusal
-* Refactor planning vehicule and remove dead/old code and lib
+* Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
 * Add right to list user own rides and delete it
+* Standardize email content
 ### Fix
+* Fix potential leak of hashed password
+* Fix SMS on cancel
+* Fix errors on post/patch /users /campuses/{id}/users /campuses/{id}/drivers
 ## Version 1.4.2
 ### Features
 * Hours of campus are now configurable

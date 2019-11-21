@@ -1,6 +1,8 @@
 import winston from 'winston';
 import 'winston-mongodb';
 import Transport from 'winston-transport';
+import omitBy from 'lodash.omitby';
+import isFunction from 'lodash.isfunction';
 
 import config from './config';
 
@@ -21,7 +23,7 @@ export const SILLY = 'silly';
 
 export async function loggerMiddleware(ctx, next) {
   ctx.log = (level, message, meta = {}) => {
-    const metadata = { user: ctx.state.user, ...meta };
+    const metadata = omitBy({ user: ctx.state.user, ...meta }, isFunction);
     winston.log({ level, message, metadata });
   };
 

@@ -48,8 +48,8 @@ describe('Test the rides route', () => {
         end: date.plus(tenMinutes).toJSDate(),
       });
       const rideModel = new Ride(dummyRide);
-      await rideModel.save();
-
+      const savedModel = await rideModel.save();
+      toDropLater.push(savedModel);
       const query = {
         mask: 'id',
         filters: {
