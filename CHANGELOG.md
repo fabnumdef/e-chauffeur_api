@@ -9,6 +9,7 @@
 * Add password expiration
 ### Fix
 * rides and ratings routes tests
+* link in registration mail
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 

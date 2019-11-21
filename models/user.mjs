@@ -333,7 +333,7 @@ UserSchema.statics.findInIds = async function findInIds(ids = []) {
 
 UserSchema.methods.getResetTokenUrl = function getResetTokenUrl(token) {
   const email = encodeURIComponent(this.email);
-  return `${config.get('user_website_url')}/edit-account?email=${email}&token=${token}`;
+  return `${config.get('user_website_url')}/my-account/edit-account?email=${email}&token=${token}`;
 };
 
 UserSchema.methods.sendRegistrationTokenMail = async function sendRegistrationTokenMail(token) {
