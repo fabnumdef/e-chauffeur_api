@@ -157,90 +157,45 @@ RideSchema.statics.castId = (v) => {
   }
 };
 
-RideSchema.statics.formatFilters = function (rawFilters) {
-  const filters = Object.keys(rawFilters).map((key) => ({ [key]: rawFilters[key] }));
-  let alreadySet = false;
+RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilter) {
+  let filter = {
+    ...rawFilters,
+    ...queryFilter,
+    ...this.filtersWithin(queryFilter.start, queryFilter.end),
+  };
 
-  const queryFilter = filters.reduce((acc, current) => {
-    const newAcc = { ...acc };
-    const key = Object.keys(current).join('');
-    switch (key) {
-      case 'userId':
-        newAcc.$and = [
-          ...acc.$and,
-          {
-            'owner._id': current.userId,
-          },
-        ];
-        break;
-      // fall-through on purpose
-      // eslint-disable-next-line no-fallthrough
-      case 'start':
-      case 'end': {
-        const startAndEnd = filters
-          .filter((filter) => (filter.start || filter.end));
+  delete filter.start;
+  delete filter.end;
 
-        if (startAndEnd.length < 2) {
-          const err = new Error();
-          err.status = 404;
-          err.message = 'Start and end not found';
-          throw err;
-        }
-        if (alreadySet) {
-          return acc;
-        }
 
-        alreadySet = true;
-
-        newAcc.$and = [
-          ...acc.$and,
-          {
-            ...this.filtersWithin(
-              startAndEnd.find((obj) => obj.start).start,
-              startAndEnd.find((obj) => obj.end).end,
-            ),
-          },
-        ];
-        break;
-      }
-      case 'current': {
-        let queryType = '$nor';
-        if (current.current === 'false') {
-          queryType = '$and';
-        }
-
-        newAcc.$and = [
-          ...acc.$and,
-          {
-            [queryType]: [
-              {
-                status: 'delivered',
-              },
-            ],
-          },
-        ];
-        break;
-      }
-      default:
-        newAcc.$and = [
-          ...acc.$and,
-          {
-            ...current,
-          },
-        ];
+  if (filter.current) {
+    let status;
+    if (filter.current === 'false') {
+      status = { status: 'delivered' };
+    } else {
+      status = { $nor: [{ status: 'delivered' }] };
     }
-    return newAcc;
-  }, { $and: [] });
 
-  if (queryFilter.$and.length < 1) {
-    return rawFilters;
+    filter = {
+      ...filter,
+      ...status,
+    };
+
+    delete filter.current;
   }
-  return queryFilter;
+
+
+  if (!filter) {
+    return null;
+  }
+  return filter;
 };
 
-RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
-  const filters = f;
-  filters.$or = [
+RideSchema.statics.filtersWithin = function filtersWithin(rawStart, rawEnd) {
+  const queryFilter = {};
+  const start = new Date(rawStart);
+  const end = new Date(rawEnd);
+  queryFilter.$or = [
     {
       start: {
         $lte: start,
@@ -278,21 +233,15 @@ RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
       },
     },
   ];
-  return filters;
+  return queryFilter;
 };
 
-RideSchema.statics.findWithin = function findWithin(filters = {}, ...rest) {
-  return this.find(
-    this.formatFilters(filters),
-    ...rest,
-  );
+RideSchema.statics.findWithin = function findWithin(...params) {
+  return this.find(this.formatFilters(...params));
 };
 
-RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(filters = {}, ...rest) {
-  return this.countDocuments(
-    this.formatFilters(filters),
-    ...rest,
-  );
+RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(...params) {
+  return this.countDocuments(this.formatFilters(...params));
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {

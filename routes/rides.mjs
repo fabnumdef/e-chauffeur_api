@@ -9,6 +9,7 @@ import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
+import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
@@ -135,6 +136,7 @@ const router = generateCRUD(Ride, {
     right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
     filters: {
       campus: 'campus._id',
+      userId: 'owner._id',
     },
     middlewares: [
       contentNegociation,
@@ -169,13 +171,14 @@ const router = generateCRUD(Ride, {
           }));
         }
       },
+      ensureThatFiltersExists('start', 'end'),
     ],
     async main(ctx) {
       // @todo: Add right on max
       const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
 
-      const total = await Ride.countDocumentsWithin(ctx.query.filters);
-      const data = await Ride.findWithin(ctx.query.filters).skip(offset).limit(limit);
+      const total = await Ride.countDocumentsWithin(ctx.filters, ctx.query.filters);
+      const data = await Ride.findWithin(ctx.filters, ctx.query.filters).skip(offset).limit(limit);
 
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,
