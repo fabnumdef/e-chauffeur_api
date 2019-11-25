@@ -6,6 +6,7 @@
 * Add SMS on refusal
 * Refactor planning vehicule and remove dead/old code and lib
 * Add Redis sync capability
+* Add rights for admin to update his own campuses
 ### Fix
 * Fix errors on post/patch /users /campuses/{id}/users /campuses/{id}/drivers
 ## Version 1.4.2

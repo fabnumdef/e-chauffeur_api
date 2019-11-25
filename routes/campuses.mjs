@@ -54,6 +54,7 @@ const router = generateCRUD(Campus, {
     right: CAN_REMOVE_CAMPUS,
   },
   update: {
+    paramId: 'campus_id',
     right: [CAN_EDIT_CAMPUS, CAN_EDIT_SELF_CAMPUS],
   },
 });
