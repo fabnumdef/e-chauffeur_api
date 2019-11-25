@@ -13,7 +13,7 @@ describe('Test the JWT route', () => {
         .post('/jwt/generate')
         .send({
           email: 'foo@bar.com',
-          password: 'foobar',
+          password: 'foobarbaz',
         });
       expect(statusCode).to.equal(403);
     });
@@ -23,13 +23,13 @@ describe('Test the JWT route', () => {
         .post('/jwt/generate')
         .send({
           email: 'foo@bar.com',
-          password: 'foobar',
+          password: 'foobarbaz',
         });
       expect(statusCode).to.equal(403);
     });
 
     it('It should return a valid token on generate', async () => {
-      const PASSWORD = 'foobar';
+      const PASSWORD = 'foobarbaz';
       const user = await createDummyUser({ password: PASSWORD });
       try {
         const { body: { token }, statusCode } = await request()
@@ -81,7 +81,7 @@ describe('Test the JWT route', () => {
     });
 
     it('It should return a valid new token on renew', async () => {
-      const PASSWORD = 'foobar';
+      const PASSWORD = 'foobarbaz';
       const user = await createDummyUser({ password: PASSWORD });
       const authToken = user.emitJWT();
 
@@ -103,7 +103,7 @@ describe('Test the JWT route', () => {
 
   describe('Test the GET user route', () => {
     it('It should return a 404 error on get user when user not exists', async () => {
-      const PASSWORD = 'foobar';
+      const PASSWORD = 'foobarbaz';
       const user = new User(generateDummyUser({ password: PASSWORD }));
       const token = user.emitJWT();
 
@@ -118,7 +118,7 @@ describe('Test the JWT route', () => {
     });
 
     it('It should return the user', async () => {
-      const PASSWORD = 'foobar';
+      const PASSWORD = 'foobarbaz';
       const u = await createDummyUser({ password: PASSWORD });
       const authToken = u.emitJWT();
 
