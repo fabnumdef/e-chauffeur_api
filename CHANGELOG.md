@@ -7,6 +7,7 @@
 * User can delete his own account
 * Add password constraint
 * Add password expiration
+* Add rights for admin to update his own campuses
 ### Fix
 * rides and ratings routes tests
 * link in registration mail

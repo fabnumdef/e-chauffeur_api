@@ -141,6 +141,7 @@ export const ROLE_ADMIN = new RoleList(
   rights.CAN_EDIT_PHONE_LOCAL,
   rights.CAN_REMOVE_PHONE_LOCAL,
 
+  rights.CAN_EDIT_SELF_CAMPUS,
   rights.CAN_LIST_CAMPUS_USER,
   rights.CAN_GET_CAMPUS_USER,
   rights.CAN_CREATE_CAMPUS_USER,
