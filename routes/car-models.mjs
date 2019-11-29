@@ -7,12 +7,18 @@ import {
   CAN_LIST_CAR_MODEL,
   CAN_REMOVE_CAR_MODEL,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(CarModel, {
   create: {
     right: CAN_CREATE_CAR_MODEL,
   },
   list: {
+    middlewares: [
+      contentNegociation,
+      maskOutput,
+    ],
     right: CAN_LIST_CAR_MODEL,
   },
   get: {

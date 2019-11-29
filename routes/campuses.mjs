@@ -13,6 +13,8 @@ import {
   CAN_LIST_CAMPUS, CAN_LIST_CAMPUS_BASIC,
   CAN_REMOVE_CAMPUS,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody)';
 const router = generateCRUD(Campus, {
@@ -22,6 +24,8 @@ const router = generateCRUD(Campus, {
   list: {
     right: [CAN_LIST_CAMPUS_BASIC, CAN_LIST_CAMPUS],
     middlewares: [
+      contentNegociation,
+      maskOutput,
       async (ctx, next) => {
         const searchParams = {};
         if (ctx.query && ctx.query.search) {

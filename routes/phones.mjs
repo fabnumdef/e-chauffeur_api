@@ -9,6 +9,8 @@ import {
   CAN_LIST_PHONE_LOCAL,
   CAN_REMOVE_PHONE_LOCAL,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(Phone, {
   create: {
@@ -16,6 +18,10 @@ const router = generateCRUD(Phone, {
   },
   list: {
     right: CAN_LIST_PHONE_LOCAL,
+    middlewares: [
+      contentNegociation,
+      maskOutput,
+    ],
   },
   get: {
     right: CAN_GET_PHONE_LOCAL,

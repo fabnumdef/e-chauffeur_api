@@ -53,7 +53,7 @@ export function addListToRouter(Model, {
       const { offset, limit } = ctx.parseRangePagination(Model);
       const [total, data] = await Promise.all([
         Model.countDocuments(ctx.filters),
-        lean ? Model.find(ctx.filters).skip(offset).limit(limit).lean()
+        lean || (ctx.query && ctx.query.csv) ? Model.find(ctx.filters).skip(offset).limit(limit).lean()
           : Model.find(ctx.filters).skip(offset).limit(limit),
       ]);
 
