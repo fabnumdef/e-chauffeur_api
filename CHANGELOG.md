@@ -8,6 +8,7 @@
 * Add password constraint
 * Add password expiration
 * Add rights for admin to update his own campuses
+* Add csv middleware to list routes when needed
 ### Fix
 * rides and ratings routes tests
 * link in registration mail
