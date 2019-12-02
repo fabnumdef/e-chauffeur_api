@@ -24,7 +24,7 @@ describe('Test the rating API endpoint', async () => {
     const dummyArrival = await createDummyPoi();
     const newRide = generateDummyRide({
       start: new Date(),
-      end: new Date(),
+      end: new Date(Date.now() + 1000),
       campus: dummyCampus,
       departure: dummyDeparture,
       arrival: dummyArrival,
