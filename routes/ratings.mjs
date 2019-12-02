@@ -5,6 +5,7 @@ import {
   CAN_LIST_RATING,
 } from '../models/rights';
 import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(Rating, {
   create: {
@@ -14,6 +15,7 @@ const router = generateCRUD(Rating, {
     right: CAN_LIST_RATING,
     middlewares: [
       contentNegociation,
+      maskOutput,
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Rating);
