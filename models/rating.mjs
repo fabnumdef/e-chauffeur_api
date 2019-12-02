@@ -32,7 +32,7 @@ const RatingSchema = new Schema({
 
 RatingSchema.plugin(createdAtPlugin);
 
-RatingSchema.pre('validate', async function (next) {
+RatingSchema.pre('validate', async function preValidate(next) {
   const ride = await Ride.findById(this.ride._id).lean();
   if (!ride) {
     const err = new Error();

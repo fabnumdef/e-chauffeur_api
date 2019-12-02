@@ -126,6 +126,9 @@ RideSchema.plugin(cleanObjectPlugin, MODEL_NAME);
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
+  if (this.start >= this.end) {
+    throw new Error('End date should be higher than start date');
+  }
   try {
     const phoneUtil = PhoneNumberUtil.getInstance();
     this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
