@@ -9,6 +9,8 @@
 * Add password expiration
 * Add rights for admin to update his own campuses
 * Add date coherence control
+* Add mergeMasks helper
+* Add defaultReservationScope to campus model
 ### Fix
 * rides and ratings routes tests
 * link in registration mail
