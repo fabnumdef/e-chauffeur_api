@@ -44,6 +44,10 @@ const CampusSchema = new Schema({
     },
     default: 30,
   },
+  defaultReservationScope: {
+    type: Number,
+    default: 30,
+  },
   location: {
     type: {
       type: String,

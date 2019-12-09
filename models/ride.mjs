@@ -146,6 +146,21 @@ RideSchema.pre('validate', async function beforeSave() {
     (async (Campus) => {
       const campusId = this.campus._id;
       this.campus = await Campus.findById(campusId).lean();
+      if (this.campus) {
+        const currentReservationScope = new Date();
+        currentReservationScope.setDate(currentReservationScope.getDate() + this.campus.defaultReservationScope);
+        if ((this.end && currentReservationScope < this.end) || currentReservationScope < this.start) {
+          const err = new Error();
+          err.status = 403;
+          err.message = 'Ride date should be in campus reservation scope';
+          throw err;
+        }
+      } else {
+        const err = new Error();
+        err.status = 404;
+        err.message = 'Campus not found';
+        throw err;
+      }
     })(mongoose.model('Campus')),
     (async (User) => {
       const userId = this.owner._id;
