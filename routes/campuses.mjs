@@ -13,9 +13,8 @@ import {
   CAN_LIST_CAMPUS, CAN_LIST_CAMPUS_BASIC,
   CAN_REMOVE_CAMPUS,
 } from '../models/rights';
-import { mergeMasks } from '../middlewares/mask-output';
 
-const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody)';
+const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody),defaultReservationScope';
 const router = generateCRUD(Campus, {
   create: {
     right: CAN_CREATE_CAMPUS,
@@ -46,11 +45,7 @@ const router = generateCRUD(Campus, {
       async (ctx, next) => {
         await next();
         if (!ctx.may(CAN_GET_CAMPUS)) {
-          const masks = [BASIC_OUTPUT_MASK];
-          if (ctx.request.query.mask) {
-            masks.push(ctx.request.query.mask);
-          }
-          ctx.body = mask(ctx.body, mergeMasks(...masks));
+          ctx.body = mask(ctx.body, BASIC_OUTPUT_MASK);
         }
       },
     ],

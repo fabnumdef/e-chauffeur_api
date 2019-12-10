@@ -104,6 +104,9 @@ const RideSchema = new Schema({
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
     },
+    defaultReservationScope: {
+      type: Number,
+    },
   },
   comments: String,
   userComments: {
@@ -145,11 +148,12 @@ RideSchema.pre('validate', async function beforeSave() {
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
-      this.campus = await Campus.findById(campusId).lean();
+      this.campus = await Campus.findById(campusId);
       if (this.campus) {
-        const currentReservationScope = new Date();
-        currentReservationScope.setDate(currentReservationScope.getDate() + this.campus.defaultReservationScope);
-        if ((this.end && currentReservationScope < this.end) || currentReservationScope < this.start) {
+        const currentReservationScope = DateTime.local()
+          .plus({ seconds: this.campus.defaultReservationScope })
+          .toJSDate();
+        if (currentReservationScope < this.start) {
           const err = new Error();
           err.status = 403;
           err.message = 'Ride date should be in campus reservation scope';

@@ -26,24 +26,6 @@ export function cleanObject(e, ctx) {
   });
 }
 
-export const mergeMasks = (...masks) => masks.map((item) => item.split(','))
-  .reduce((acc, arrayOfItems) => {
-    const newAcc = [...acc];
-    arrayOfItems.forEach((item) => {
-      let toAdd = true;
-      acc.forEach((accItem) => {
-        if (item === accItem) {
-          toAdd = false;
-        }
-      });
-      if (toAdd) {
-        newAcc.push(item);
-      }
-    });
-    return newAcc;
-  }, [])
-  .join(',');
-
 export default async (ctx, next) => {
   await next();
   if (typeof ctx.body === 'object') {
