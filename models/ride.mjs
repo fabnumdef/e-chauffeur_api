@@ -104,6 +104,9 @@ const RideSchema = new Schema({
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
     },
+    defaultReservationScope: {
+      type: Number,
+    },
   },
   comments: String,
   userComments: {
@@ -145,7 +148,23 @@ RideSchema.pre('validate', async function beforeSave() {
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
-      this.campus = await Campus.findById(campusId).lean();
+      this.campus = await Campus.findById(campusId);
+      if (this.campus) {
+        const currentReservationScope = DateTime.local()
+          .plus({ seconds: this.campus.defaultReservationScope })
+          .toJSDate();
+        if (currentReservationScope < this.start) {
+          const err = new Error();
+          err.status = 403;
+          err.message = 'Ride date should be in campus reservation scope';
+          throw err;
+        }
+      } else {
+        const err = new Error();
+        err.status = 404;
+        err.message = 'Campus not found';
+        throw err;
+      }
     })(mongoose.model('Campus')),
     (async (User) => {
       const userId = this.owner._id;

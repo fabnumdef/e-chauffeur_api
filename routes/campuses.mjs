@@ -14,7 +14,7 @@ import {
   CAN_REMOVE_CAMPUS,
 } from '../models/rights';
 
-const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody)';
+const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody),defaultReservationScope';
 const router = generateCRUD(Campus, {
   create: {
     right: CAN_CREATE_CAMPUS,
