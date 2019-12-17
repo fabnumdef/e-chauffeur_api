@@ -8,7 +8,7 @@ import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from '.
 import stateMachine, {
   DRAFTED,
   DELIVERED,
-  CREATED, VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS,
+  CANCELABLE,
 } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
@@ -218,16 +218,7 @@ RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilte
     if (filter.current === 'false') {
       status = { status: DELIVERED };
     } else {
-      status = {
-        $or: [
-          { status: CREATED },
-          { status: VALIDATED },
-          { status: ACCEPTED },
-          { status: STARTED },
-          { status: WAITING },
-          { status: IN_PROGRESS },
-        ],
-      };
+      status = { status: { $in: [...CANCELABLE] } };
     }
 
     filter = {
