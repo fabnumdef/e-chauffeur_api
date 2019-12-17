@@ -122,8 +122,7 @@ export default {
           case DELIVERED:
             await this.sendSMS(
               'Merci d\'avoir fait appel à notre offre de mobilité. '
-              + `Vous pouvez évaluer le service e-Chauffeur :
-              ${this.getSatisfactionQuestionnaireURL()}?rideId=${this.id}}`,
+              + `Vous pouvez évaluer le service e-Chauffeur : ${this.getSatisfactionQuestionnaireURL()}`,
             );
             break;
           case CANCELED_TECHNICAL:

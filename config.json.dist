@@ -8,7 +8,6 @@
   },
   "mongodb": "mongodb://localhost/e-chauffeur",
   "user_website_url": "",
-  "satisfaction_questionnaire_url": "",
   "twilio": {
     "sid": "",
     "token": "",

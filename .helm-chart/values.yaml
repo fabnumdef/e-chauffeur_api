@@ -16,7 +16,6 @@ env:
   REDIS: e-chauffeur-redis
   MONGODB: e-chauffeur-mongodb
   TOKEN__DURATION: 3600
-  SATISFACTION_QUESTIONNAIRE_URL: null
   TWILIO__SID: null
   TWILIO__TOKEN: null
   TWILIO__MESSAGING_SERVICE_SID: null
