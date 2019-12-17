@@ -31,8 +31,6 @@ spec:
               value: "{{ .Values.env.TOKEN__DURATION }}"
             - name: TOKEN__SECRET
               value: "{{ randAlphaNum 35 }}"
-            - name: SATISFACTION_QUESTIONNAIRE_URL
-              value: "{{ .Values.env.SATISFACTION_QUESTIONNAIRE_URL }}"
             - name: TWILIO__SID
               value: "{{ .Values.env.TWILIO__SID }}"
             - name: TWILIO__TOKEN

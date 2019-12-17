@@ -331,7 +331,7 @@ RideSchema.methods.getRideClientURL = function getRideClientURL() {
 };
 
 RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
-  return `${config.get('satisfaction_questionnaire_url')}`;
+  return `${config.get('user_website_url')}/rating?rideId=${this.id}`;
 };
 
 export default mongoose.model(MODEL_NAME, RideSchema);
