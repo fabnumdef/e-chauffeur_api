@@ -5,7 +5,11 @@ import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
 import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from './rights';
-import stateMachine, { DRAFTED, DELIVERED } from './status';
+import stateMachine, {
+  DRAFTED,
+  DELIVERED,
+  CREATED, VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS,
+} from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
@@ -214,7 +218,16 @@ RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilte
     if (filter.current === 'false') {
       status = { status: DELIVERED };
     } else {
-      status = { $nor: [{ status: DELIVERED }] };
+      status = {
+        $or: [
+          { status: CREATED },
+          { status: VALIDATED },
+          { status: ACCEPTED },
+          { status: STARTED },
+          { status: WAITING },
+          { status: IN_PROGRESS },
+        ],
+      };
     }
 
     filter = {

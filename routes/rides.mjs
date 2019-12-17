@@ -271,7 +271,7 @@ router.post(
     if (!ride) {
       ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
     }
-    if (!ride.can(action)) {
+    if (ride.cannot(action)) {
       ctx.throw_and_log(400, `State violation : ride cannot switch to "${action}"`);
     }
 
