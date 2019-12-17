@@ -218,7 +218,7 @@ RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilte
     if (filter.current === 'false') {
       status = { status: DELIVERED };
     } else {
-      status = { status: { $in: [...CANCELABLE] } };
+      status = { status: { $in: CANCELABLE } };
     }
 
     filter = {
