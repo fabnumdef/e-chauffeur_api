@@ -3,6 +3,7 @@ import lGet from 'lodash.get';
 import mask from 'json-mask';
 import Luxon from 'luxon';
 import {
+  CANCEL_REQUESTED_CUSTOMER,
   CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
 } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
@@ -264,7 +265,7 @@ router.post(
   async (ctx) => {
     // @todo: rights - driver should be able to update only some status
     const { params: { id, action } } = ctx;
-    if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE) {
+    if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE && action !== CANCEL_REQUESTED_CUSTOMER) {
       ctx.throw_and_log(403, `You're not authorized to mutate to "${action}"`);
     }
     const ride = getPrefetchedRide(ctx, id);
