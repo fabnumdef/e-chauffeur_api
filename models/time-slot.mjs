@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
 
+export const WEEKLY = 'weekly';
+export const MONTHLY = 'monthly';
+
 const { Schema } = mongoose;
 
 const TimeSlotSchema = new Schema({
@@ -27,9 +30,38 @@ const TimeSlotSchema = new Schema({
   campus: {
     _id: { type: String, alias: 'campus.id' },
   },
+  title: String,
+  comments: String,
+  recurrence: {
+    enabled: Boolean,
+    withData: Boolean,
+    frequency: {
+      type: String,
+      enum: [WEEKLY, MONTHLY],
+    },
+    nextHop: {
+      _id: { type: Schema.ObjectId, alias: 'recurrence.nextHop.id' },
+      start: Date,
+      end: Date,
+      createdAt: Date,
+    },
+    previousHop: {
+      _id: { type: Schema.ObjectId, alias: 'recurrence.previousHop.id' },
+      start: Date,
+      end: Date,
+      createdAt: Date,
+    },
+  },
 });
 
 TimeSlotSchema.plugin(createdAtPlugin);
+
+TimeSlotSchema.pre('validate', async function preValidate(next) {
+  if (this.recurrence && this.recurrence.enabled && !this.recurrence.frequency) {
+    throw new Error('Frequency is required when recurrence is enabled.');
+  }
+  next();
+});
 
 TimeSlotSchema.statics.getDashedName = () => 'time-slot';
 
