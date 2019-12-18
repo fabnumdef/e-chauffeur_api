@@ -2,8 +2,6 @@
   "name": "e-chauffeur_api",
   "private": true,
   "type": "module",
-  "version": "1.4.2",
-  "description": "",
   "scripts": {
     "test": "mocha --experimental-modules --exit --require @std/esm --recursive \"tests/**/*.mjs\"",
     "serve": "LOG=database node --experimental-modules --es-module-specifier-resolution=node server.mjs",
