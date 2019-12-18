@@ -35,22 +35,17 @@ build:
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - cat package.json | head -10
     - /kaniko/executor
       --context $CI_PROJECT_DIR
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
 deploy_review:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.0.1
   before_script:
-    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
-    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
       --install
@@ -77,9 +72,8 @@ deploy_review:
       --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
-      --set ingress.issuer="letsencrypt-staging"
       --wait
-      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      api-${CI_COMMIT_REF_SLUG}
       .helm-chart
   except:
     refs:
@@ -89,13 +83,10 @@ deploy_review:
 
 deploy_staging:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.0.1
   before_script:
-    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
-    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
       --install
@@ -125,7 +116,7 @@ deploy_staging:
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
       --wait
-      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      api-staging
       .helm-chart
   only:
     refs:
@@ -136,13 +127,10 @@ deploy_staging:
 
 deploy_prod:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.0.1
   before_script:
-    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
-    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - helm init --upgrade --service-account tiller --force-upgrade
   script:
     - helm upgrade
       --install
@@ -172,11 +160,8 @@ deploy_prod:
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
       --wait
-      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      api
       .helm-chart
   only:
-    refs:
-      - master
-  except:
     refs:
       - tags
