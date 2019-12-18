@@ -42,6 +42,9 @@ imageCredentials:
   username: user
   password: pass
 
+job:
+  frequency: "0 20 * * *"
+
 service:
   type: ClusterIP
   port: 1337

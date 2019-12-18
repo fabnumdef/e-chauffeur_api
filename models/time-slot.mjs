@@ -1,8 +1,12 @@
 import mongoose from 'mongoose';
+import Luxon from 'luxon';
 import createdAtPlugin from './helpers/created-at';
 
+const { DateTime } = Luxon;
 export const WEEKLY = 'weekly';
 export const MONTHLY = 'monthly';
+const MODEL_NAME = 'TimeSlot';
+const COLLECTION_NAME = 'time-slots';
 
 const { Schema } = mongoose;
 
@@ -93,4 +97,73 @@ TimeSlotSchema.statics.countDocumentsWithin = function countDocumentsWithin(afte
     ...rest,
   );
 };
-export default mongoose.model('TimeSlot', TimeSlotSchema, 'time-slots');
+
+TimeSlotSchema.methods.createNextHop = async function createNextHop() {
+  if (!this.recurrence.enabled || (this.recurrence.nextHop || {})._id) {
+    return null;
+  }
+  const TimeSlot = mongoose.model(MODEL_NAME);
+  let start = DateTime.fromJSDate(this.start);
+  let end = DateTime.fromJSDate(this.end);
+  switch (this.recurrence.frequency) {
+    case WEEKLY:
+      {
+        const toAdd = { week: 1 };
+        start = start.plus(toAdd);
+        end = end.plus(toAdd);
+      }
+      break;
+    case MONTHLY:
+      {
+        const toAdd = { month: 1 };
+        start = start.plus(toAdd);
+        end = end.plus(toAdd);
+      }
+      break;
+    default:
+      break;
+  }
+  const nextHop = new TimeSlot({
+    start: start.toJSDate(),
+    end: end.toJSDate(),
+    campus: this.campus,
+    title: this.title,
+    comments: this.comments,
+    cars: this.cars,
+    drivers: this.drivers,
+    recurrence: {
+      previousHop: this,
+      enabled: this.recurrence.enabled,
+      withData: this.recurrence.withData,
+      frequency: this.recurrence.frequency,
+    },
+  });
+  this.recurrence.nextHop = await nextHop.save();
+  await nextHop.addHopToQueue();
+  await this.save();
+  return this.recurrence.nextHop;
+};
+
+TimeSlotSchema.statics.createNextHop = async function createNextHop(id) {
+  const timeSlot = await this.findOne(typeof id === 'string' ? mongoose.Types.ObjectId(id) : id);
+  return timeSlot.createNextHop();
+};
+
+TimeSlotSchema.statics.findSlotsToCopy = async function findSlotsToCopy() {
+  const criteria = { 'recurrence.enabled': true, 'recurrence.nextHop': null };
+  const slots = await Promise.all([
+    this.find({
+      ...criteria,
+      'recurrence.frequency': WEEKLY,
+      start: { $lt: DateTime.local().toJSDate() },
+    }),
+    this.find({
+      ...criteria,
+      'recurrence.frequency': MONTHLY,
+      start: { $lt: DateTime.local().plus({ month: 1 }).minus({ days: 7 }).toJSDate() },
+    }),
+  ]);
+  return [].concat(...slots);
+};
+
+export default mongoose.model(MODEL_NAME, TimeSlotSchema, COLLECTION_NAME);

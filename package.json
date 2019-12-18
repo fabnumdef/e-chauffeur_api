@@ -12,7 +12,8 @@
     "generate-vapid": "node generate-vapid-key.js",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules --es-module-specifier-resolution=node tests/generate-state-schema.js",
-    "import-fixtures": "node --experimental-modules --es-module-specifier-resolution=node fixtures"
+    "import-fixtures": "node --experimental-modules --es-module-specifier-resolution=node fixtures",
+    "cron:time-slots-copy": "node --experimental-modules --es-module-specifier-resolution=node crons/time-slots-copy.js"
   },
   "author": "Gaël",
   "license": "ISC",
