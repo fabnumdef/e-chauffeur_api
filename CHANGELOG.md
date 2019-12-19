@@ -12,6 +12,7 @@
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
+* Use a queue to send SMS asynchronously
 ### Fix
 * rides and ratings routes tests
 * link in registration mail

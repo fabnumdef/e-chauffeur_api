@@ -7,6 +7,7 @@
     "duration": 3600
   },
   "mongodb": "mongodb://localhost/e-chauffeur",
+  "amqp": null,
   "user_website_url": "",
   "twilio": {
     "sid": "",

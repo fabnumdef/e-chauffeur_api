@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include ".helm-chart.fullname" . }}-consumers
+  labels:
+{{ include ".helm-chart.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include ".helm-chart.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include ".helm-chart.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.imageCredentials.name }}
+      containers:
+        - name: "{{ .Chart.Name }}-consumer"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MONGODB
+              value: "{{ .Values.env.MONGODB }}"
+            - name: REDIS
+              value: "{{ .Values.env.REDIS }}"
+            - name: AMQP
+              value: "{{ .Values.env.AMQP }}"
+            - name: TWILIO__SID
+              value: "{{ .Values.env.TWILIO__SID }}"
+            - name: TWILIO__TOKEN
+              value: "{{ .Values.env.TWILIO__TOKEN }}"
+            - name: TWILIO__MESSAGING_SERVICE_SID
+              value: "{{ .Values.env.TWILIO__MESSAGING_SERVICE_SID }}"
+            - name: VERSION
+              value: "{{ .Values.env.VERSION }}"
+            - name: TZ
+              value: "Europe/Paris"
+          args: ["run", "cron:time-slots-copy"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

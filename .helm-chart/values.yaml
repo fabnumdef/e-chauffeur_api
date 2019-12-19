@@ -14,6 +14,7 @@ nameOverride: ""
 fullnameOverride: ""
 env:
   REDIS: e-chauffeur-redis
+  AMQP: rabbitmq.e-chauffeur
   MONGODB: e-chauffeur-mongodb
   TOKEN__DURATION: 3600
   TWILIO__SID: null

@@ -27,6 +27,8 @@ spec:
               value: "{{ .Values.env.MONGODB }}"
             - name: REDIS
               value: "{{ .Values.env.REDIS }}"
+            - name: AMQP
+              value: "{{ .Values.env.AMQP }}"
             - name: TOKEN__DURATION
               value: "{{ .Values.env.TOKEN__DURATION }}"
             - name: TOKEN__SECRET
