@@ -1,4 +1,4 @@
-import Twilio from 'twilio';
+import rhea from 'rhea';
 import glob from 'glob';
 import nodeFs from 'fs';
 import nodePath from 'path';
@@ -12,22 +12,22 @@ const { fileURLToPath } = nodeUrl;
 
 const currentPath = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_LANG = 'fr';
+export const SEND_SMS_QUEUE = 'sms-to-send';
 
-const sid = config.get('twilio:sid');
-const token = config.get('twilio:token');
-const messagingServiceSid = config.get('twilio:messaging_service_sid');
+const amqp = config.get('amqp');
 
-// eslint-disable-next-line import/prefer-default-export
 export async function sendSMS(to, body) {
-  if (!sid || !token || !messagingServiceSid) {
-    throw new Error('sid nor token nor sender is missing');
+  if (!amqp) {
+    // eslint-disable-next-line no-console
+    console.log('SMS not sent, AMQP not found');
+    return;
   }
-  const client = new Twilio(sid, token);
-  return client.messages.create({
-    body,
-    to,
-    messagingServiceSid,
+  const container = rhea.create_container();
+  container.once('sendable', (context) => {
+    context.sender.send({ body: { to, body } });
+    context.connection.close();
   });
+  container.connect(amqp).open_sender(SEND_SMS_QUEUE);
 }
 
 function compileTemplates(path, ext) {
