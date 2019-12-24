@@ -24,31 +24,6 @@ export const csvToJson = async (ctx, next) => {
     ctx.throw_and_log(422, 'Please send one file at a time');
   }
 
-  const jsonFile = await csv2Json().fromFile(file.path);
-
-  /*
-   * format jsonFile
-   * from { 'colA;colB;colC': '1;2;3' }
-   * to { colA: 1, colB: 2, colC: 3 }
-   * Delete empty key-value pair
-   */
-  ctx.file = jsonFile.reduce((acc, row) => {
-    const [key] = Object.keys(row);
-    const columns = key.split(';');
-    const values = row[key].split(';');
-    return [
-      ...acc,
-      columns.reduce((a, header, index) => {
-        if (values[index]) {
-          return {
-            ...a,
-            [header.toLowerCase()]: values[index],
-          };
-        }
-        return a;
-      }, {}),
-    ];
-  }, []);
-
+  ctx.file = await csv2Json({ delimiter: ';', ignoreEmpty: true }).fromFile(file.path);
   await next();
 };

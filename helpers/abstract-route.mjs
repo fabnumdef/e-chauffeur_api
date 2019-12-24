@@ -17,8 +17,7 @@ export function addBatchToRouter(Model, {
       .map((r) => resolveRights(...[].concat(r))),
     ...middlewares,
     main || (async (ctx) => {
-      const { file } = ctx;
-      await Model.createFromCSV(file);
+      await Model.createFromCSV(ctx.file);
       ctx.log(ctx.log.INFO, `${Model.modelName} batch has been created`);
       ctx.status = 204;
     }),
