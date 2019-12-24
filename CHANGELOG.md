@@ -12,6 +12,7 @@
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
+* Add batch crud route to handle csv imports
 ### Fix
 * rides and ratings routes tests
 * link in registration mail
