@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
+import addCSVContentPlugin from './helpers/add-csv-content';
 
 const { Schema } = mongoose;
+const MODEL_NAME = 'Phone';
 
 const PhoneSchema = new Schema({
   _id: { type: String, required: true, alias: 'id' },
@@ -37,5 +39,6 @@ const PhoneSchema = new Schema({
 });
 
 PhoneSchema.plugin(createdAtPlugin);
+PhoneSchema.plugin(addCSVContentPlugin, MODEL_NAME);
 
-export default mongoose.model('Phone', PhoneSchema);
+export default mongoose.model(MODEL_NAME, PhoneSchema);

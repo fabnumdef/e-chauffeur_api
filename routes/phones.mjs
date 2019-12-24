@@ -9,6 +9,7 @@ import {
   CAN_LIST_PHONE_LOCAL,
   CAN_REMOVE_PHONE_LOCAL,
 } from '../models/rights';
+import { checkDuplications, csvToJson } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(Phone, {
   create: {
@@ -52,6 +53,13 @@ const router = generateCRUD(Phone, {
       ctx.body = await phone.save();
       ctx.log(ctx.log.INFO, `${Phone.modelName} "${body.id}" has been updated.`);
     },
+  },
+  batch: {
+    right: CAN_CREATE_PHONE_LOCAL,
+    middlewares: [
+      csvToJson,
+      checkDuplications(Phone, 'label'),
+    ],
   },
 });
 

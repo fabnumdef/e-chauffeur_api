@@ -7,6 +7,7 @@ import {
   CAN_LIST_CAR_MODEL,
   CAN_REMOVE_CAR_MODEL,
 } from '../models/rights';
+import { csvToJson, checkDuplications } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(CarModel, {
   create: {
@@ -23,6 +24,10 @@ const router = generateCRUD(CarModel, {
   },
   update: {
     right: CAN_EDIT_CAR_MODEL,
+  },
+  batch: {
+    right: CAN_CREATE_CAR_MODEL,
+    middlewares: [csvToJson, checkDuplications(CarModel, 'label')],
   },
 });
 

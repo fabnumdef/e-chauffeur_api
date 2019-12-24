@@ -3,6 +3,28 @@ import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
 
+export function addBatchToRouter(Model, {
+  url = '/batch', right, rights = [], middlewares = [], main,
+} = {}) {
+  if (!right) {
+    throw new Error('Right should be defined');
+  }
+  this.post(
+    url,
+    ...[right]
+      .concat(rights)
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
+    ...middlewares,
+    main || (async (ctx) => {
+      const { file } = ctx;
+      await Model.createFromCSV(file);
+      ctx.log(ctx.log.INFO, `${Model.modelName} batch has been created`);
+      ctx.status = 204;
+    }),
+  );
+}
+
 export function addCreateToRouter(Model, {
   url = '/', right, rights = [], main,
 } = {}) {
@@ -95,7 +117,7 @@ export function addGetToRouter(Model, {
           ctx.body = await Model.findById(id);
         }
         if (!ctx.body) {
-          throw new Error(`${Model.modelName} "${id}" not found`);
+          ctx.throw_and_log(404, `${Model.modelName} "${id}" not found`);
         }
         ctx.log(
           ctx.log.INFO,
@@ -159,7 +181,7 @@ export function addUpdateToRouter(Model, {
 }
 
 export default (Model, {
-  router, create, list, get, delete: remove, update,
+  router, create, list, get, delete: remove, update, batch,
 } = {}) => {
   const routerInstance = router || new Router();
   if (create) {
@@ -176,6 +198,9 @@ export default (Model, {
   }
   if (update) {
     addUpdateToRouter.call(routerInstance, Model, update);
+  }
+  if (batch) {
+    addBatchToRouter.call(routerInstance, Model, batch);
   }
   return routerInstance;
 };

@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
+import addCSVContentPlugin from './helpers/add-csv-content';
 
 const { Schema } = mongoose;
+const MODEL_NAME = 'Poi';
 
 const PoiSchema = new Schema({
   _id: String,
@@ -26,6 +28,7 @@ const PoiSchema = new Schema({
 });
 
 PoiSchema.plugin(createdAtPlugin);
+PoiSchema.plugin(addCSVContentPlugin, MODEL_NAME);
 
 PoiSchema.virtual('campus.id')
   .get(function get() {
@@ -79,4 +82,4 @@ PoiSchema.index({
   label: 'text',
 });
 
-export default mongoose.model('Poi', PoiSchema);
+export default mongoose.model(MODEL_NAME, PoiSchema);

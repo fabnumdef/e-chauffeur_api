@@ -12,6 +12,7 @@ import {
   CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 } from '../models/rights';
 import config from '../services/config';
+import { csvToJson, checkDuplications } from '../middlewares/csv-to-json';
 
 const X_SEND_TOKEN = 'x-send-token';
 const addDomainInError = (e) => [
@@ -219,6 +220,13 @@ const router = generateCRUD(User, {
         { body },
       );
     },
+  },
+  batch: {
+    right: [CAN_CREATE_USER, CAN_SEND_CREATION_TOKEN],
+    middlewares: [
+      csvToJson,
+      checkDuplications(User, 'email'),
+    ],
   },
 });
 

@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import Luxon from 'luxon';
 import createdAtPlugin from './helpers/created-at';
+import addCSVContentPlugin from './helpers/add-csv-content';
 
 const { Interval } = Luxon;
 const { Schema } = mongoose;
+const MODEL_NAME = 'Car';
 
 const CarSchema = new Schema({
   _id: String,
@@ -19,6 +21,7 @@ const CarSchema = new Schema({
 });
 
 CarSchema.plugin(createdAtPlugin);
+CarSchema.plugin(addCSVContentPlugin, MODEL_NAME);
 
 CarSchema.virtual('campus.id')
   .get(function get() {
@@ -56,4 +59,4 @@ CarSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
   }
 };
 
-export default mongoose.model('Car', CarSchema);
+export default mongoose.model(MODEL_NAME, CarSchema);
