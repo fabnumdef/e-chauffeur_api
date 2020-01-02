@@ -12,6 +12,7 @@ import {
 } from '../../models/rights';
 import User from '../../models/user';
 import config from '../../services/config';
+import { csvToJson } from '../../middlewares/csv-to-json';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -166,5 +167,14 @@ router.del(
     ctx.status = 204;
   },
 );
+
+router.post('/batch',
+  resolveRights(CAN_CREATE_CAMPUS_USER),
+  csvToJson,
+  async (ctx) => {
+    await User.createFromCSV(ctx.file);
+    ctx.log(ctx.log.INFO, 'User batch has been created');
+    ctx.status = 204;
+  });
 
 export default router.routes();
