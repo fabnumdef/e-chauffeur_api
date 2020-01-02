@@ -13,8 +13,9 @@
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
 ### Fix
-* rides and ratings routes tests
-* link in registration mail
+* Rides and ratings routes tests
+* Link in registration mail
+* Fix fixtures script
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 
