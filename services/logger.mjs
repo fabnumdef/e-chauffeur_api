@@ -3,15 +3,16 @@ import Transport from 'winston-transport';
 import omitBy from 'lodash.omitby';
 import isFunction from 'lodash.isfunction';
 
-export const defaultConsoleTransport = new winston.transports.Console({ level: process.env.LOG_LEVEL || 'warn' });
-winston.add(defaultConsoleTransport);
-
 export const ERROR = 'error';
 export const WARN = 'warn';
 export const INFO = 'info';
 export const VERBOSE = 'verbose';
 export const DEBUG = 'debug';
 export const SILLY = 'silly';
+
+export const defaultConsoleTransport = new winston.transports.Console({ level: process.env.LOG_LEVEL || INFO });
+winston.add(defaultConsoleTransport);
+
 
 export async function loggerMiddleware(ctx, next) {
   ctx.log = (level, message, meta = {}) => {
