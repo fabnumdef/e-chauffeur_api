@@ -12,6 +12,7 @@
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
+* Remove logs from mongodb, using Loki stack right now
 ### Fix
 * Rides and ratings routes tests
 * Link in registration mail
