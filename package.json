@@ -63,8 +63,7 @@
     "twilio": "^3.37.0",
     "validator": "^11.1.0",
     "web-push": "^3.4.1",
-    "winston": "^3.2.1",
-    "winston-mongodb": "^5.0.1"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@std/esm": "^0.26.0",

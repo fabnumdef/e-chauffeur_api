@@ -1,17 +1,9 @@
 import winston from 'winston';
-import 'winston-mongodb';
 import Transport from 'winston-transport';
 import omitBy from 'lodash.omitby';
 import isFunction from 'lodash.isfunction';
 
-import config from './config';
-
-export const createMongoDBTransport = (db) => new winston.transports.MongoDB({ db, collection: 'logs' });
-
 export const defaultConsoleTransport = new winston.transports.Console({ level: process.env.LOG_LEVEL || 'warn' });
-export const defaultMongoDBTransport = createMongoDBTransport(config.get('mongodb'));
-
-winston.add(defaultMongoDBTransport);
 winston.add(defaultConsoleTransport);
 
 export const ERROR = 'error';
