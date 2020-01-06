@@ -5,7 +5,7 @@ import {
 } from '../request';
 import PhoneModel, { generateDummyPhoneModel } from '../models/phone-model';
 import {
-  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 
@@ -49,5 +49,10 @@ describe('Test the phone-models API endpoint', () => {
   it(...testUpdate(PhoneModel, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testBatch(PhoneModel, {
+    ...config,
+    route: `${config.route}/batch`,
   }));
 });

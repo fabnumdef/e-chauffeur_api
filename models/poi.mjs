@@ -28,7 +28,7 @@ const PoiSchema = new Schema({
 });
 
 PoiSchema.plugin(createdAtPlugin);
-PoiSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+PoiSchema.plugin(addCSVContentPlugin);
 
 PoiSchema.virtual('campus.id')
   .get(function get() {

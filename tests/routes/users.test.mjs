@@ -6,7 +6,7 @@ import request, {
 } from '../request';
 import User, { generateDummyUser } from '../models/user';
 import {
-  testCreate, testDelete, testList, testGet, testUpdate,
+  testCreate, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 const { expect } = chai;
@@ -39,6 +39,12 @@ describe('Test the users route', () => {
   it(...testUpdate(User, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testBatch(User, {
+    ...config,
+    route: `${config.route}/batch`,
+    ref: 'email',
   }));
 
   it('User should be able to edit self password/name', async () => {

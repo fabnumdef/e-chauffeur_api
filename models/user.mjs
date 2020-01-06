@@ -117,7 +117,7 @@ const UserSchema = new Schema({
 
 UserSchema.plugin(createdAtPlugin);
 UserSchema.plugin(cleanObjectPlugin, MODEL_NAME);
-UserSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+UserSchema.plugin(addCSVContentPlugin);
 
 UserSchema.pre('validate', function preValidate() {
   if (this.isModified('email')) {

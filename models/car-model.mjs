@@ -13,7 +13,7 @@ const CarModelSchema = new Schema({
 });
 
 CarModelSchema.plugin(createdAtPlugin);
-CarModelSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+CarModelSchema.plugin(addCSVContentPlugin);
 
 
 CarModelSchema.index({

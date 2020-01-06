@@ -3,7 +3,7 @@ import Campus, { generateDummyCampus } from '../models/campus';
 import { createDummyPhoneModel } from '../models/phone-model';
 import Phone, { generateDummyPhone } from '../models/phone';
 import {
-  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 const campus = generateDummyCampus();
@@ -75,5 +75,10 @@ describe('Test the phone API endpoint', () => {
   it(...testUpdate(Phone, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testBatch(Phone, {
+    ...config,
+    route: `${config.route}/batch`,
   }));
 });

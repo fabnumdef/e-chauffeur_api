@@ -11,7 +11,7 @@ const PhoneModelSchema = new Schema({
 });
 
 PhoneModelSchema.plugin(createdAtPlugin);
-PhoneModelSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+PhoneModelSchema.plugin(addCSVContentPlugin);
 
 PhoneModelSchema.index({
   _id: 'text',

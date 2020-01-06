@@ -222,7 +222,7 @@ const router = generateCRUD(User, {
     },
   },
   batch: {
-    right: [CAN_CREATE_USER, CAN_SEND_CREATION_TOKEN],
+    right: [CAN_CREATE_USER],
     middlewares: [
       csvToJson,
       checkDuplications(User, 'email'),

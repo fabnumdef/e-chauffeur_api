@@ -21,7 +21,7 @@ const CarSchema = new Schema({
 });
 
 CarSchema.plugin(createdAtPlugin);
-CarSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+CarSchema.plugin(addCSVContentPlugin);
 
 CarSchema.virtual('campus.id')
   .get(function get() {

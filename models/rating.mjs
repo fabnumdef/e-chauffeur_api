@@ -33,7 +33,7 @@ const RatingSchema = new Schema({
 });
 
 RatingSchema.plugin(createdAtPlugin);
-RatingSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+RatingSchema.plugin(addCSVContentPlugin);
 
 RatingSchema.pre('validate', async function preValidate(next) {
   const ride = await Ride.findById(this.ride._id).lean();

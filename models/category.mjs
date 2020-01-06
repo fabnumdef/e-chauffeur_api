@@ -11,6 +11,6 @@ const CategorySchema = new Schema({
 });
 
 CategorySchema.plugin(createdAtPlugin);
-CategorySchema.plugin(addCSVContentPlugin, MODEL_NAME);
+CategorySchema.plugin(addCSVContentPlugin);
 
-export default mongoose.model('Category', CategorySchema, 'categories');
+export default mongoose.model(MODEL_NAME, CategorySchema, 'categories');

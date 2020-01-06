@@ -4,7 +4,7 @@ export default function addCSVContentPlugin(schema) {
     const session = await this.startSession();
     session.startTransaction();
     try {
-      await this.insertMany(datas, { session });
+      await this.create(datas, { session });
       await session.commitTransaction();
     } catch (err) {
       await session.abortTransaction();

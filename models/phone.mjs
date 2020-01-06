@@ -39,6 +39,6 @@ const PhoneSchema = new Schema({
 });
 
 PhoneSchema.plugin(createdAtPlugin);
-PhoneSchema.plugin(addCSVContentPlugin, MODEL_NAME);
+PhoneSchema.plugin(addCSVContentPlugin);
 
 export default mongoose.model(MODEL_NAME, PhoneSchema);

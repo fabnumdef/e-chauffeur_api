@@ -19,11 +19,13 @@ export const checkDuplications = (Model, ref) => async (ctx, next) => {
 };
 
 export const csvToJson = async (ctx, next) => {
-  const { length, 0: file } = Object.keys(ctx.request.files).map((key) => ctx.request.files[key]);
+  const { body: { delimiter = ';', ignoreEmpty = true }, files } = ctx.request;
+
+  const { length, 0: file } = Object.keys(files).map((key) => files[key]);
   if (length > 1) {
     ctx.throw_and_log(422, 'Please send one file at a time');
   }
 
-  ctx.file = await csv2Json({ delimiter: ';', ignoreEmpty: true }).fromFile(file.path);
+  ctx.file = await csv2Json({ delimiter, ignoreEmpty }).fromFile(file.path);
   await next();
 };
