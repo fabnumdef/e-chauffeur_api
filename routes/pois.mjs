@@ -12,7 +12,7 @@ import {
   CAN_REMOVE_POI,
   CAN_REMOVE_POI_LOCAL,
 } from '../models/rights';
-import { checkDuplications, csvToJson } from '../middlewares/csv-to-json';
+import { checkDuplications, csvToJson, validateCampus } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(Poi, {
   create: {
@@ -60,6 +60,7 @@ const router = generateCRUD(Poi, {
     middlewares: [
       csvToJson,
       checkDuplications(Poi, 'label'),
+      validateCampus,
     ],
   },
 });

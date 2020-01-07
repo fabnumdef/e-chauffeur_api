@@ -1,6 +1,8 @@
 export default function addCSVContentPlugin(schema) {
   // eslint-disable-next-line no-param-reassign
   schema.statics.createFromCSV = async function createFromCSV(datas) {
+    await this.db.createCollection(this.collection.collectionName);
+
     const session = await this.startSession();
     session.startTransaction();
     try {

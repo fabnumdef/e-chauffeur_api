@@ -171,6 +171,24 @@ router.del(
 router.post('/batch',
   resolveRights(CAN_CREATE_CAMPUS_USER),
   csvToJson,
+  async (ctx, next) => {
+    const { file, query: { campus } } = ctx;
+    if (campus) {
+      ctx.file = file.map((item) => {
+        const newItem = { ...item };
+        if (item.roles) {
+          const hasCampus = item.roles.reduce((acc, role) => (
+            role.campuses.filter(({ id }) => id === campus).length > 0 || acc
+          ), false);
+          if (!hasCampus) {
+            ctx.throw_and_log(403, 'Campus does not match current one');
+          }
+        }
+        return newItem;
+      });
+    }
+    await next();
+  },
   async (ctx) => {
     await User.createFromCSV(ctx.file);
     ctx.log(ctx.log.INFO, 'User batch has been created');

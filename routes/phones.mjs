@@ -9,7 +9,7 @@ import {
   CAN_LIST_PHONE_LOCAL,
   CAN_REMOVE_PHONE_LOCAL,
 } from '../models/rights';
-import { checkDuplications, csvToJson } from '../middlewares/csv-to-json';
+import { checkDuplications, csvToJson, validateCampus } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(Phone, {
   create: {
@@ -59,6 +59,7 @@ const router = generateCRUD(Phone, {
     middlewares: [
       csvToJson,
       checkDuplications(Phone, 'label'),
+      validateCampus,
     ],
   },
 });

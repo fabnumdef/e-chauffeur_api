@@ -3,7 +3,7 @@ import Car from '../models/car';
 import {
   CAN_CREATE_CAR, CAN_EDIT_CAR, CAN_GET_CAR, CAN_LIST_CAR, CAN_REMOVE_CAR,
 } from '../models/rights';
-import { csvToJson, checkDuplications } from '../middlewares/csv-to-json';
+import { csvToJson, checkDuplications, validateCampus } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(Car, {
   create: {
@@ -29,6 +29,7 @@ const router = generateCRUD(Car, {
     middlewares: [
       csvToJson,
       checkDuplications(Car, 'label'),
+      validateCampus,
     ],
   },
 });

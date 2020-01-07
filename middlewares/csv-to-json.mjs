@@ -1,4 +1,5 @@
 import csv2Json from 'csvtojson';
+import Campus from '../models/campus';
 
 export const checkDuplications = (Model, ref) => async (ctx, next) => {
   const documents = await Model.find().lean();
@@ -14,6 +15,26 @@ export const checkDuplications = (Model, ref) => async (ctx, next) => {
 
   if (duplications.length > 0) {
     ctx.throw_and_log(422, 'Duplications in the batch');
+  }
+  await next();
+};
+
+export const validateCampus = async (ctx, next) => {
+  const { file, query: { filters: { campus } } } = ctx;
+  if (campus) {
+    const campusDocument = await Campus.findById(campus).lean();
+    ctx.file = file.map((item) => {
+      const newItem = { ...item };
+      if (!item.campus) {
+        newItem.campus = {
+          id: campusDocument.id,
+          name: campusDocument.name,
+        };
+      } else if (item.campus.id !== campusDocument._id || item.campus.name !== campusDocument.name) {
+        ctx.throw_and_log(403, 'Campus does not match current one');
+      }
+      return newItem;
+    });
   }
   await next();
 };
