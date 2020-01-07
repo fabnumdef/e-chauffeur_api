@@ -165,31 +165,34 @@ const router = generateCRUD(Ride, {
       async (ctx, next) => {
         await next();
         if (lGet(ctx, 'query.csv.flatten', '').toLowerCase() === 'true') {
-          ctx.body = ctx.body.map((ride) => ({
-            ...ride,
-            departure: {
-              ...ride.departure,
-              location: {
-                longitude: lGet(ride, 'departure.location.coordinates.0', null),
-                latitude: lGet(ride, 'departure.location.coordinates.1', null),
+          ctx.body = ctx.body.map((model) => {
+            const { _doc: ride } = model;
+            return {
+              ...ride,
+              departure: {
+                ...ride.departure,
+                location: {
+                  longitude: lGet(model, 'departure.location.coordinates.0', null),
+                  latitude: lGet(model, 'departure.location.coordinates.1', null),
+                },
               },
-            },
-            arrival: {
-              ...ride.arrival,
-              location: {
-                longitude: lGet(ride, 'arrival.location.coordinates.0', null),
-                latitude: lGet(ride, 'arrival.location.coordinates.1', null),
+              arrival: {
+                ...ride.arrival,
+                location: {
+                  longitude: lGet(model, 'arrival.location.coordinates.0', null),
+                  latitude: lGet(model, 'arrival.location.coordinates.1', null),
+                },
               },
-            },
-            status: {
-              latest: ride.status,
-              ...ride
-                .statusChanges
-                .sort((a, b) => a.time.getTime() - b.time.getTime())
-                .map(({ time, status }) => ({ [status]: time }))
-                .reduce((row, acc) => Object.assign(acc, row), {}),
-            },
-          }));
+              status: {
+                latest: model.status,
+                ...model
+                  .statusChanges
+                  .sort((a, b) => a.time.getTime() - b.time.getTime())
+                  .map(({ time, status }) => ({ [status]: time }))
+                  .reduce((row, acc) => Object.assign(acc, row), {}),
+              },
+            };
+          });
         }
       },
       ensureThatFiltersExists('start', 'end'),
