@@ -19,7 +19,6 @@ test:
   script:
     - npm i
     - npm test
-    - npm run lint
 
 lint:
   image: node:latest
@@ -42,7 +41,7 @@ build:
 
 deploy_review:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.1
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
@@ -83,7 +82,7 @@ deploy_review:
 
 deploy_staging:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.1
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
@@ -127,7 +126,7 @@ deploy_staging:
 
 deploy_prod:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.1
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
