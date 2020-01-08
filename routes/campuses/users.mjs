@@ -174,8 +174,7 @@ router.post('/batch',
   async (ctx, next) => {
     const { file, query: { campus } } = ctx;
     if (campus) {
-      ctx.file = file.map((item) => {
-        const newItem = { ...item };
+      file.forEach((item) => {
         if (item.roles) {
           const hasCampus = item.roles.reduce((acc, role) => (
             role.campuses.filter(({ id }) => id === campus).length > 0 || acc
@@ -184,7 +183,6 @@ router.post('/batch',
             ctx.throw_and_log(403, 'Campus does not match current one');
           }
         }
-        return newItem;
       });
     }
     await next();
