@@ -10,7 +10,7 @@ metadata:
     {{ $.Values.monitoring.dashboard.sidecarLabel }}: "1"
 {{- end }}
 data:
-  k8s-node-rsrc-use.json: |-
+  {{$fullName}}-dashboard.json: |-
     {
       "annotations": {
         "list": [
@@ -32,7 +32,6 @@ data:
         ]
       },
       "editable": false,
-      "gnetId": null,
       "graphTooltip": 0,
       "links": [],
       "panels": [
