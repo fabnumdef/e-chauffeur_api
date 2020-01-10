@@ -71,6 +71,7 @@ deploy_review:
       --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
+      --set monitoring.alert.enabled="false"
       --wait
       api-${CI_COMMIT_REF_SLUG}
       .helm-chart
@@ -114,6 +115,7 @@ deploy_staging:
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
+      --set monitoring.alert.minimumPod=2
       --wait
       api-staging
       .helm-chart
@@ -158,6 +160,7 @@ deploy_prod:
       --set-string env.WHITELIST_DOMAINS="${PRODUCTION_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
+      --set monitoring.alert.minimumPod=3
       --wait
       api
       .helm-chart
