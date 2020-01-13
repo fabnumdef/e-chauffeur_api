@@ -19,7 +19,6 @@ test:
   script:
     - npm i
     - npm test
-    - npm run lint
 
 lint:
   image: node:latest
@@ -42,7 +41,7 @@ build:
 
 deploy_review:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.1
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
@@ -72,6 +71,7 @@ deploy_review:
       --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
+      --set monitoring.alert.enabled="false"
       --wait
       api-${CI_COMMIT_REF_SLUG}
       .helm-chart
@@ -83,7 +83,7 @@ deploy_review:
 
 deploy_staging:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.1
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
@@ -115,6 +115,7 @@ deploy_staging:
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
+      --set monitoring.alert.minimumPod=2
       --wait
       api-staging
       .helm-chart
@@ -127,7 +128,7 @@ deploy_staging:
 
 deploy_prod:
   stage: deploy
-  image: dtzar/helm-kubectl:3.0.1
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
@@ -159,6 +160,7 @@ deploy_prod:
       --set-string env.WHITELIST_DOMAINS="${PRODUCTION_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
+      --set monitoring.alert.minimumPod=3
       --wait
       api
       .helm-chart
