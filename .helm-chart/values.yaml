@@ -4,6 +4,16 @@
 
 replicaCount: 1
 namespace: e-chauffeur
+monitoring:
+  dashboard:
+    deploy: true
+    sidecarLabel: grafana-dashboard
+  alert:
+    enabled: true
+    minimumPod: 1
+    labels:
+      app: prometheus-operator
+      release: prometheus
 image:
   repository: registry.gitlab.com/fabnum-minarm/e-chauffeur/api
   tag: stable

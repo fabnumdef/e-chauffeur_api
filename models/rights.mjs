@@ -102,7 +102,6 @@ export const CAN_LIST_POI_LOCAL = campusRule('CAN_LIST_POI_LOCAL');
 export const CAN_GET_POI_LOCAL = campusRule('CAN_GET_POI_LOCAL');
 export const CAN_REMOVE_POI_LOCAL = campusRule('CAN_REMOVE_POI_LOCAL');
 
-export const CAN_LIST_LOG = stdRule('CAN_LIST_LOG');
 export const CAN_GET_POSITION_HISTORY = stdRule('CAN_GET_POSITION_HISTORY');
 
 // @todo : scope there by campus
