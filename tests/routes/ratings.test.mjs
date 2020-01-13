@@ -49,6 +49,6 @@ describe('Test the rating API endpoint', async () => {
   }));
 
   after(async () => {
-    await Promise.all(toDropAfter.map((entity) => entity.deleteOne()));
+    await Promise.all(toDropAfter.map((entity) => entity.deleteMany()));
   });
 });

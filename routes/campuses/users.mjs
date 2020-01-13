@@ -158,7 +158,7 @@ router.del(
       403,
       'You\'re not authorized to delete this user',
     );
-    await User.deleteOne({ _id: user.id });
+    await User.deleteMany({ _id: user.id });
     ctx.log(
       ctx.log.INFO,
       `${User.modelName} "${user.id}" has been removed`,

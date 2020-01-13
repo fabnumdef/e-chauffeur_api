@@ -76,7 +76,7 @@ describe('Test the rides route', () => {
         expect(response.headers['content-type']).to.contain('application/json');
       }
     } finally {
-      await Promise.all(toDropLater.map((entity) => entity.deleteOne()));
+      await Promise.all(toDropLater.map((entity) => entity.deleteMany()));
     }
   });
 });

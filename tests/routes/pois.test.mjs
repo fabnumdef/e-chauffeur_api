@@ -39,7 +39,7 @@ describe('Test the poi API endpoint', () => {
   });
 
   after(async () => {
-    await Campus.deleteOne(campus);
+    await Campus.deleteMany(campus);
   });
 
   it(...testCreate(Poi, {

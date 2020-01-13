@@ -25,9 +25,9 @@ export const testGet = (Model, {
 
       const object = await Model.findOne(createdObject.toObject());
       if (object) {
-        await object.deleteOne();
+        await object.deleteMany();
       }
-      await Promise.all(toDropLater.map((entity) => entity.deleteOne()));
+      await Promise.all(toDropLater.map((entity) => entity.deleteMany()));
 
       return {
         statusCode: expect(statusCode),

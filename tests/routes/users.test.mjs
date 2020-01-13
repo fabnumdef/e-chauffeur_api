@@ -58,7 +58,7 @@ describe('Test the users route', () => {
         expect(statusCode).to.equal(200);
       }
     } finally {
-      await User.deleteOne(dummyUser);
+      await User.deleteMany(dummyUser);
     }
   });
 
@@ -79,7 +79,7 @@ describe('Test the users route', () => {
         expect(statusCode).to.equal(204);
       }
     } finally {
-      await User.deleteOne(dummyUser);
+      await User.deleteMany(dummyUser);
     }
   });
 });

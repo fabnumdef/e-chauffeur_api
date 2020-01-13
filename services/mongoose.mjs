@@ -4,7 +4,6 @@ const connect = async (config) => {
   try {
     const deprecationOptions = {
       useNewUrlParser: true,
-      useFindAndModify: false,
       useCreateIndex: true,
       useUnifiedTopology: true,
     };
