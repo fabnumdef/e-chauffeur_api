@@ -30,29 +30,14 @@ const router = generateCRUD(Poi, {
     right: [CAN_LIST_POI, CAN_LIST_POI_LOCAL],
     filters: {
       campus: 'campus._id',
+      withDisabled: 'enabled',
     },
-    middlewares: [
-      async (ctx, next) => {
-        const searchParams = ctx.filters;
-        if (ctx.query && ctx.query.search) {
-          searchParams.$or = [
-            {
-              _id: new RegExp(ctx.query.search, 'i'),
-            },
-            {
-              label: new RegExp(ctx.query.search, 'i'),
-            },
-          ];
-        }
-        ctx.filters = searchParams;
-        await next();
-      },
-    ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
+
       const [total, data] = await Promise.all([
-        Poi.countDocuments(ctx.filters),
-        Poi.find(ctx.filters).skip(offset).limit(limit).lean(),
+        Poi.countDocumentsWithin(ctx.filters, ctx.query),
+        Poi.findWithin(ctx.filters, ctx.query).skip(offset).limit(limit).lean(),
       ]);
 
       ctx.log(

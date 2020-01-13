@@ -2,7 +2,12 @@ import mongoose from 'mongoose';
 
 const connect = async (config) => {
   try {
-    await mongoose.connect(config, { useNewUrlParser: true });
+    const deprecationOptions = {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true,
+    };
+    await mongoose.connect(config, deprecationOptions);
     // eslint-disable-next-line no-console
     console.log('MongoDB connected !');
   } catch (e) {

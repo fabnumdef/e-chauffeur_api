@@ -45,7 +45,7 @@ export const CANCEL_REQUESTED_CUSTOMER = 'cancel_requested_by_customer';
 export const CANCEL_CUSTOMER_OVERLOAD = 'cancel_customer_overload';
 export const CANCEL_CUSTOMER_MISSING = 'cancel_customer_missing';
 
-export const CANCELABLE = [VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS];
+export const CANCELABLE = [CREATED, VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS];
 
 export default {
   init: DRAFTED,

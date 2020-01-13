@@ -19,7 +19,6 @@ test:
   script:
     - npm i
     - npm test
-    - npm run lint
 
 lint:
   image: node:latest
@@ -35,22 +34,17 @@ build:
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - cat package.json | head -10
     - /kaniko/executor
       --context $CI_PROJECT_DIR
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
 deploy_review:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
-    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
-    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
       --install
@@ -62,7 +56,6 @@ deploy_review:
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.REDIS="${STAGING_REDIS}"
       --set env.MONGODB="${STAGING_MONGODB}"
-      --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
       --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
       --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
       --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
@@ -74,11 +67,13 @@ deploy_review:
       --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set env.VAPID__PUBLIC_KEY="${STAGING_VAPID__PUBLIC_KEY}"
+      --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
-      --set ingress.issuer="letsencrypt-staging"
+      --set monitoring.alert.enabled="false"
       --wait
-      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      api-${CI_COMMIT_REF_SLUG}
       .helm-chart
   except:
     refs:
@@ -88,13 +83,10 @@ deploy_review:
 
 deploy_staging:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
-    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
-    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - "helm init --upgrade --service-account tiller --force-upgrade --override spec.selector.matchLabels.'name'='tiller',spec.selector.matchLabels.'app'='helm' --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | kubectl apply -f -"
   script:
     - helm upgrade
       --install
@@ -107,7 +99,6 @@ deploy_staging:
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.REDIS="${STAGING_REDIS}"
       --set env.MONGODB="${STAGING_MONGODB}"
-      --set env.SATISFACTION_QUESTIONNAIRE_URL="${STAGING_SATISFACTION_QUESTIONNAIRE_URL}"
       --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
       --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
       --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
@@ -119,11 +110,14 @@ deploy_staging:
       --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
+      --set env.VAPID__PUBLIC_KEY="${STAGING_VAPID__PUBLIC_KEY}"
+      --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
       --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
+      --set monitoring.alert.minimumPod=2
       --wait
-      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      api-staging
       .helm-chart
   only:
     refs:
@@ -134,13 +128,10 @@ deploy_staging:
 
 deploy_prod:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: dtzar/helm-kubectl:3.0.2
   before_script:
-    - apk upgrade --update-cache --available && apk add openssl && rm -rf /var/cache/apk/*
-    - curl -L https://git.io/get_helm.sh | bash
     - mkdir -p `dirname $KUBECONFIG`
     - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
-    - helm init --upgrade --service-account tiller --force-upgrade
   script:
     - helm upgrade
       --install
@@ -153,7 +144,6 @@ deploy_prod:
       --set imageCredentials.registry="${CI_REGISTRY}"
       --set env.REDIS="${PRODUCTION_REDIS}"
       --set env.MONGODB="${PRODUCTION_MONGODB}"
-      --set env.SATISFACTION_QUESTIONNAIRE_URL="${PRODUCTION_SATISFACTION_QUESTIONNAIRE_URL}"
       --set env.TWILIO__SID="${PRODUCTION_TWILIO__SID}"
       --set env.TWILIO__TOKEN="${PRODUCTION_TWILIO__TOKEN}"
       --set env.TWILIO__MESSAGING_SERVICE_SID="${PRODUCTION_TWILIO__MESSAGING_SERVICE_SID}"
@@ -165,15 +155,15 @@ deploy_prod:
       --set env.MAIL__CONTACT_MAIL="${PRODUCTION_MAIL__CONTACT_MAIL}"
       --set env.REDIRECT_TARGET="${PRODUCTION_REDIRECT_TARGET}"
       --set env.USER_WEBSITE_URL="${PRODUCTION_USER_WEBSITE_URL}"
+      --set env.VAPID__PUBLIC_KEY="${PRODUCTION_VAPID__PUBLIC_KEY}"
+      --set env.VAPID__PRIVATE_KEY="${PRODUCTION_VAPID__PRIVATE_KEY}"
       --set-string env.WHITELIST_DOMAINS="${PRODUCTION_WHITELIST_DOMAINS}"
       --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
       --set ingress.issuer="letsencrypt-prod"
+      --set monitoring.alert.minimumPod=3
       --wait
-      e-chauffeur-api-${CI_COMMIT_REF_SLUG}
+      api
       .helm-chart
   only:
-    refs:
-      - master
-  except:
     refs:
       - tags

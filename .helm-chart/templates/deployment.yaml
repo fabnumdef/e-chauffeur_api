@@ -31,8 +31,6 @@ spec:
               value: "{{ .Values.env.TOKEN__DURATION }}"
             - name: TOKEN__SECRET
               value: "{{ randAlphaNum 35 }}"
-            - name: SATISFACTION_QUESTIONNAIRE_URL
-              value: "{{ .Values.env.SATISFACTION_QUESTIONNAIRE_URL }}"
             - name: TWILIO__SID
               value: "{{ .Values.env.TWILIO__SID }}"
             - name: TWILIO__TOKEN
@@ -59,6 +57,10 @@ spec:
               value: "{{ .Values.env.MAIL__TEXT }}"
             - name: MAIL__SUBJECT
               value: "{{ .Values.env.MAIL__SUBJECT }}"
+            - name: VAPID__PUBLIC_KEY
+              value: "{{ .Values.env.VAPID__PUBLIC_KEY }}"
+            - name: VAPID__PRIVATE_KEY
+              value: "{{ .Values.env.VAPID__PRIVATE_KEY }}"
             - name: REDIRECT_TARGET
               value: "{{ .Values.env.REDIRECT_TARGET }}"
             - name: USER_WEBSITE_URL

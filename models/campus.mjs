@@ -44,6 +44,10 @@ const CampusSchema = new Schema({
     },
     default: 30,
   },
+  defaultReservationScope: {
+    type: Number,
+    default: 3600,
+  },
   location: {
     type: {
       type: String,
@@ -89,7 +93,7 @@ const driverFilter = () => ({
 CampusSchema.statics.countUsers = async function countUsers(campus, filters = {}) {
   const User = mongoose.model('User');
   const f = { ...campusFilter(campus), ...filters };
-  return User.count(f);
+  return User.countDocuments(f);
 };
 
 CampusSchema.statics.countDrivers = async function countDrivers(campus) {

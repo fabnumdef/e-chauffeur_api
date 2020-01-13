@@ -8,13 +8,13 @@ import carsRoutes from './campuses/cars';
 import statsRoutes from './campuses/stats';
 import {
   CAN_CREATE_CAMPUS,
-  CAN_EDIT_CAMPUS,
+  CAN_EDIT_CAMPUS, CAN_EDIT_SELF_CAMPUS,
   CAN_GET_CAMPUS, CAN_GET_CAMPUS_BASIC,
   CAN_LIST_CAMPUS, CAN_LIST_CAMPUS_BASIC,
   CAN_REMOVE_CAMPUS,
 } from '../models/rights';
 
-const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody)';
+const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody),defaultReservationScope';
 const router = generateCRUD(Campus, {
   create: {
     right: CAN_CREATE_CAMPUS,
@@ -54,7 +54,8 @@ const router = generateCRUD(Campus, {
     right: CAN_REMOVE_CAMPUS,
   },
   update: {
-    right: CAN_EDIT_CAMPUS,
+    paramId: 'campus_id',
+    right: [CAN_EDIT_CAMPUS, CAN_EDIT_SELF_CAMPUS],
   },
 });
 

@@ -2,6 +2,26 @@
 ## Current
 ### Features
 ### Fix
+## Version 1.4.4
+### Features
+* Refactor rights to be able to check inheritance and add rights on model
+* Add rating form route and model
+* Add push notifications
+* User can delete his own account
+* Add password constraint
+* Add password expiration
+* Add rights for admin to update his own campuses
+* Add date coherence control
+* Add mergeMasks helper
+* Add defaultReservationScope to campus model
+* Add possibility for ride owner to cancel ride by updating status
+* Remove logs from mongodb, using Loki stack right now
+* Export dashboard and monitoring on deploy
+### Fix
+* Rides and ratings routes tests
+* Link in registration mail
+* Fix fixtures script
+* Fix deprecation warnings
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 
@@ -9,6 +29,9 @@
 * Add SMS on refusal
 * Refactor cars planning and remove dead/old code and lib
 * Add Redis sync capability
+* Add filter management to pois list route
+* Add enabled field to Poi model
+* Add right to list user own rides and delete it
 * Standardize email content
 ### Fix
 * Fix potential leak of hashed password

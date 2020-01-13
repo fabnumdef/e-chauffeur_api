@@ -1,7 +1,9 @@
 import camelCase from 'lodash.camelcase';
 import lGet from 'lodash.get';
 import mask from 'json-mask';
+import Luxon from 'luxon';
 import {
+  CANCEL_REQUESTED_CUSTOMER,
   CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
 } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
@@ -9,6 +11,7 @@ import contentNegociation from '../middlewares/content-negociation';
 import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
+import NotificationDevice from '../models/notification-device';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
@@ -16,15 +19,18 @@ import {
   CAN_EDIT_RIDE_STATUS,
   CAN_GET_RIDE,
   CAN_GET_RIDE_POSITION,
-  CAN_LIST_RIDE,
+  CAN_LIST_RIDE, CAN_LIST_SELF_RIDE,
 
   CAN_REQUEST_RIDE,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE_STATUS,
   CAN_EDIT_OWNED_RIDE,
+  CAN_DELETE_SELF_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
+
+const { DateTime } = Luxon;
 
 function ioEmit(ctx, data, eventName = '', rooms = []) {
   let { app: { io } } = ctx;
@@ -50,7 +56,7 @@ const router = generateCRUD(Ride, {
         delete body.status;
         body.owner = user;
       }
-      const ride = await Ride.create(Object.assign(body));
+      const ride = await Ride.create(body);
       ctx.body = ride;
       if (!ctx.may(CAN_CREATE_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
@@ -61,6 +67,20 @@ const router = generateCRUD(Ride, {
         `campus/${ride.campus.id}`,
         `driver/${ride.driver.id}`,
       ]);
+      // Todo: add this to a queue system to ensure this will be executed
+      NotificationDevice.findOneByUser(ride.driver.id).then((device) => {
+        if (device) {
+          const payload = {
+            message: `Nouvelle course à ${DateTime.fromJSDate(ride.start).setLocale('fr').toFormat('HH\'h\'mm')}`,
+            body: `De ${ride.departure.label} à ${ride.arrival.label}`,
+          };
+          device.notify(payload).catch((e) => {
+            if (e.name === 'WebPushError') {
+              NotificationDevice.deleteOne({ _id: device._id.toString() }).exec();
+            }
+          });
+        }
+      });
     },
   },
   update: {
@@ -115,6 +135,7 @@ const router = generateCRUD(Ride, {
     preMiddlewares: [
       prefetchRideMiddleware(),
     ],
+    lean: false,
     right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
       const { params: { id } } = ctx;
@@ -132,32 +153,41 @@ const router = generateCRUD(Ride, {
     },
   },
   list: {
-    right: CAN_LIST_RIDE,
+    lean: false,
+    right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
     filters: {
       campus: 'campus._id',
+      userId: 'owner._id',
     },
     middlewares: [
       contentNegociation,
       maskOutput,
       async (ctx, next) => {
         await next();
-        if (lGet(ctx, 'query.csv.flatten', '').toLowerCase() === 'true') {
-          ctx.body = ctx.body.map((ride) => ({
-            ...ride,
-            departure: {
-              ...ride.departure,
+        ctx.body = ctx.body.map((model) => {
+          const ride = model.toObject({ virtuals: true, aliases: true });
+          let departure = { ...ride.departure };
+          let arrival = { ...ride.arrival };
+          if (lGet(ctx, 'query.csv.flatten', '').toLowerCase() === 'true') {
+            departure = {
+              ...departure,
               location: {
                 longitude: lGet(ride, 'departure.location.coordinates.0', null),
                 latitude: lGet(ride, 'departure.location.coordinates.1', null),
               },
-            },
-            arrival: {
-              ...ride.arrival,
+            };
+            arrival = {
+              ...arrival,
               location: {
                 longitude: lGet(ride, 'arrival.location.coordinates.0', null),
                 latitude: lGet(ride, 'arrival.location.coordinates.1', null),
               },
-            },
+            };
+          }
+          return {
+            ...ride,
+            departure,
+            arrival,
             status: {
               latest: ride.status,
               ...ride
@@ -166,19 +196,18 @@ const router = generateCRUD(Ride, {
                 .map(({ time, status }) => ({ [status]: time }))
                 .reduce((row, acc) => Object.assign(acc, row), {}),
             },
-          }));
-        }
+          };
+        });
       },
       ensureThatFiltersExists('start', 'end'),
     ],
     async main(ctx) {
       // @todo: Add right on max
       const { offset, limit } = ctx.parseRangePagination(Ride, { max: 1000 });
-      const start = new Date(ctx.query.filters.start);
-      const end = new Date(ctx.query.filters.end);
 
-      const total = await Ride.countDocumentsWithin(start, end, ctx.filters);
-      const data = await Ride.findWithin(start, end, ctx.filters).skip(offset).limit(limit).lean();
+      const total = await Ride.countDocumentsWithin(ctx.filters, ctx.query.filters);
+      const data = await Ride.findWithin(ctx.filters, ctx.query.filters).skip(offset).limit(limit);
+
       ctx.setRangePagination(Ride, {
         total, offset, count: data.length, limit,
       });
@@ -190,6 +219,9 @@ const router = generateCRUD(Ride, {
         { filters: ctx.filters, offset, limit },
       );
     },
+  },
+  delete: {
+    right: CAN_DELETE_SELF_RIDE,
   },
 });
 
@@ -240,14 +272,14 @@ router.post(
   async (ctx) => {
     // @todo: rights - driver should be able to update only some status
     const { params: { id, action } } = ctx;
-    if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE) {
+    if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE && action !== CANCEL_REQUESTED_CUSTOMER) {
       ctx.throw_and_log(403, `You're not authorized to mutate to "${action}"`);
     }
     const ride = getPrefetchedRide(ctx, id);
     if (!ride) {
       ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
     }
-    if (!ride.can(action)) {
+    if (ride.cannot(action)) {
       ctx.throw_and_log(400, `State violation : ride cannot switch to "${action}"`);
     }
 

@@ -8,7 +8,6 @@
   },
   "mongodb": "mongodb://localhost/e-chauffeur",
   "user_website_url": "",
-  "satisfaction_questionnaire_url": "",
   "twilio": {
     "sid": "",
     "token": "",
@@ -32,5 +31,9 @@
     "subject": "E-chauffeur : :firstname :lastname (:email)"
   },
   "whitelist_domains": ["def.gouv.fr"],
-  "default_timezone": "Europe/Paris"
+  "default_timezone": "Europe/Paris",
+  "vapid": {
+    "public_key": "",
+    "private_key": ""
+  }
 }

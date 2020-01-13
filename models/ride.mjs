@@ -4,12 +4,19 @@ import Luxon from 'luxon';
 import nanoid from 'nanoid';
 import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import gliphone from 'google-libphonenumber';
-import stateMachine, { DRAFTED } from './status';
+import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from './rights';
+import stateMachine, {
+  DRAFTED,
+  DELIVERED,
+  CANCELABLE,
+} from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
+import cleanObjectPlugin from './helpers/object-cleaner';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
+const MODEL_NAME = 'Ride';
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
@@ -35,10 +42,22 @@ const RideSchema = new Schema({
   },
   end: Date,
   owner: {
-    _id: { type: mongoose.Types.ObjectId, alias: 'owner.id' },
-    firstname: String,
-    lastname: String,
-    email: String,
+    _id: {
+      type: mongoose.Types.ObjectId,
+      alias: 'owner.id',
+    },
+    firstname: {
+      type: String,
+      canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+    },
+    lastname: {
+      type: String,
+      canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+    },
+    email: {
+      type: String,
+      canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+    },
   },
   departure: {
     _id: { type: String, required: true, alias: 'departure.id' },
@@ -89,9 +108,15 @@ const RideSchema = new Schema({
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
     },
+    defaultReservationScope: {
+      type: Number,
+    },
   },
   comments: String,
-  userComments: String,
+  userComments: {
+    type: String,
+    canEmit: [CAN_ACCESS_PERSONAL_DATA_ON_RIDE, CAN_ACCESS_OWN_DATA_ON_RIDE],
+  },
   passengersCount: {
     type: Number,
     default: 1,
@@ -104,9 +129,13 @@ const RideSchema = new Schema({
 });
 
 RideSchema.plugin(createdAtPlugin);
+RideSchema.plugin(cleanObjectPlugin, MODEL_NAME);
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
+  if (this.start >= this.end) {
+    throw new Error('End date should be higher than start date');
+  }
   try {
     const phoneUtil = PhoneNumberUtil.getInstance();
     this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
@@ -123,7 +152,23 @@ RideSchema.pre('validate', async function beforeSave() {
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
-      this.campus = await Campus.findById(campusId).lean();
+      this.campus = await Campus.findById(campusId);
+      if (this.campus) {
+        const currentReservationScope = DateTime.local()
+          .plus({ seconds: this.campus.defaultReservationScope })
+          .toJSDate();
+        if (currentReservationScope < this.start) {
+          const err = new Error();
+          err.status = 403;
+          err.message = 'Ride date should be in campus reservation scope';
+          throw err;
+        }
+      } else {
+        const err = new Error();
+        err.status = 404;
+        err.message = 'Campus not found';
+        throw err;
+      }
     })(mongoose.model('Campus')),
     (async (User) => {
       const userId = this.owner._id;
@@ -157,9 +202,45 @@ RideSchema.statics.castId = (v) => {
   }
 };
 
-RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
-  const filters = f;
-  filters.$or = [
+RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilter) {
+  let filter = {
+    ...rawFilters,
+    ...queryFilter,
+    ...this.filtersWithin(queryFilter.start, queryFilter.end),
+  };
+
+  delete filter.start;
+  delete filter.end;
+
+
+  if (filter.current) {
+    let status;
+    if (filter.current === 'false') {
+      status = { status: DELIVERED };
+    } else {
+      status = { status: { $in: CANCELABLE } };
+    }
+
+    filter = {
+      ...filter,
+      ...status,
+    };
+
+    delete filter.current;
+  }
+
+
+  if (!filter) {
+    return null;
+  }
+  return filter;
+};
+
+RideSchema.statics.filtersWithin = function filtersWithin(rawStart, rawEnd) {
+  const queryFilter = {};
+  const start = new Date(rawStart);
+  const end = new Date(rawEnd);
+  queryFilter.$or = [
     {
       start: {
         $lte: start,
@@ -197,21 +278,15 @@ RideSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
       },
     },
   ];
-  return filters;
+  return queryFilter;
 };
 
-RideSchema.statics.findWithin = function findWithin(start, end, filters = {}, ...rest) {
-  return this.find(
-    this.filtersWithin(start, end, filters),
-    ...rest,
-  );
+RideSchema.statics.findWithin = function findWithin(...params) {
+  return this.find(this.formatFilters(...params));
 };
 
-RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(start, end, filters = {}, ...rest) {
-  return this.countDocuments(
-    this.filtersWithin(start, end, filters),
-    ...rest,
-  );
+RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(...params) {
+  return this.countDocuments(this.formatFilters(...params));
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {
@@ -256,7 +331,7 @@ RideSchema.methods.getRideClientURL = function getRideClientURL() {
 };
 
 RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
-  return `${config.get('satisfaction_questionnaire_url')}`;
+  return `${config.get('user_website_url')}/rating?rideId=${this.id}`;
 };
 
-export default mongoose.model('Ride', RideSchema);
+export default mongoose.model(MODEL_NAME, RideSchema);

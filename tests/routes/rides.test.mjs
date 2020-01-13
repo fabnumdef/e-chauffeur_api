@@ -48,8 +48,8 @@ describe('Test the rides route', () => {
         end: date.plus(tenMinutes).toJSDate(),
       });
       const rideModel = new Ride(dummyRide);
-      await rideModel.save();
-
+      const savedModel = await rideModel.save();
+      toDropLater.push(savedModel);
       const query = {
         mask: 'id',
         filters: {
@@ -76,7 +76,7 @@ describe('Test the rides route', () => {
         expect(response.headers['content-type']).to.contain('application/json');
       }
     } finally {
-      await Promise.all(toDropLater.map((entity) => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.deleteOne()));
     }
   });
 });
