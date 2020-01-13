@@ -27,9 +27,9 @@ export const testUpdate = (Model, {
 
       const object = await Model.findById(createdObject._id);
       if (object) {
-        await object.remove();
+        await object.deleteOne();
       }
-      await Promise.all(toDropLater.map((entity) => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.deleteOne()));
 
       return {
         statusCode: expect(statusCode),
