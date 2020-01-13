@@ -25,9 +25,9 @@ export const testCreate = (Model, {
       const object = await Model
         .findById(id);
       if (object) {
-        await object.remove();
+        await object.deleteOne();
       }
-      await Promise.all(toDropLater.map((entity) => entity.remove()));
+      await Promise.all(toDropLater.map((entity) => entity.deleteOne()));
 
       return {
         statusCode: expect(statusCode),
@@ -96,8 +96,8 @@ export const testCreateUnicity = (Model, {
         expect(statusCode).to.equal(409);
       }
     } finally {
-      await dummyObject.remove();
-      await Promise.all(toDropLater.map((entity) => entity.remove()));
+      await dummyObject.deleteOne();
+      await Promise.all(toDropLater.map((entity) => entity.deleteOne()));
     }
   },
 ];

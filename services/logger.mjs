@@ -6,7 +6,11 @@ import isFunction from 'lodash.isfunction';
 
 import config from './config';
 
-export const createMongoDBTransport = (db) => new winston.transports.MongoDB({ db, collection: 'logs' });
+export const createMongoDBTransport = (db) => new winston.transports.MongoDB({
+  db,
+  collection: 'logs',
+  options: { useNewUrlParser: true, useUnifiedTopology: true },
+});
 
 export const defaultConsoleTransport = new winston.transports.Console({ level: process.env.LOG_LEVEL || 'warn' });
 export const defaultMongoDBTransport = createMongoDBTransport(config.get('mongodb'));

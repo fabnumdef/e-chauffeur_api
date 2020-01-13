@@ -16,6 +16,7 @@
 * Rides and ratings routes tests
 * Link in registration mail
 * Fix fixtures script
+* Fix deprecation warnings
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 
