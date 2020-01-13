@@ -76,7 +76,7 @@ const router = generateCRUD(Ride, {
           };
           device.notify(payload).catch((e) => {
             if (e.name === 'WebPushError') {
-              NotificationDevice.deleteMany({ _id: device._id.toString() }).exec();
+              NotificationDevice.deleteOne({ _id: device._id.toString() }).exec();
             }
           });
         }

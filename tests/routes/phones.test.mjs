@@ -37,7 +37,7 @@ describe('Test the phone API endpoint', () => {
   });
 
   after(async () => {
-    await Campus.deleteMany(campus);
+    await Campus.deleteOne(campus);
   });
 
   it(...testCreate(Phone, {
