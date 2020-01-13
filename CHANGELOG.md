@@ -1,6 +1,9 @@
 # Changelog
 ## Current
 ### Features
+### Fix
+## Version 1.4.4
+### Features
 * Refactor rights to be able to check inheritance and add rights on model
 * Add rating form route and model
 * Add push notifications
