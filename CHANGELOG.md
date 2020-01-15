@@ -2,6 +2,7 @@
 ## Current
 ### Features
 * Add recurring time slots
+* Add csv middleware to list routes when needed
 ### Fix
 * bump validator to 12.1.0 & deleted node-input-validator
 ## Version 1.4.4
@@ -13,7 +14,6 @@
 * Add password constraint
 * Add password expiration
 * Add rights for admin to update his own campuses
-* Add csv middleware to list routes when needed
 * Add date coherence control
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
