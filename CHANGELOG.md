@@ -13,6 +13,7 @@
 * Add password constraint
 * Add password expiration
 * Add rights for admin to update his own campuses
+* Add csv middleware to list routes when needed
 * Add date coherence control
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model

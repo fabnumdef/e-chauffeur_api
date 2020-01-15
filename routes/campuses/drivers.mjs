@@ -13,6 +13,8 @@ import {
 import User from '../../models/user';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 import config from '../../services/config';
+import contentNegociation from '../../middlewares/content-negociation';
+
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -23,6 +25,7 @@ const addDomainInError = (e) => [
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_DRIVER),
+  contentNegociation,
   maskOutput,
   async (ctx) => {
     let data;

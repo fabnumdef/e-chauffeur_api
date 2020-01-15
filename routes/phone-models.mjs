@@ -8,12 +8,18 @@ import {
   CAN_LIST_PHONE_MODEL,
   CAN_REMOVE_PHONE_MODEL,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(PhoneModel, {
   create: {
     right: CAN_CREATE_PHONE_MODEL,
   },
   list: {
+    middlewares: [
+      contentNegociation,
+      maskOutput,
+    ],
     right: CAN_LIST_PHONE_MODEL,
   },
   get: {

@@ -7,6 +7,8 @@ import {
   CAN_LIST_CATEGORY,
   CAN_REMOVE_CATEGORY,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(Category, {
   create: {
@@ -18,6 +20,8 @@ const router = generateCRUD(Category, {
       campus: 'campus._id',
     },
     middlewares: [
+      contentNegociation,
+      maskOutput,
       async (ctx, next) => {
         const searchParams = ctx.filters;
         if (ctx.query && ctx.query.search) {
