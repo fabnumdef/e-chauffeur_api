@@ -3,6 +3,7 @@
 ### Features
 * Add recurring time slots
 ### Fix
+* bump validator to 12.1.0 & deleted node-input-validator
 ## Version 1.4.4
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model
