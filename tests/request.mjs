@@ -1,5 +1,4 @@
 import request from 'supertest';
-import logger, { defaultMongoDBTransport, createMongoDBTransport } from '../services/logger';
 import config from '../services/config';
 import MongooseService from '../services/mongoose';
 import app from '../app';
@@ -8,9 +7,6 @@ import * as roles from '../models/role';
 
 config.get('whitelist_domains').push('localhost');
 const DATABASE = `${config.get('mongodb')}-test`;
-
-logger.remove(defaultMongoDBTransport);
-logger.add(createMongoDBTransport(DATABASE));
 
 const rolesKeys = {
   ...Object.keys(roles)

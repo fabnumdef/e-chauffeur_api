@@ -1,0 +1,26 @@
+{{- $fullName := include ".helm-chart.fullname" . -}}
+{{- if .Values.monitoring.alert.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" $fullName "alerting-rule" | trunc 63 | trimSuffix "-" }}
+  labels:
+{{ include ".helm-chart.labels" . | indent 4 }}
+{{- if .Values.monitoring.alert.labels }}
+{{ toYaml .Values.monitoring.alert.labels | indent 4 }}
+{{- end }}
+
+spec:
+  groups:
+    - name: {{ $fullName }}
+      rules:
+        - alert: NotEnoughPod
+          expr: "sum(kube_pod_status_phase{namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", phase=\"Running\"}) < {{ .Values.monitoring.alert.minimumPod }}"
+          for: 1m
+          labels:
+            namespace: {{ .Values.namespace }}
+            deployment: {{ $fullName }}
+            severity: major
+          annotations:
+            summary: Not enough pods running
+{{- end }}

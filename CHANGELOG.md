@@ -1,6 +1,10 @@
 # Changelog
 ## Current
 ### Features
+* Add recurring time slots
+### Fix
+## Version 1.4.4
+### Features
 * Refactor rights to be able to check inheritance and add rights on model
 * Add rating form route and model
 * Add push notifications
@@ -12,10 +16,13 @@
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
-* Add recurring time slots
+* Remove logs from mongodb, using Loki stack right now
+* Export dashboard and monitoring on deploy
 ### Fix
-* rides and ratings routes tests
-* link in registration mail
+* Rides and ratings routes tests
+* Link in registration mail
+* Fix fixtures script
+* Fix deprecation warnings
 ## Version 1.4.3
 ### Features
 * Add /campuses/{id}/users route 
