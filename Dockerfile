@@ -29,4 +29,5 @@ COPY ./config.json.dist ./config.json
 
 EXPOSE 1337
 
-CMD [ "npm", "run", "serve" ]
+ENTRYPOINT [ "npm" ]
+CMD [ "run", "serve" ]

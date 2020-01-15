@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Add recurring time slots
 ### Fix
 ## Version 1.4.4
 ### Features
