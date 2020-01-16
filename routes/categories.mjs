@@ -7,7 +7,7 @@ import {
   CAN_LIST_CATEGORY,
   CAN_REMOVE_CATEGORY,
 } from '../models/rights';
-import { csvToJson, checkDuplications } from '../middlewares/csv-to-json';
+import { csvToJson } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -51,9 +51,9 @@ const router = generateCRUD(Category, {
   },
   batch: {
     right: CAN_CREATE_CATEGORY,
+    refs: ['_id', 'label'],
     middlewares: [
       csvToJson,
-      checkDuplications(Category, 'label'),
     ],
   },
 });

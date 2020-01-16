@@ -1,17 +1,6 @@
 import csv2Json from 'csvtojson';
 import Campus from '../models/campus';
 
-export const checkDuplications = (Model, ref) => async (ctx, next) => {
-  const documents = await Model.find().lean();
-  const duplications = documents.filter((document) => ctx.file.reduce(
-    (acc, data) => (acc || data[ref] === document[ref]), false,
-  ));
-  if (duplications.length > 0) {
-    ctx.throw_and_log(422, 'Duplications in the batch');
-  }
-  await next();
-};
-
 export const validateCampus = async (ctx, next) => {
   const { file, query } = ctx;
   if (query && query.filters && query.filters.campus) {

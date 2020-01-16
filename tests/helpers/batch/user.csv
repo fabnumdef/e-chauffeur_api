@@ -1,2 +1,2 @@
 email;firstname;lastname;phone.original;phone.canonical;roles.0.role;roles.0.campuses.0.id;roles.0.campuses.0.name
-foo@baz.com;Foo;Bar;+33 606060606;+33 606060607;ROLE_DRIVER;BSL;Brest
+foo@def.gouv.fr;Foo;Bar;+33 606060606;+33 606060607;ROLE_DRIVER;BSL;Brest

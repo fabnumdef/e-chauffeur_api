@@ -25,8 +25,7 @@ export const testBatch = (Model, {
         .attach(name, path);
 
       const batch = await csv2Json({ delimiter: ';', ignoreEmpty: true }).fromFile(path);
-      const documents = await Promise.all(batch.map((item) => Model.findOne({ [ref]: item[ref] })));
-      await Promise.all(documents.map((entity) => Model.remove(entity)));
+      await Promise.all(batch.map((item) => Model.findOneAndDelete({ [ref]: item[ref] })));
 
       return {
         statusCode: expect(statusCode),

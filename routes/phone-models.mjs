@@ -1,6 +1,6 @@
 import generateCRUD from '../helpers/abstract-route';
 import PhoneModel from '../models/phone-model';
-import { checkDuplications, csvToJson } from '../middlewares/csv-to-json';
+import { csvToJson } from '../middlewares/csv-to-json';
 
 import {
   CAN_CREATE_PHONE_MODEL,
@@ -34,10 +34,8 @@ const router = generateCRUD(PhoneModel, {
   },
   batch: {
     right: CAN_CREATE_PHONE_MODEL,
-    middlewares: [
-      csvToJson,
-      checkDuplications(PhoneModel, 'label'),
-    ],
+    refs: ['_id', 'label'],
+    middlewares: [csvToJson],
   },
 });
 

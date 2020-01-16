@@ -3,7 +3,7 @@ import Car from '../models/car';
 import {
   CAN_CREATE_CAR, CAN_EDIT_CAR, CAN_GET_CAR, CAN_LIST_CAR, CAN_REMOVE_CAR,
 } from '../models/rights';
-import { csvToJson, checkDuplications, validateCampus } from '../middlewares/csv-to-json';
+import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -32,9 +32,9 @@ const router = generateCRUD(Car, {
   },
   batch: {
     right: CAN_CREATE_CAR,
+    refs: ['_id', 'label'],
     middlewares: [
       csvToJson,
-      checkDuplications(Car, 'label'),
       validateCampus,
     ],
   },

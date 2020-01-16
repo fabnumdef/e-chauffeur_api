@@ -12,7 +12,7 @@ import {
   CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 } from '../models/rights';
 import config from '../services/config';
-import { csvToJson, checkDuplications } from '../middlewares/csv-to-json';
+import { csvToJson } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -227,10 +227,8 @@ const router = generateCRUD(User, {
   },
   batch: {
     right: [CAN_CREATE_USER],
-    middlewares: [
-      csvToJson,
-      checkDuplications(User, 'email'),
-    ],
+    refs: ['email'],
+    middlewares: [csvToJson],
   },
 });
 

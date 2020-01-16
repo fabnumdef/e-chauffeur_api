@@ -4,7 +4,7 @@ import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
 
 export function addBatchToRouter(Model, {
-  url = '/batch', right, rights = [], middlewares = [], main,
+  url = '/batch', right, rights = [], middlewares = [], main, refs = [],
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -17,7 +17,9 @@ export function addBatchToRouter(Model, {
       .map((r) => resolveRights(...[].concat(r))),
     ...middlewares,
     main || (async (ctx) => {
-      await Model.createFromCSV(ctx.file);
+      await Model.createFromCSV({
+        model: Model, refs, datas: ctx.file,
+      });
       ctx.log(ctx.log.INFO, `${Model.modelName} batch has been created`);
       ctx.status = 204;
     }),

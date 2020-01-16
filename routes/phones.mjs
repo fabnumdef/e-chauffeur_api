@@ -9,7 +9,7 @@ import {
   CAN_LIST_PHONE_LOCAL,
   CAN_REMOVE_PHONE_LOCAL,
 } from '../models/rights';
-import { checkDuplications, csvToJson, validateCampus } from '../middlewares/csv-to-json';
+import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -62,9 +62,9 @@ const router = generateCRUD(Phone, {
   },
   batch: {
     right: CAN_CREATE_PHONE_LOCAL,
+    refs: ['_id', 'label'],
     middlewares: [
       csvToJson,
-      checkDuplications(Phone, 'label'),
       validateCampus,
     ],
   },

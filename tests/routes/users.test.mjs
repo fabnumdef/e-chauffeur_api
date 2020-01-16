@@ -6,8 +6,7 @@ import request, {
 } from '../request';
 import User, { generateDummyUser } from '../models/user';
 import {
-  testCreate, testDelete, testList, testGet, testUpdate,
-  // testBatch,
+  testCreate, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 const { expect } = chai;
@@ -42,15 +41,12 @@ describe('Test the users route', () => {
     route: ({ id }) => `${config.route}/${id}`,
   }));
 
-  // @todo check user deletion after test
-  /*
   it(...testBatch(User, {
     ...config,
     route: `${config.route}/batch`,
-    ref: 'email',
+    refs: ['email'],
     queryParams: {},
   }));
-   */
 
   it('User should be able to edit self password/name', async () => {
     const dummyUser = generateDummyUser();

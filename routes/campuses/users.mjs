@@ -190,7 +190,7 @@ router.post('/batch',
     await next();
   },
   async (ctx) => {
-    await User.createFromCSV(ctx.file);
+    await User.createFromCSV({ model: User, refs: ['email'], datas: ctx.file });
     ctx.log(ctx.log.INFO, 'User batch has been created');
     ctx.status = 204;
   });
