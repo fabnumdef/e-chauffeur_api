@@ -13,6 +13,8 @@ import {
   CAN_REMOVE_POI_LOCAL,
 } from '../models/rights';
 import { checkDuplications, csvToJson, validateCampus } from '../middlewares/csv-to-json';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(Poi, {
   create: {
@@ -33,6 +35,10 @@ const router = generateCRUD(Poi, {
       campus: 'campus._id',
       withDisabled: 'enabled',
     },
+    middlewares: [
+      contentNegociation,
+      maskOutput,
+    ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
 

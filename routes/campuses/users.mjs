@@ -13,6 +13,7 @@ import {
 import User from '../../models/user';
 import config from '../../services/config';
 import { csvToJson } from '../../middlewares/csv-to-json';
+import contentNegociation from '../../middlewares/content-negociation';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -23,6 +24,7 @@ const addDomainInError = (e) => [
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_USER),
+  contentNegociation,
   maskOutput,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(User, { max: 30 });

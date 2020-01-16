@@ -45,7 +45,7 @@ describe('Test the JWT route', () => {
         )
           .to.deep.include({ email: user.email, id: user.id });
       } finally {
-        await user.remove();
+        await user.deleteOne();
       }
     });
   });
@@ -76,7 +76,7 @@ describe('Test the JWT route', () => {
           .set('Authorization', `Bearer ${token}`);
         expect(statusCode).to.equal(404);
       } finally {
-        await user.remove();
+        await user.deleteOne();
       }
     });
 
@@ -96,7 +96,7 @@ describe('Test the JWT route', () => {
         )
           .to.deep.include({ email: user.email, id: user.id });
       } finally {
-        await user.remove();
+        await user.deleteOne();
       }
     });
   });
@@ -113,7 +113,7 @@ describe('Test the JWT route', () => {
           .set('Authorization', `Bearer ${token}`);
         expect(statusCode).to.equal(404);
       } finally {
-        await user.remove();
+        await user.deleteOne();
       }
     });
 
@@ -131,7 +131,7 @@ describe('Test the JWT route', () => {
         expect(user)
           .to.deep.equal({ email: u.email, id: u.id });
       } finally {
-        await u.remove();
+        await u.deleteOne();
       }
     });
   });

@@ -14,18 +14,18 @@ const DIRNAME = typeof __dirname !== 'undefined' ? __dirname
   : FILENAME.replace(/[\/\\][^\/\\]*?$/, '');
 
 const CURRENT_FILE = path.basename(FILENAME);
-const modelsPath = path.join(DIRNAME, '..', 'models');
-
 
 (async () => {
   await import('../services');
+  await import('../models/role.mjs');
 
-  await Promise.all((await readDir(modelsPath)).map(async (f) => import(`../models/${f}`)));
   await Promise.all((await readDir(DIRNAME))
-    .filter((f) => f !== CURRENT_FILE && f !== 'index.js')
-    .map(async (file) => {
-      const { default: Model } = await import(`../models/${file.replace(/\.json|.js/, '')}.mjs`);
-      const data = JSON.parse(await readFile(path.resolve(DIRNAME, `./${file}`), 'utf8'));
+    .filter((f) => f !== CURRENT_FILE)
+    .map(async (jsonFileName) => {
+      const filename = path.basename(jsonFileName, '.json');
+      const file = `../models/${filename}.mjs`;
+      const { default: Model } = await import(file);
+      const data = JSON.parse(await readFile(path.resolve(DIRNAME, `./${jsonFileName}`), 'utf8'));
       await Promise.all(data.map(async (datum) => {
         const d = new Model(datum);
         await d.save();

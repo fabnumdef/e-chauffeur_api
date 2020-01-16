@@ -13,6 +13,8 @@ import {
 } from '../models/rights';
 import config from '../services/config';
 import { csvToJson, checkDuplications } from '../middlewares/csv-to-json';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
 
 const X_SEND_TOKEN = 'x-send-token';
 const addDomainInError = (e) => [
@@ -101,6 +103,8 @@ const router = generateCRUD(User, {
   list: {
     right: CAN_LIST_USER,
     middlewares: [
+      contentNegociation,
+      maskOutput,
       async (ctx, next) => {
         const searchParams = {};
         if (ctx.query && ctx.query.search) {
