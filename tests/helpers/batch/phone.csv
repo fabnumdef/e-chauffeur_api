@@ -1,4 +1,2 @@
-_id;imei;model._id;model.label;number
-1;foobar;I8;iPhone 8;0606060606
-2;foo;I8;iPhone 8;0606060606
-3;bar;I8;iPhone 8;0606060606
+_id;imei;model.id;model.label;number;owner.email;owner.firstname;owner.lastname;campus.id;campus.name;state;comments
+I801;123456789012345;I8;iPhone8;+33 606060606;foo@bar.com;Foo;Bar;BSL;Brest;new;

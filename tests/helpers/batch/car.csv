@@ -1,4 +1,2 @@
-_id;label;model._id;model.label;campus._id
-4;foobar;RZE;Renault Zoe;PRS
-5;foo;RZE;Renault Zoe;PRS
-6;bar;RZE;Renault Zoe;PRS
+_id;label;model.id;model.label;campus.id;campus.name
+134YZ394;Renault Zoé 01;RZE;Renault Zoé;BSL;Brest
