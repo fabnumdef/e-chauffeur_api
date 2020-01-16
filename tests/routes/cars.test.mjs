@@ -61,5 +61,7 @@ describe('Test the car API endpoint', () => {
   it(...testBatch(Car, {
     ...config,
     route: `${config.route}/batch`,
+    queryParams: {},
+    canCall: [generateSuperAdminJWTHeader],
   }));
 });

@@ -13,8 +13,9 @@ export const checkDuplications = (Model, ref) => async (ctx, next) => {
 };
 
 export const validateCampus = async (ctx, next) => {
-  const { file, query: { filters: { campus } } } = ctx;
-  if (campus) {
+  const { file, query } = ctx;
+  if (query && query.filters && query.filters.campus) {
+    const { campus } = query.filters;
     const campusDocument = await Campus.findById(campus).lean();
     ctx.file = file.map((item) => {
       const newItem = { ...item };

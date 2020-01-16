@@ -14,7 +14,7 @@ const rolesKeys = {
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
-MongooseService(DATABASE);
+MongooseService(`${DATABASE}?retryWrites=false`);
 
 export default () => request(app.listen());
 

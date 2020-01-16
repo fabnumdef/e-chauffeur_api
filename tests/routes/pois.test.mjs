@@ -83,5 +83,7 @@ describe('Test the poi API endpoint', () => {
   it(...testBatch(Poi, {
     ...config,
     route: `${config.route}/batch`,
+    queryParams: {},
+    canCall: [generateSuperAdminJWTHeader],
   }));
 });
