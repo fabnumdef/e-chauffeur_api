@@ -44,6 +44,20 @@ const router = generateCRUD(Campus, {
     middlewares: [
       async (ctx, next) => {
         await next();
+        const { user } = ctx.state;
+        const { id: campusId } = ctx.params;
+        const { io } = ctx.app;
+        const isDriver = user.roles.reduce((acc, { role, campuses }) => (
+          acc || (role === 'ROLE_DRIVER' && !!campuses.find((campus) => campus._id === campusId))
+        ), false);
+
+        if (isDriver) {
+          io.to(`campus/${campusId}`).emit('updateConnectedDrivers', { ids: user.id });
+          io.to(`driver/${user.id}`).emit('registerCampus', campusId);
+        }
+      },
+      async (ctx, next) => {
+        await next();
         if (!ctx.may(CAN_GET_CAMPUS)) {
           ctx.body = mask(ctx.body, BASIC_OUTPUT_MASK);
         }
