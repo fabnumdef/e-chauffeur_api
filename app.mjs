@@ -1,5 +1,5 @@
 import Koa from 'koa';
-import bodyParser from 'koa-bodyparser';
+import bodyParser from 'koa-body';
 import qsParser from 'koa-qs';
 import jwt from 'koa-jwt';
 import cors from '@koa/cors';
@@ -20,7 +20,7 @@ app.use(rangePaginationMiddleware);
 app.use(cors({
   exposeHeaders: [HEADER_CONTENT_RANGES, HEADER_ACCEPT_RANGES],
 })); // @todo: fine tune, for security
-app.use(bodyParser());
+app.use(bodyParser({ multipart: true }));
 app
   .use(routes);
 

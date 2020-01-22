@@ -3,7 +3,7 @@ import { createDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
 import Car, { generateDummyCar } from '../models/car';
 import {
-  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 const config = {
@@ -56,5 +56,12 @@ describe('Test the car API endpoint', () => {
   it(...testUpdate(Car, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testBatch(Car, {
+    ...config,
+    route: `${config.route}/batch`,
+    queryParams: {},
+    canCall: [generateSuperAdminJWTHeader],
   }));
 });

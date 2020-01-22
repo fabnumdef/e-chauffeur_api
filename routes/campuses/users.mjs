@@ -12,6 +12,7 @@ import {
 } from '../../models/rights';
 import User from '../../models/user';
 import config from '../../services/config';
+import { csvToJson } from '../../middlewares/csv-to-json';
 import contentNegociation from '../../middlewares/content-negociation';
 
 const router = new Router();
@@ -168,5 +169,30 @@ router.del(
     ctx.status = 204;
   },
 );
+
+router.post('/batch',
+  resolveRights(CAN_CREATE_CAMPUS_USER),
+  csvToJson,
+  async (ctx, next) => {
+    const { file, query: { campus } } = ctx;
+    if (campus) {
+      file.forEach((item) => {
+        if (item.roles) {
+          const hasCampus = item.roles.reduce((acc, role) => (
+            role.campuses.filter(({ id }) => id === campus).length > 0 || acc
+          ), false);
+          if (!hasCampus) {
+            ctx.throw_and_log(403, 'Campus does not match current one');
+          }
+        }
+      });
+    }
+    await next();
+  },
+  async (ctx) => {
+    await User.createFromCSV({ model: User, refs: ['email'], datas: ctx.file });
+    ctx.log(ctx.log.INFO, 'User batch has been created');
+    ctx.status = 204;
+  });
 
 export default router.routes();

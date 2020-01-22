@@ -3,6 +3,7 @@
 ### Features
 * Add recurring time slots
 * Add csv middleware to list routes when needed
+* Add batch crud route to handle csv imports
 ### Fix
 * bump validator to 12.1.0 & deleted node-input-validator
 ## Version 1.4.4
@@ -18,9 +19,9 @@
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
+### Fix
 * Remove logs from mongodb, using Loki stack right now
 * Export dashboard and monitoring on deploy
-### Fix
 * Rides and ratings routes tests
 * Link in registration mail
 * Fix fixtures script
