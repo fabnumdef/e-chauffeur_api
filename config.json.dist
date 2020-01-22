@@ -2,6 +2,7 @@
   "redis": null,
   "port": 1337,
   "version": null,
+  "prometheus_exporter": null,
   "token": {
     "secret": "json web token secret",
     "duration": 3600
