@@ -7,5 +7,5 @@ if (port) {
   http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': Prometheus.register.contentType });
     res.end(Prometheus.register.metrics());
-  }).listen(port || 9090);
+  }).listen(port || 1338, '0.0.0.0');
 }

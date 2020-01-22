@@ -27,6 +27,10 @@ spec:
               value: "{{ .Values.env.MONGODB }}"
             - name: REDIS
               value: "{{ .Values.env.REDIS }}"
+{{- if .Values.monitoring.exporter.enabled }}
+            - name: PROMETHEUS_EXPORTER
+              value: "{{ .Values.monitoring.exporter.port }}"
+{{- end}}
             - name: TOKEN__DURATION
               value: "{{ .Values.env.TOKEN__DURATION }}"
             - name: TOKEN__SECRET
@@ -74,6 +78,9 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.monitoring.exporter.port }}
               protocol: TCP
           livenessProbe:
             httpGet:

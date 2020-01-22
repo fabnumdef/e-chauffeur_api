@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "mocha --experimental-modules --exit --require @std/esm --recursive \"tests/**/*.mjs\"",
-    "serve": "LOG=database node --experimental-modules --es-module-specifier-resolution=node server.mjs",
+    "serve": "node --experimental-modules --es-module-specifier-resolution=node server.mjs",
     "nodemon": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "generate-vapid": "node generate-vapid-key.js",
