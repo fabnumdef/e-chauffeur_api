@@ -1,4 +1,5 @@
 import Koa from 'koa';
+import Prometheus from 'prom-client';
 import bodyParser from 'koa-bodyparser';
 import qsParser from 'koa-qs';
 import jwt from 'koa-jwt';
@@ -9,8 +10,18 @@ import config from './services/config';
 import { loggerMiddleware } from './services/logger';
 import { injectUserMayMiddleware } from './middlewares/check-rights';
 import errorHandler from './middlewares/error-handler';
+import metricsMiddleware from './middlewares/metrics';
+
+const metricsInterval = Prometheus.collectDefaultMetrics();
+
+process.on('SIGTERM', () => {
+  clearInterval(metricsInterval);
+});
 
 const app = new Koa();
+if (config.get('prometheus_exporter')) {
+  app.use(metricsMiddleware(metricsInterval));
+}
 app.use(errorHandler);
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
 app.use(injectUserMayMiddleware);
