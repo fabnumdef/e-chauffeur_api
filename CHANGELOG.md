@@ -2,6 +2,7 @@
 ## Current
 ### Features
 * Add recurring time slots
+* Export metrics for prometheus
 ### Fix
 * bump validator to 12.1.0 & deleted node-input-validator
 ## Version 1.4.4
