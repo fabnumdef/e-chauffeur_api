@@ -1,5 +1,5 @@
 import luxon from 'luxon';
-import Router from 'koa-router';
+import Router from '@koa/router';
 import resolveRights from '../middlewares/check-rights';
 import maskOutput from '../middlewares/mask-output';
 import {

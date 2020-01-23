@@ -1,5 +1,5 @@
 import isEmpty from 'lodash.isempty';
-import Router from 'koa-router';
+import Router from '@koa/router';
 import Campus from '../../models/campus';
 import maskOutput from '../../middlewares/mask-output';
 import resolveRights from '../../middlewares/check-rights';
