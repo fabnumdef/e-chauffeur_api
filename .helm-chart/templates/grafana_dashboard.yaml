@@ -45,12 +45,13 @@ data:
           "fill": 6,
           "fillGradient": 0,
           "gridPos": {
-            "h": 8,
-            "w": 12,
+            "h": 7,
+            "w": 6,
             "x": 0,
             "y": 0
           },
           "hiddenSeries": false,
+          "id": 11,
           "legend": {
             "alignAsTable": false,
             "avg": false,
@@ -138,12 +139,13 @@ data:
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
+            "h": 7,
+            "w": 5,
+            "x": 6,
             "y": 0
           },
           "hiddenSeries": false,
+          "id": 12,
           "legend": {
             "avg": false,
             "current": false,
@@ -172,7 +174,7 @@ data:
           {
             "expr": "sum by(phase) (kube_pod_status_phase{namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"})",
             "instant": false,
-            "legendFormat": "Status: {{`{{phase}}`}}",
+            "legendFormat": "{{`Status: {{phase}}`}}",
             "refId": "A"
           }
           ],
@@ -182,7 +184,7 @@ data:
             "fill": false,
             "line": true,
             "op": "gt",
-            "value": {{ .Values.monitoring.alert.minimumPod}},
+            "value": 1,
             "yaxis": "left"
           }
           ],
@@ -227,40 +229,728 @@ data:
           }
         },
         {
-          "datasource": "Loki",
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus",
+          "fill": 1,
+          "fillGradient": 0,
           "gridPos": {
             "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 8
+            "w": 8,
+            "x": 11,
+            "y": 0
           },
+          "hiddenSeries": false,
+          "id": 1,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
           "options": {
-            "showTime": true,
-            "sortOrder": "Descending"
+            "dataLinks": []
           },
+          "paceLength": 10,
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
           "targets": [
           {
-            "expr": "{job=\"{{ .Values.namespace }}/{{ $fullName }}\"}",
+            "expr": "irate(process_cpu_user_seconds_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[2m]) * 100",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`User CPU - {{job}} ({{instance}})`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "irate(process_cpu_system_seconds_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[2m]) * 100",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`Sys CPU - {{job}} ({{instance}})`}}",
+            "refId": "B"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Process CPU Usage",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "percent",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorPostfix": false,
+          "colorPrefix": false,
+          "colorValue": false,
+          "colors": [
+            "#d44a3a",
+            "rgba(237, 129, 40, 0.89)",
+            "#37872D"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 5,
+            "x": 19,
+            "y": 0
+          },
+          "id": 25,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "options": {},
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "nodeJS",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false,
+            "ymax": null,
+            "ymin": null
+          },
+          "tableColumn": "",
+          "targets": [
+          {
+            "expr": "sum(nodejs_version_info{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}) by (version)",
+            "legendFormat": "{{`{{version}}`}}",
+            "refId": "A"
+          }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "",
+          "transparent": true,
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+          ],
+          "valueName": "name"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 5,
+            "x": 19,
+            "y": 2
+          },
+          "id": 23,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "options": {},
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "Restarts :",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "#C4162A",
+            "show": true,
+            "ymax": null,
+            "ymin": null
+          },
+          "tableColumn": "",
+          "targets": [
+          {
+            "expr": "sum(changes(process_start_time_seconds{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m]))",
+            "refId": "A"
+          }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "",
+          "transparent": true,
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+          ],
+          "valueName": "avg"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": null,
+          "format": "rpm",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 2,
+            "w": 5,
+            "x": 19,
+            "y": 4
+          },
+          "id": 35,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "options": {},
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "~",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+          ],
+          "sparkline": {
+            "fillColor": "rgb(20, 41, 18)",
+            "full": true,
+            "lineColor": "#37872D",
+            "show": true,
+            "ymax": null,
+            "ymin": null
+          },
+          "tableColumn": "",
+          "targets": [
+          {
+            "expr": "sum(rate(http_request_duration_ms_count{job=\"{{ $fullName }}\"}[1m])) by (service)  * 60",
+            "legendFormat": "{{`{{service}}`}}",
+            "refId": "A"
+          }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "",
+          "transparent": true,
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+          ],
+          "valueName": "avg"
+        },
+        {
+          "cacheTimeout": null,
+          "datasource": null,
+          "gridPos": {
+            "h": 8,
+            "w": 5,
+            "x": 19,
+            "y": 6
+          },
+          "id": 27,
+          "links": [],
+          "options": {
+            "fieldOptions": {
+              "calcs": [
+                "mean"
+              ],
+              "defaults": {
+                "mappings": [
+                {
+                  "id": 0,
+                  "op": "=",
+                  "text": "0",
+                  "type": 1,
+                  "value": "null"
+                }
+                ],
+                "max": 100,
+                "min": 0,
+                "nullValueMode": "connected",
+                "thresholds": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 10
+                }
+                ],
+                "title": "",
+                "unit": "none"
+              },
+              "override": {},
+              "values": false
+            },
+            "orientation": "horizontal",
+            "showThresholdLabels": true,
+            "showThresholdMarkers": true
+          },
+          "pluginVersion": "6.5.2",
+          "targets": [
+          {
+            "expr": "sum(increase(http_request_duration_ms_count{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\", code=~\"^5..$\"}[1m])) /  sum(increase(http_request_duration_ms_count{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m])) * 100",
+            "instant": false,
+            "intervalFactor": 2,
             "refId": "A"
           }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Logs",
-          "type": "logs"
+          "title": "Error rate (%)",
+          "transparent": true,
+          "type": "gauge"
         },
         {
-          "collapsed": false,
-          "datasource": null,
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus",
+          "fill": 1,
+          "fillGradient": 0,
           "gridPos": {
-            "h": 1,
-            "w": 24,
+            "h": 7,
+            "w": 12,
             "x": 0,
-            "y": 8
+            "y": 7
           },
-          "panels": [],
-          "title": "Usage",
-          "type": "row"
+          "hiddenSeries": false,
+          "id": 5,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": true,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {
+            "dataLinks": []
+          },
+          "paceLength": 10,
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`Process Memory - {{instance}}`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "nodejs_heap_size_total_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`Heap Total - {{instance}}`}}",
+            "refId": "B"
+          },
+          {
+            "expr": "nodejs_heap_size_used_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`Heap Used - {{instance}}`}}",
+            "refId": "C"
+          },
+          {
+            "expr": "nodejs_external_memory_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`External Memory - {{instance}}`}}",
+            "refId": "D"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Process Memory Usage",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus",
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 7,
+            "w": 7,
+            "x": 12,
+            "y": 7
+          },
+          "hiddenSeries": false,
+          "id": 2,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {
+            "dataLinks": []
+          },
+          "paceLength": 10,
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+          {
+            "expr": "nodejs_eventloop_lag_seconds{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`{{job}} ({{instance}})`}}",
+            "refId": "A"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Event Loop Lag",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "s",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus",
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 14
+          },
+          "hiddenSeries": false,
+          "id": 6,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {
+            "dataLinks": []
+          },
+          "paceLength": 10,
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+          {
+            "expr": "nodejs_active_handles_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`Active Handler - {{instance}}`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "nodejs_active_requests_total{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{`Active Request - {{instance}}`}}",
+            "refId": "B"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Active Handlers/Requests Total",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
         },
         {
           "aliasColors": {},
@@ -271,12 +961,13 @@ data:
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 9,
-            "w": 8,
-            "x": 0,
-            "y": 9
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 14
           },
           "hiddenSeries": false,
+          "id": 29,
           "legend": {
             "avg": false,
             "current": false,
@@ -301,27 +992,18 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [
-            {
-              "expr": "sum by (container) (irate(container_cpu_usage_seconds_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", image!=\"\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"}[4m]))",
-              "legendFormat": "Current: {{`{{ container }}`}}",
-              "refId": "A"
-            },
-            {
-              "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
-              "legendFormat": "Requested: {{`{{ container }}`}}",
-              "refId": "B"
-            },
-            {
-              "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
-              "legendFormat": "Limit: {{`{{ container }}`}}",
-              "refId": "C"
-            }
+          {
+            "expr": "sum(rate(http_request_duration_ms_count{job=\"{{ $fullName }}\"}[1m])) by (service, route, method, code)  * 60",
+            "intervalFactor": 2,
+            "legendFormat": "{{`{{service}} - {{method}} {{route}} {{code}}`}}",
+            "refId": "A"
+          }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeRegions": [],
           "timeShift": null,
-          "title": "CPU usage",
+          "title": "Throughput",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -336,8 +1018,301 @@ data:
             "values": []
           },
           "yaxes": [
+          {
+            "format": "rpm",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "collapsed": false,
+          "datasource": null,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 22
+          },
+          "id": 21,
+          "panels": [],
+          "title": "Requests",
+          "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 23
+          },
+          "hiddenSeries": false,
+          "id": 31,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "nullPointMode": "null",
+          "options": {
+            "dataLinks": []
+          },
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(http_request_duration_ms_bucket{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m])) by (le, service, route, method))",
+            "legendFormat": "{{`{{service}} - {{method}} {{route}}`}}",
+            "refId": "A"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Median Response Time",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 23
+          },
+          "hiddenSeries": false,
+          "id": 33,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "nullPointMode": "null",
+          "options": {
+            "dataLinks": []
+          },
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}[1m])) by (le, service, route, method))",
+            "intervalFactor": 2,
+            "legendFormat": "{{`{{service}} - {{method}} {{route}}`}}",
+            "refId": "A"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "95th Response Time",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "collapsed": true,
+          "datasource": null,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 31
+          },
+          "id": 7,
+          "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "Prometheus",
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+              "h": 8,
+              "w": 8,
+              "x": 0,
+              "y": 32
+            },
+            "hiddenSeries": false,
+            "id": 8,
+            "legend": {
+              "alignAsTable": true,
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "rightSide": false,
+              "show": true,
+              "total": false,
+              "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "null",
+            "options": {
+              "dataLinks": []
+            },
+            "paceLength": 10,
+            "percentage": false,
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
             {
-              "format": "short",
+              "expr": "nodejs_heap_space_size_total_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{`Heap Total - {{instance}} - {{space}}`}}",
+              "refId": "A"
+            }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Heap Total Detail",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+            {
+              "format": "bytes",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -352,6 +1327,309 @@ data:
               "min": null,
               "show": true
             }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "Prometheus",
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+              "h": 8,
+              "w": 8,
+              "x": 8,
+              "y": 32
+            },
+            "hiddenSeries": false,
+            "id": 9,
+            "legend": {
+              "alignAsTable": true,
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "rightSide": false,
+              "show": true,
+              "total": false,
+              "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "null",
+            "options": {
+              "dataLinks": []
+            },
+            "paceLength": 10,
+            "percentage": false,
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+            {
+              "expr": "nodejs_heap_space_size_used_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{`Heap Used - {{instance}} - {{space}}`}}",
+              "refId": "A"
+            }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Heap Used Detail",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "Prometheus",
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+              "h": 8,
+              "w": 8,
+              "x": 16,
+              "y": 32
+            },
+            "hiddenSeries": false,
+            "id": 10,
+            "legend": {
+              "alignAsTable": true,
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "rightSide": false,
+              "show": true,
+              "total": false,
+              "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "null",
+            "options": {
+              "dataLinks": []
+            },
+            "paceLength": 10,
+            "percentage": false,
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+            {
+              "expr": "nodejs_heap_space_size_available_bytes{job=\"{{ $fullName }}\", namespace=\"{{ .Values.namespace }}\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{`Heap Used - {{instance}} - {{space}}`}}",
+              "refId": "A"
+            }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Heap Available Detail",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          }
+          ],
+          "title": "Heap",
+          "type": "row"
+        },
+        {
+          "collapsed": false,
+          "datasource": null,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 32
+          },
+          "id": 14,
+          "panels": [],
+          "title": "Allocation",
+          "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 0,
+            "y": 33
+          },
+          "hiddenSeries": false,
+          "id": 15,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "nullPointMode": "null",
+          "options": {
+            "dataLinks": []
+          },
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+          {
+            "expr": "sum by (container) (irate(container_cpu_usage_seconds_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", image!=\"\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"}[4m]))",
+            "format": "time_series",
+            "legendFormat": "{{`Current: {{ container }}`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "format": "time_series",
+            "legendFormat": "{{`Requested: {{ container }}`}}",
+            "refId": "B"
+          },
+          {
+            "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"cpu\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "legendFormat": "{{`Limit: {{ container }}`}}",
+            "refId": "C"
+          }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "CPU allocated",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
           ],
           "yaxis": {
             "align": false,
@@ -370,9 +1648,10 @@ data:
             "h": 9,
             "w": 8,
             "x": 8,
-            "y": 9
+            "y": 33
           },
           "hiddenSeries": false,
+          "id": 16,
           "legend": {
             "avg": false,
             "current": false,
@@ -397,35 +1676,35 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [
-            {
-              "expr": "sum by (container) (container_memory_usage_bytes{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
-              "format": "time_series",
-              "legendFormat": "Current: {{`{{ container }}`}}",
-              "refId": "A"
-            },
-            {
-              "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
-              "legendFormat": "Requested: {{`{{ container }}`}}",
-              "refId": "B"
-            },
-            {
-              "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
-              "hide": false,
-              "legendFormat": "Limit: {{`{{ container }}`}}",
-              "refId": "C"
-            },
-            {
-              "expr": "sum by(container) (container_memory_cache{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
-              "hide": false,
-              "legendFormat": "Cache: {{`{{ container }}`}}",
-              "refId": "D"
-            }
+          {
+            "expr": "sum by (container) (container_memory_usage_bytes{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "format": "time_series",
+            "legendFormat": "{{`Current: {{ container }}`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "sum by(container) (kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "legendFormat": "{{`Requested: {{ container }}`}}",
+            "refId": "B"
+          },
+          {
+            "expr": "sum by(container) (kube_pod_container_resource_limits{job=\"kube-state-metrics\", namespace=\"{{ .Values.namespace }}\", resource=\"memory\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "hide": false,
+            "legendFormat": "{{`Limit: {{ container }}`}}",
+            "refId": "C"
+          },
+          {
+            "expr": "sum by(container) (container_memory_cache{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\", container=\"{{ .Chart.Name }}\"})",
+            "hide": false,
+            "legendFormat": "{{`Cache: {{ container }}`}}",
+            "refId": "D"
+          }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeRegions": [],
           "timeShift": null,
-          "title": "Memory Usage",
+          "title": "Memory allocated",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -440,22 +1719,22 @@ data:
             "values": []
           },
           "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
           ],
           "yaxis": {
             "align": false,
@@ -474,9 +1753,10 @@ data:
             "h": 9,
             "w": 8,
             "x": 16,
-            "y": 9
+            "y": 33
           },
           "hiddenSeries": false,
+          "id": 17,
           "legend": {
             "avg": false,
             "current": false,
@@ -501,18 +1781,18 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [
-            {
-              "expr": "sort_desc(sum by (container) (irate(container_network_receive_bytes_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
-              "format": "time_series",
-              "legendFormat": "RX: {{ .Chart.Name }}",
-              "refId": "A"
-            },
-            {
-              "expr": "sort_desc(sum by (container) (irate(container_network_transmit_bytes_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
-              "format": "time_series",
-              "legendFormat": "TX: {{ .Chart.Name }}",
-              "refId": "B"
-            }
+          {
+            "expr": "sort_desc(sum by (container) (irate(container_network_receive_bytes_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
+            "format": "time_series",
+            "legendFormat": "{{`RX: e-chauffeur-api`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "sort_desc(sum by (container) (irate(container_network_transmit_bytes_total{job=\"kubelet\", namespace=\"{{ .Values.namespace }}\", pod=~\"{{ $fullName }}.+\"}[4m])))",
+            "format": "time_series",
+            "legendFormat": "{{`TX: e-chauffeur-api`}}",
+            "refId": "B"
+          }
           ],
           "thresholds": [],
           "timeFrom": null,
@@ -533,27 +1813,66 @@ data:
             "values": []
           },
           "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
           ],
           "yaxis": {
             "align": false,
             "alignLevel": null
           }
+        },
+        {
+          "collapsed": true,
+          "datasource": null,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 42
+          },
+          "id": 19,
+          "panels": [
+          {
+            "datasource": "Loki",
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 15
+            },
+            "id": 13,
+            "options": {
+              "showTime": true,
+              "sortOrder": "Descending"
+            },
+            "targets": [
+            {
+              "expr": "{job=\"{{ .Values.namespace }}/{{ $fullName }}\"}",
+              "refId": "A"
+            }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Logs",
+            "type": "logs"
+          }
+          ],
+          "title": "Logs",
+          "type": "row"
         }
       ],
       "tags": ["e-Chauffeur", "API", "Koa", "NodeJS", "helm"],
