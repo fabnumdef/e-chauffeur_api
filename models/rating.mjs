@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
+import addCSVContentPlugin from './helpers/add-csv-content';
 import Ride from './ride';
 
 const { Schema } = mongoose;
+const MODEL_NAME = 'Rating';
 
 const RatingSchema = new Schema({
   ride: {
@@ -31,6 +33,7 @@ const RatingSchema = new Schema({
 });
 
 RatingSchema.plugin(createdAtPlugin);
+RatingSchema.plugin(addCSVContentPlugin);
 
 RatingSchema.pre('validate', async function preValidate(next) {
   const ride = await Ride.findById(this.ride._id).lean();
@@ -44,4 +47,4 @@ RatingSchema.pre('validate', async function preValidate(next) {
   next();
 });
 
-export default mongoose.model('Rating', RatingSchema, 'ratings');
+export default mongoose.model(MODEL_NAME, RatingSchema, 'ratings');

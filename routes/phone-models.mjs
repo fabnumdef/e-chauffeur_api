@@ -1,5 +1,6 @@
 import generateCRUD from '../helpers/abstract-route';
 import PhoneModel from '../models/phone-model';
+import { csvToJson } from '../middlewares/csv-to-json';
 
 import {
   CAN_CREATE_PHONE_MODEL,
@@ -30,6 +31,11 @@ const router = generateCRUD(PhoneModel, {
   },
   update: {
     right: CAN_EDIT_PHONE_MODEL,
+  },
+  batch: {
+    right: CAN_CREATE_PHONE_MODEL,
+    refs: ['_id', 'label'],
+    middlewares: [csvToJson],
   },
 });
 

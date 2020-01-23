@@ -12,6 +12,7 @@ import {
   CAN_REMOVE_POI,
   CAN_REMOVE_POI_LOCAL,
 } from '../models/rights';
+import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -59,6 +60,14 @@ const router = generateCRUD(Poi, {
       });
       ctx.body = data;
     },
+  },
+  batch: {
+    right: [CAN_CREATE_POI, CAN_CREATE_POI_LOCAL],
+    label: ['label'],
+    middlewares: [
+      csvToJson,
+      validateCampus,
+    ],
   },
 });
 

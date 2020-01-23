@@ -7,6 +7,7 @@ import {
   CAN_LIST_CATEGORY,
   CAN_REMOVE_CATEGORY,
 } from '../models/rights';
+import { csvToJson } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -47,6 +48,13 @@ const router = generateCRUD(Category, {
   },
   update: {
     right: CAN_EDIT_CATEGORY,
+  },
+  batch: {
+    right: CAN_CREATE_CATEGORY,
+    refs: ['_id', 'label'],
+    middlewares: [
+      csvToJson,
+    ],
   },
 });
 

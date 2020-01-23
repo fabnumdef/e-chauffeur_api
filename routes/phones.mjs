@@ -9,6 +9,7 @@ import {
   CAN_LIST_PHONE_LOCAL,
   CAN_REMOVE_PHONE_LOCAL,
 } from '../models/rights';
+import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 
@@ -58,6 +59,14 @@ const router = generateCRUD(Phone, {
       ctx.body = await phone.save();
       ctx.log(ctx.log.INFO, `${Phone.modelName} "${body.id}" has been updated.`);
     },
+  },
+  batch: {
+    right: CAN_CREATE_PHONE_LOCAL,
+    refs: ['_id', 'label'],
+    middlewares: [
+      csvToJson,
+      validateCampus,
+    ],
   },
 });
 

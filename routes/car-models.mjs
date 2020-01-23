@@ -9,6 +9,7 @@ import {
 } from '../models/rights';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import { csvToJson } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(CarModel, {
   create: {
@@ -29,6 +30,11 @@ const router = generateCRUD(CarModel, {
   },
   update: {
     right: CAN_EDIT_CAR_MODEL,
+  },
+  batch: {
+    right: CAN_CREATE_CAR_MODEL,
+    refs: ['_id', 'label'],
+    middlewares: [csvToJson],
   },
 });
 
