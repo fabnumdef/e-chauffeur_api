@@ -556,7 +556,7 @@ data:
           }
         }
       ],
-      "tags": [],
+      "tags": ["e-Chauffeur", "API", "Koa", "NodeJS", "helm"],
       "templating": {
         "list": []
       },
