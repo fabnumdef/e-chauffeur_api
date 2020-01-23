@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Added connection status management for drivers through sockets
 ### Fix
 ## Version 1.4.4
 ### Features
