@@ -20,7 +20,7 @@ process.on('SIGTERM', () => {
 
 const app = new Koa();
 if (config.get('prometheus_exporter')) {
-  app.use(metricsMiddleware(metricsInterval));
+  app.use(metricsMiddleware);
 }
 app.use(errorHandler);
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
