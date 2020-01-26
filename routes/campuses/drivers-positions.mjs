@@ -1,4 +1,4 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import maskOutput, { cleanObject } from '../../middlewares/mask-output';
 
 import GeoTracking from '../../models/geo-tracking';

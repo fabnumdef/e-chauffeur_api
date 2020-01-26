@@ -5,6 +5,9 @@
 replicaCount: 1
 namespace: e-chauffeur
 monitoring:
+  exporter:
+    enabled: true
+    port: 1338
   dashboard:
     deploy: true
     sidecarLabel: grafana-dashboard

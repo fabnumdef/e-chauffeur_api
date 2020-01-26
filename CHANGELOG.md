@@ -4,6 +4,7 @@
 * Add recurring time slots
 * Add csv middleware to list routes when needed
 * Add batch crud route to handle csv imports
+* Export metrics for prometheus
 ### Fix
 * bump validator to 12.1.0 & deleted node-input-validator
 ## Version 1.4.4

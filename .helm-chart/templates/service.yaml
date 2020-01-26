@@ -1,8 +1,12 @@
+{{- $name := include ".helm-chart.name" . -}}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include ".helm-chart.fullname" . }}
   labels:
+    app: {{ $name }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
 {{ include ".helm-chart.labels" . | indent 4 }}
 spec:
   type: {{ .Values.service.type }}
@@ -11,6 +15,12 @@ spec:
       targetPort: {{ .Values.service.port }}
       protocol: TCP
       name: http
+{{- if .Values.monitoring.exporter.enabled }}
+    - port: {{ .Values.monitoring.exporter.port }}
+      targetPort: {{ .Values.monitoring.exporter.port }}
+      protocol: TCP
+      name: metrics
+{{- end }}
   selector:
     app.kubernetes.io/name: {{ include ".helm-chart.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

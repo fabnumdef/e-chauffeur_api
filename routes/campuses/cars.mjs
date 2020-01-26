@@ -1,4 +1,4 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import maskOutput from '../../middlewares/mask-output';
 import resolveRights from '../../middlewares/check-rights';
 import Campus from '../../models/campus';

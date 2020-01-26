@@ -1,4 +1,4 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import mask from 'json-mask';
 import maskOutput from '../../middlewares/mask-output';
 import Campus from '../../models/campus';

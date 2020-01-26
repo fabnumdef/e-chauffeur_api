@@ -1,4 +1,4 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import _get from 'lodash.get';
 import config from '../services/config';
 import resolveRights from '../middlewares/check-rights';

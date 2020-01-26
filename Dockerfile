@@ -28,6 +28,7 @@ COPY . /usr/src/app/
 COPY ./config.json.dist ./config.json
 
 EXPOSE 1337
+EXPOSE 1338
 
 ENTRYPOINT [ "npm" ]
 CMD [ "run", "serve" ]
