@@ -8,6 +8,7 @@
 ### Fix
 * bump validator to 12.1.0 & deleted node-input-validator
 * Updated csv flatten middleware to common csv formatter for rides
+* Deleted password from token
 ## Version 1.4.4
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model
