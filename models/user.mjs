@@ -189,6 +189,7 @@ UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
   u.id = u._id;
   u.isRenewable = isRenewable;
   delete u._id;
+  delete u.password;
   return jwt.sign(
     u,
     config.get('token:secret'),
