@@ -12,6 +12,7 @@ import {
 } from '../../models/rights';
 import User from '../../models/user';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-status';
 import config from '../../services/config';
 
 const router = new Router();
@@ -24,24 +25,6 @@ router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_DRIVER),
   maskOutput,
-  async (ctx, next) => {
-    await next();
-    if (ctx.query.filters && ctx.query.filters.start) {
-      const { io } = ctx.app;
-      const connectedDrivers = [];
-      await Promise.all(ctx.body.map((driver) => new Promise((resolve) => {
-        io.in(`driver/${driver._id}`)
-          .clients((err, clients) => {
-            if (clients.length === 1) {
-              const { driverId } = io.sockets.sockets[clients[0]];
-              connectedDrivers.push(driverId);
-            }
-            resolve();
-          });
-      })));
-      io.in(`campus/${ctx.params.campus_id}`).emit('updateConnectedDrivers', { ids: connectedDrivers });
-    }
-  },
   async (ctx) => {
     let data;
     const { offset, limit } = ctx.parseRangePagination(User, { max: 1000 });
@@ -61,6 +44,7 @@ router.get(
     ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },
+  emitDriversSocketConnected,
 );
 
 router.get(

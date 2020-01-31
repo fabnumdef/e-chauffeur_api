@@ -13,6 +13,7 @@ import {
   CAN_LIST_CAMPUS, CAN_LIST_CAMPUS_BASIC,
   CAN_REMOVE_CAMPUS,
 } from '../models/rights';
+import { emitDriverConnection } from '../middlewares/drivers-socket-status';
 
 const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody),defaultReservationScope';
 const router = generateCRUD(Campus, {
@@ -42,20 +43,7 @@ const router = generateCRUD(Campus, {
     lean: false,
     right: [CAN_GET_CAMPUS_BASIC, CAN_GET_CAMPUS],
     middlewares: [
-      async (ctx, next) => {
-        await next();
-        const { user } = ctx.state;
-        const { id: campusId } = ctx.params;
-        const { io } = ctx.app;
-        const isDriver = user.roles.reduce((acc, { role, campuses }) => (
-          acc || (role === 'ROLE_DRIVER' && !!campuses.find((campus) => campus._id === campusId))
-        ), false);
-
-        if (isDriver) {
-          io.to(`campus/${campusId}`).emit('updateConnectedDrivers', { ids: user.id });
-          io.to(`driver/${user.id}`).emit('registerCampus', campusId);
-        }
-      },
+      emitDriverConnection,
       async (ctx, next) => {
         await next();
         if (!ctx.may(CAN_GET_CAMPUS)) {
