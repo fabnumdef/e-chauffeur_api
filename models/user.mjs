@@ -14,6 +14,7 @@ import { sendPasswordResetMail, sendRegistrationMail, sendVerificationMail } fro
 import { sendVerificationSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 import cleanObjectPlugin from './helpers/object-cleaner';
+import addCSVContentPlugin from './helpers/add-csv-content';
 import {
   CAN_ADD_ROLE_ADMIN,
   CAN_ADD_ROLE_DRIVER,
@@ -116,6 +117,7 @@ const UserSchema = new Schema({
 
 UserSchema.plugin(createdAtPlugin);
 UserSchema.plugin(cleanObjectPlugin, MODEL_NAME);
+UserSchema.plugin(addCSVContentPlugin);
 
 UserSchema.pre('validate', function preValidate() {
   if (this.isModified('email')) {
@@ -187,6 +189,7 @@ UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
   u.id = u._id;
   u.isRenewable = isRenewable;
   delete u._id;
+  delete u.password;
   return jwt.sign(
     u,
     config.get('token:secret'),

@@ -5,6 +5,9 @@
 replicaCount: 1
 namespace: e-chauffeur
 monitoring:
+  exporter:
+    enabled: true
+    port: 1338
   dashboard:
     deploy: true
     sidecarLabel: grafana-dashboard
@@ -50,6 +53,9 @@ imageCredentials:
   registry: registry.gitlab.com
   username: user
   password: pass
+
+job:
+  frequency: "0 20 * * *"
 
 service:
   type: ClusterIP

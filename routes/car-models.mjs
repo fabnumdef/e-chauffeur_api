@@ -7,12 +7,19 @@ import {
   CAN_LIST_CAR_MODEL,
   CAN_REMOVE_CAR_MODEL,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
+import { csvToJson } from '../middlewares/csv-to-json';
 
 const router = generateCRUD(CarModel, {
   create: {
     right: CAN_CREATE_CAR_MODEL,
   },
   list: {
+    middlewares: [
+      contentNegociation,
+      maskOutput,
+    ],
     right: CAN_LIST_CAR_MODEL,
   },
   get: {
@@ -23,6 +30,11 @@ const router = generateCRUD(CarModel, {
   },
   update: {
     right: CAN_EDIT_CAR_MODEL,
+  },
+  batch: {
+    right: CAN_CREATE_CAR_MODEL,
+    refs: ['_id', 'label'],
+    middlewares: [csvToJson],
   },
 });
 

@@ -1,4 +1,4 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import users from './users';
 import pois from './pois';
 import logs from './logs';

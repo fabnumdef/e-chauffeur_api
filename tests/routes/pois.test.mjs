@@ -7,7 +7,7 @@ import {
 import Campus, { generateDummyCampus } from '../models/campus';
 import Poi, { generateDummyPoi } from '../models/poi';
 import {
-  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 const campus = generateDummyCampus();
@@ -78,5 +78,12 @@ describe('Test the poi API endpoint', () => {
   it(...testUpdate(Poi, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testBatch(Poi, {
+    ...config,
+    route: `${config.route}/batch`,
+    queryParams: {},
+    canCall: [generateSuperAdminJWTHeader],
   }));
 });

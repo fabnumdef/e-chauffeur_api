@@ -1,0 +1,25 @@
+{{- if .Values.monitoring.exporter.enabled }}
+{{- $fullName := include ".helm-chart.fullname" . -}}
+{{- $name := include ".helm-chart.name" . -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app: {{ $name }}
+    heritage: {{ .Release.Service }}
+    release: prometheus
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+  jobLabel: {{ $fullName }}
+  namespaceSelector:
+    matchNames:
+      - "{{ $.Release.Namespace }}"
+  selector:
+    matchLabels:
+      app: {{ $name }}
+      release: "{{ .Release.Name }}"
+      heritage: "{{ .Release.Service }}"
+{{- end}}
