@@ -41,7 +41,7 @@ const TimeSlotSchema = new Schema({
     withData: Boolean,
     frequency: {
       type: String,
-      enum: [WEEKLY, MONTHLY],
+      enum: [null, WEEKLY, MONTHLY],
     },
     nextHop: {
       _id: { type: Schema.ObjectId, alias: 'recurrence.nextHop.id' },
