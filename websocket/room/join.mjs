@@ -8,6 +8,8 @@ export default (socket) => {
     const user = jwt.verify(token.replace('Bearer ', ''), config.get('token:secret'));
     if (user.id) {
       socket.join(`driver/${user.id}`);
+      // eslint-disable-next-line no-param-reassign
+      socket.driverId = user.id;
     }
   });
 

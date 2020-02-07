@@ -12,6 +12,7 @@ import {
 } from '../../models/rights';
 import User from '../../models/user';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-status';
 import config from '../../services/config';
 import contentNegociation from '../../middlewares/content-negociation';
 
@@ -46,6 +47,7 @@ router.get(
     ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },
+  emitDriversSocketConnected,
 );
 
 router.get(

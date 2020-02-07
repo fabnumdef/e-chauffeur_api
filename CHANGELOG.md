@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Added connection status management for drivers through sockets
 * Add recurring time slots
 * Add csv middleware to list routes when needed
 * Add batch crud route to handle csv imports
