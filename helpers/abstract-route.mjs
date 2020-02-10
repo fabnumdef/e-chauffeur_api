@@ -27,7 +27,7 @@ export function addBatchToRouter(Model, {
 }
 
 export function addCreateToRouter(Model, {
-  url = '/', right, rights = [], main,
+  url = '/', right, rights = [], main, successCode = 200,
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -50,7 +50,13 @@ export function addCreateToRouter(Model, {
 
         Object.assign(body, { _id: body.id });
       }
-      ctx.body = await Model.create(body);
+
+      const document = await Model.create(body);
+      ctx.status = successCode;
+
+      if (successCode !== 204) {
+        ctx.body = document;
+      }
       ctx.log(ctx.log.INFO, `${Model.modelName} "${body.id}" has been created`);
     }),
   );

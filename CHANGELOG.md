@@ -10,6 +10,7 @@
 * bump validator to 12.1.0 & deleted node-input-validator
 * Updated csv flatten middleware to common csv formatter for rides
 * Deleted password from token
+* Set rating route status code to 204
 ## Version 1.4.4
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model

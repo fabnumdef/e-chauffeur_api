@@ -10,6 +10,7 @@ import maskOutput from '../middlewares/mask-output';
 const router = generateCRUD(Rating, {
   create: {
     right: CAN_CREATE_RATING,
+    successCode: 204,
   },
   list: {
     right: CAN_LIST_RATING,
