@@ -41,6 +41,7 @@ describe('Test the rating API endpoint', async () => {
   it(...testCreate(Rating, {
     ...config,
     canCall: [generateAnonymousJWTHeader],
+    expectedStatus: 204,
   }));
   it(...testList(Rating, {
     ...config,
