@@ -1,6 +1,9 @@
 # Changelog
 ## Current
 ### Features
+### Fix
+## Version 1.4.5
+### Features
 * Added connection status management for drivers through sockets
 * Add recurring time slots
 * Add csv middleware to list routes when needed
