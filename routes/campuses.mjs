@@ -13,6 +13,9 @@ import {
   CAN_LIST_CAMPUS, CAN_LIST_CAMPUS_BASIC,
   CAN_REMOVE_CAMPUS,
 } from '../models/rights';
+import contentNegociation from '../middlewares/content-negociation';
+import maskOutput from '../middlewares/mask-output';
+import { emitDriverConnection } from '../middlewares/drivers-socket-status';
 
 const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody),defaultReservationScope';
 const router = generateCRUD(Campus, {
@@ -22,6 +25,8 @@ const router = generateCRUD(Campus, {
   list: {
     right: [CAN_LIST_CAMPUS_BASIC, CAN_LIST_CAMPUS],
     middlewares: [
+      contentNegociation,
+      maskOutput,
       async (ctx, next) => {
         const searchParams = {};
         if (ctx.query && ctx.query.search) {
@@ -42,6 +47,7 @@ const router = generateCRUD(Campus, {
     lean: false,
     right: [CAN_GET_CAMPUS_BASIC, CAN_GET_CAMPUS],
     middlewares: [
+      emitDriverConnection,
       async (ctx, next) => {
         await next();
         if (!ctx.may(CAN_GET_CAMPUS)) {

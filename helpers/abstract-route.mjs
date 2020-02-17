@@ -1,10 +1,33 @@
-import Router from 'koa-router';
+import Router from '@koa/router';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
 
+export function addBatchToRouter(Model, {
+  url = '/batch', right, rights = [], middlewares = [], main, refs = [],
+} = {}) {
+  if (!right) {
+    throw new Error('Right should be defined');
+  }
+  this.post(
+    url,
+    ...[right]
+      .concat(rights)
+      .filter((r) => !!r)
+      .map((r) => resolveRights(...[].concat(r))),
+    ...middlewares,
+    main || (async (ctx) => {
+      await Model.createFromCSV({
+        model: Model, refs, datas: ctx.file,
+      });
+      ctx.log(ctx.log.INFO, `${Model.modelName} batch has been created`);
+      ctx.status = 204;
+    }),
+  );
+}
+
 export function addCreateToRouter(Model, {
-  url = '/', right, rights = [], main,
+  url = '/', right, rights = [], main, successCode = 200,
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -27,7 +50,13 @@ export function addCreateToRouter(Model, {
 
         Object.assign(body, { _id: body.id });
       }
-      ctx.body = await Model.create(body);
+
+      const document = await Model.create(body);
+      ctx.status = successCode;
+
+      if (successCode !== 204) {
+        ctx.body = document;
+      }
       ctx.log(ctx.log.INFO, `${Model.modelName} "${body.id}" has been created`);
     }),
   );
@@ -95,7 +124,7 @@ export function addGetToRouter(Model, {
           ctx.body = await Model.findById(id);
         }
         if (!ctx.body) {
-          throw new Error(`${Model.modelName} "${id}" not found`);
+          ctx.throw_and_log(404, `${Model.modelName} "${id}" not found`);
         }
         ctx.log(
           ctx.log.INFO,
@@ -159,7 +188,7 @@ export function addUpdateToRouter(Model, {
 }
 
 export default (Model, {
-  router, create, list, get, delete: remove, update,
+  router, create, list, get, delete: remove, update, batch,
 } = {}) => {
   const routerInstance = router || new Router();
   if (create) {
@@ -176,6 +205,9 @@ export default (Model, {
   }
   if (update) {
     addUpdateToRouter.call(routerInstance, Model, update);
+  }
+  if (batch) {
+    addBatchToRouter.call(routerInstance, Model, batch);
   }
   return routerInstance;
 };

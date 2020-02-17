@@ -1,5 +1,5 @@
 import isEmpty from 'lodash.isempty';
-import Router from 'koa-router';
+import Router from '@koa/router';
 import Campus from '../../models/campus';
 import maskOutput from '../../middlewares/mask-output';
 import resolveRights from '../../middlewares/check-rights';
@@ -12,7 +12,10 @@ import {
 } from '../../models/rights';
 import User from '../../models/user';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
+import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-status';
 import config from '../../services/config';
+import contentNegociation from '../../middlewares/content-negociation';
+
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -23,6 +26,7 @@ const addDomainInError = (e) => [
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_DRIVER),
+  contentNegociation,
   maskOutput,
   async (ctx) => {
     let data;
@@ -43,6 +47,7 @@ router.get(
     ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },
+  emitDriversSocketConnected,
 );
 
 router.get(

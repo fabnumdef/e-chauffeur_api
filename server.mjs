@@ -3,6 +3,7 @@ import socketIo from 'socket.io';
 import redisAdapter from 'socket.io-redis';
 import services from './services';
 import app from './app';
+import './prometheus-exporter';
 import io from './io';
 import config from './services/config';
 import { pubClient, subClient } from './services/redis';

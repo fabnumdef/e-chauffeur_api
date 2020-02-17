@@ -11,6 +11,7 @@ export const testCreate = (Model, {
   route = `/${defaultRouteName(Model)}`,
   queryParams = {},
   generateDummyObject = () => ({}),
+  expectedStatus = 200,
 } = {}) => [
   'It should only authorize creation when authenticated user has enough rights',
   async () => {
@@ -38,8 +39,10 @@ export const testCreate = (Model, {
     await Promise.all([
       ...canCall.map(async (roleGenerator) => {
         const { statusCode, foundObject } = await expectCreate(roleGenerator);
-        statusCode.to.equal(200);
-        foundObject.to.not.be.null;
+        statusCode.to.equal(expectedStatus);
+        if (expectedStatus !== 204) {
+          foundObject.to.not.be.null;
+        }
       }),
 
       ...cannotCall.map(async (roleGenerator) => {

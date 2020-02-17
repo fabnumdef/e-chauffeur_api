@@ -1,0 +1,2 @@
+_id;label;location.type;location.coordinates.0;location.coordinates.1;campus.id;campus.name
+GUM;Gymnase;Point;-4.524687;48.366227;BSL;Brest

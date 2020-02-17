@@ -2,6 +2,18 @@
 ## Current
 ### Features
 ### Fix
+## Version 1.4.5
+### Features
+* Added connection status management for drivers through sockets
+* Add recurring time slots
+* Add csv middleware to list routes when needed
+* Add batch crud route to handle csv imports
+* Export metrics for prometheus
+### Fix
+* bump validator to 12.1.0 & deleted node-input-validator
+* Updated csv flatten middleware to common csv formatter for rides
+* Deleted password from token
+* Set rating route status code to 204
 ## Version 1.4.4
 ### Features
 * Refactor rights to be able to check inheritance and add rights on model
@@ -15,9 +27,9 @@
 * Add mergeMasks helper
 * Add defaultReservationScope to campus model
 * Add possibility for ride owner to cancel ride by updating status
+### Fix
 * Remove logs from mongodb, using Loki stack right now
 * Export dashboard and monitoring on deploy
-### Fix
 * Rides and ratings routes tests
 * Link in registration mail
 * Fix fixtures script

@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include ".helm-chart.fullname" . }}
+  labels:
+{{ include ".helm-chart.labels" . | indent 4 }}
+spec:
+  schedule: "{{ .Values.job.frequency }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+            - name: {{ .Values.imageCredentials.name }}
+          containers:
+            - name: "{{ .Chart.Name }}-calendar-cron"
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                - name: MONGODB
+                  value: "{{ .Values.env.MONGODB }}"
+                - name: TZ
+                  value: "Europe/Paris"
+              args: ["run", "cron:time-slots-copy"]
+          restartPolicy: OnFailure

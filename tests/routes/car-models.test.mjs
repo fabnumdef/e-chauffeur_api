@@ -5,7 +5,7 @@ import {
 } from '../request';
 import CarModel, { generateDummyCarModel } from '../models/car-model';
 import {
-  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
 
@@ -49,6 +49,13 @@ describe('Test the car-models API endpoint', () => {
   it(...testUpdate(CarModel, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
+    cannotCall: [generateRegulatorJWTHeader, generateDriverJWTHeader],
+    canCall: [generateSuperAdminJWTHeader],
+  }));
+
+  it(...testBatch(CarModel, {
+    ...config,
+    route: `${config.route}/batch`,
     cannotCall: [generateRegulatorJWTHeader, generateDriverJWTHeader],
     canCall: [generateSuperAdminJWTHeader],
   }));
