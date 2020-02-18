@@ -33,7 +33,6 @@ export const CREATE = 'create';
 export const VALIDATE = 'validation';
 export const REJECT_BOUNDARY = 'rejection_boundary';
 export const REJECT_CAPACITY = 'rejection_capacity';
-export const ACCEPT = 'accept';
 export const DECLINE = 'decline';
 export const START = 'start-up';
 export const WAIT = 'stay';
@@ -54,9 +53,8 @@ export default {
     { name: VALIDATE, from: CREATED, to: VALIDATED },
     { name: REJECT_BOUNDARY, from: CREATED, to: REJECTED_BOUNDARY },
     { name: REJECT_CAPACITY, from: CREATED, to: REJECTED_CAPACITY },
-    { name: ACCEPT, from: VALIDATED, to: ACCEPTED },
     { name: DECLINE, from: VALIDATED, to: DECLINED },
-    { name: START, from: ACCEPTED, to: STARTED },
+    { name: START, from: VALIDATED, to: STARTED },
     { name: WAIT, from: STARTED, to: WAITING },
     { name: PROGRESS, from: WAITING, to: IN_PROGRESS },
     { name: DELIVER, from: IN_PROGRESS, to: DELIVERED },
