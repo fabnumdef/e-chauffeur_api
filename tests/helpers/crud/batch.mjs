@@ -14,7 +14,7 @@ export const testBatch = (Model, {
   route = `/${defaultRouteName(Model)}/batch`,
   ref = '_id',
 } = {}) => [
-  'It should only authorize creation when authenticated user has enough rights',
+  'It should only authorize import batch when authenticated user has enough rights',
   async () => {
     const expectBatch = async (roleGenerator) => {
       const [name, path] = await generateBatch(defaultRouteName(Model));
