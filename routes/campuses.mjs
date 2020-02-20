@@ -65,10 +65,15 @@ const router = generateCRUD(Campus, {
   },
 });
 
-router.use('/:campus_id/users', usersRoutes);
-router.use('/:campus_id/drivers', driversRoutes);
-router.use('/:campus_id/drivers-positions', driversPositionsRoutes);
-router.use('/:campus_id/cars', carsRoutes);
-router.use('/:campus_id/stats', statsRoutes);
+router.use('/:campus_id/users', usersRoutes.routes());
+router.use('/:campus_id/users', usersRoutes.allowedMethods());
+router.use('/:campus_id/drivers', driversRoutes.routes());
+router.use('/:campus_id/drivers', driversRoutes.allowedMethods());
+router.use('/:campus_id/drivers-positions', driversPositionsRoutes.routes());
+router.use('/:campus_id/drivers-positions', driversPositionsRoutes.allowedMethods());
+router.use('/:campus_id/cars', carsRoutes.routes());
+router.use('/:campus_id/cars', carsRoutes.allowedMethods());
+router.use('/:campus_id/stats', statsRoutes.routes());
+router.use('/:campus_id/stats', statsRoutes.allowedMethods());
 
-export default router.routes();
+export default router;

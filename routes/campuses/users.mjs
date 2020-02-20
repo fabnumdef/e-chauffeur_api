@@ -195,4 +195,4 @@ router.post('/batch',
     ctx.status = 204;
   });
 
-export default router.routes();
+export default router;

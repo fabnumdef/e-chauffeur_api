@@ -70,4 +70,4 @@ const router = generateCRUD(Phone, {
   },
 });
 
-export default router.routes();
+export default router;

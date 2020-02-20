@@ -71,4 +71,4 @@ const router = generateCRUD(Poi, {
   },
 });
 
-export default router.routes();
+export default router;

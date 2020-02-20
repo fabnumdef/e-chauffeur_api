@@ -1,6 +1,9 @@
 # Changelog
 ## Current
 ### Features
+* Enforce allowed methods error
+* Enforce CORS allowed origin
+* Add few HTTP headers thanks to helmet
 ### Fix
 ## Version 1.4.5
 ### Features
