@@ -143,6 +143,13 @@ export default {
               + `le ${start} a été annulée.`,
             );
             break;
+          case CANCELED_CUSTOMER_OVERLOAD:
+            await this.sendSMS(
+              'Suite à une surcharge du service, '
+              + `nous somme dans l'obligation d'annuler votre course en direction de ${show('arrival.label')} `
+              + `le ${start}.`,
+            );
+            break;
           default:
             break;
         }

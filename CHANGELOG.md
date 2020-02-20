@@ -2,6 +2,7 @@
 ## Current
 ### Features
 ### Fix
+* Fix SMS to user on overload cancel
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
