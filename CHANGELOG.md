@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Ensure that MX entry exists for an email address
 ### Fix
 ## Version 1.4.5
 ### Features
