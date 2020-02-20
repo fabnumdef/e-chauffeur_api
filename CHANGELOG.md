@@ -2,6 +2,10 @@
 ## Current
 ### Features
 ### Fix
+* Check filter for phone listing
+* Don't let admin remove a user
+* Ensure that car is linked to the current selected campus
+* Clean POI authorizations 
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
