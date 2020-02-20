@@ -21,7 +21,7 @@ export default (steps) => steps.reduce((acc, step) => {
       ],
       phone: [
         ...previous.phone,
-        step.phone,
+        ...step.phone,
       ],
       passengersCount: {
         key: previous.passengersCount.key,

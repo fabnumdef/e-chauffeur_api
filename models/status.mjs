@@ -43,6 +43,13 @@ export const CANCEL_TECHNICAL = 'cancel_technical';
 export const CANCEL_REQUESTED_CUSTOMER = 'cancel_requested_by_customer';
 export const CANCEL_CUSTOMER_OVERLOAD = 'cancel_customer_overload';
 export const CANCEL_CUSTOMER_MISSING = 'cancel_customer_missing';
+export const CANCEL_STATUSES = [
+  CANCEL,
+  CANCEL_TECHNICAL,
+  CANCEL_REQUESTED_CUSTOMER,
+  CANCEL_CUSTOMER_OVERLOAD,
+  CANCEL_CUSTOMER_MISSING,
+];
 
 export const CANCELABLE = [CREATED, VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS];
 

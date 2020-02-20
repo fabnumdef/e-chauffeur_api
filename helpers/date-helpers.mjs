@@ -1,7 +1,3 @@
-import Luxon from 'luxon';
-
-const { DateTime } = Luxon;
-
 export const sortByDate = (array) => array.sort((a, b) => {
   const startA = a.date;
   const startB = b.date;

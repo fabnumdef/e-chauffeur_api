@@ -5,6 +5,7 @@ import Luxon from 'luxon';
 import {
   CANCEL_REQUESTED_CUSTOMER,
   CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
+  CANCEL_STATUSES,
 } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
@@ -140,7 +141,7 @@ const router = generateCRUD(Ride, {
       if (ctx.query && ctx.query.step) {
         const { step } = ctx.query;
         step.status = ctx.body.status;
-        ioEmit(ctx, cleanObject(step), 'rideUpdate', driverRoom);
+        ioEmit(ctx, [step], 'rideUpdate', driverRoom);
       }
 
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
@@ -305,10 +306,15 @@ router.post(
 
     const { rooms, driverRoom } = getRooms(ride);
 
+    const isActionCancel = CANCEL_STATUSES.filter((status) => action === status).length > 0;
+    if (isActionCancel) {
+      ioEmit(ctx, ride._id, 'deleteStep', driverRoom);
+    }
+
     if (ctx.query && ctx.query.step) {
       const { step } = ctx.query;
       step.status = ctx.body.status;
-      ioEmit(ctx, cleanObject(step), 'rideUpdate', driverRoom);
+      ioEmit(ctx, cleanObject([step]), 'rideUpdate', driverRoom);
     }
 
     ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);

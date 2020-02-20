@@ -10,7 +10,7 @@ export default class Step {
     this.date = type === ARRIVAL ? ride.end : ride.start;
     this.destination = type === ARRIVAL ? ride.arrival.label : ride.departure.label;
     this.status = type === ARRIVAL ? WAITING : VALIDATED;
-    this.phone = [ride.phone];
+    this.phone = ride.phone ? [ride.phone] : [];
     this.generatePassengerCount(ride.passengersCount);
     this.generateDetails(
       ride.comments,
