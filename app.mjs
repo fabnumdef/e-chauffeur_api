@@ -45,7 +45,7 @@ if (userWebsiteDomain) {
 app.use(cors({
   origin,
   exposeHeaders: [HEADER_CONTENT_RANGES, HEADER_ACCEPT_RANGES],
-})); // @todo: fine tune, for security
+}));
 app.use(bodyParser({ multipart: true }));
 app.use(routes.routes());
 app.use(routes.allowedMethods());
