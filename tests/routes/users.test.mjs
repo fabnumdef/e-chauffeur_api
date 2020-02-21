@@ -1,4 +1,5 @@
 import chai from 'chai';
+import ValidationError from 'mongoose/lib/error/validation';
 import request, {
   generateSuperAdminJWTHeader,
   generateDriverJWTHeader,
@@ -87,6 +88,17 @@ describe('Test the users route', () => {
       }
     } finally {
       await User.deleteOne(dummyUser);
+    }
+  });
+
+  it('It should not be possible to register too long email', async () => {
+    // Reason : It's causing an issue while saving cause of index limitation
+    const forgedEmail = `${'azerty'.repeat(100)}@localhost`;
+    const dummyUser = generateDummyUser({ email: forgedEmail });
+    try {
+      expect(await User.create(dummyUser)).to.be.a('null');
+    } catch (e) {
+      expect(e).to.be.an.instanceof(ValidationError);
     }
   });
 });

@@ -56,6 +56,7 @@ const UserSchema = new Schema({
   email: {
     type: String,
     required: true,
+    maxlength: 256,
     validate: {
       async validator(v) {
         if (![]
