@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Add a limit to email size.
 ### Fix
 * Throw error if ride has the same departure and arrival POI
 ## Version 1.4.5
