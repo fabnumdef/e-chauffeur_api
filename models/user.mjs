@@ -1,3 +1,5 @@
+import dns from 'dns';
+import util from 'util';
 import mongoose from 'mongoose';
 import orderBy from 'lodash.orderby';
 import chunk from 'lodash.chunk';
@@ -46,6 +48,7 @@ const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
 const PASSWORD_TEST = /.{8,}/;
 export class ExpiredPasswordError extends Error {}
 
+const resolveDNS = util.promisify(dns.resolve);
 const phoneUtil = PhoneNumberUtil.getInstance();
 const { Schema } = mongoose;
 
@@ -55,8 +58,18 @@ const UserSchema = new Schema({
     required: true,
     maxlength: 256,
     validate: {
-      validator(v) {
-        return [].concat(config.get('whitelist_domains')).reduce((acc, cur) => acc || v.endsWith(cur), false);
+      async validator(v) {
+        if (![]
+          .concat(config.get('whitelist_domains'))
+          .reduce((acc, cur) => acc || v.endsWith(cur), false)) {
+          return false;
+        }
+        const domain = v.split('@').pop();
+        if (domain === 'localhost') {
+          return true;
+        }
+        const addresses = await resolveDNS(domain, 'MX');
+        return addresses && addresses.length > 0;
       },
       message({ value }) {
         return `"${value}" should ends with ${config.get('whitelist_domains').join(', ')}`;

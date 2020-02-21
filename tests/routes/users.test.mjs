@@ -45,7 +45,7 @@ describe('Test the users route', () => {
   it(...testBatch(User, {
     ...config,
     route: `${config.route}/batch`,
-    refs: ['email'],
+    ref: 'email',
     queryParams: {},
   }));
 
