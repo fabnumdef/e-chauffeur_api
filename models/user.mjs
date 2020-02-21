@@ -53,6 +53,7 @@ const UserSchema = new Schema({
   email: {
     type: String,
     required: true,
+    maxlength: 256,
     validate: {
       validator(v) {
         return [].concat(config.get('whitelist_domains')).reduce((acc, cur) => acc || v.endsWith(cur), false);
