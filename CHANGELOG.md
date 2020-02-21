@@ -1,11 +1,14 @@
 # Changelog
 ## Current
 ### Features
+* Ensure that MX entry exists for an email address
+* Add a limit to email size.
 ### Fix
 * Check filter for phone listing
 * Don't let admin remove a user
 * Ensure that car is linked to the current selected campus
 * Clean POI authorizations 
+* Throw error if ride has the same departure and arrival POI
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
