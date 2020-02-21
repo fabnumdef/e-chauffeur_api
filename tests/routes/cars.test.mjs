@@ -1,17 +1,24 @@
 import { generateDriverJWTHeader, generateRegulatorJWTHeader, generateSuperAdminJWTHeader } from '../request';
-import { createDummyCampus } from '../models/campus';
+import { createDummyCampus, generateDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
 import Car, { generateDummyCar } from '../models/car';
 import {
   testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
 } from '../helpers/crud';
 
+const dummyCampus = generateDummyCampus();
+
 const config = {
   route: '/cars',
+  queryParams: {
+    filters: {
+      campus: dummyCampus._id,
+    },
+  },
   async generateDummyObject() {
     const toDropLater = [];
 
-    const campus = await createDummyCampus();
+    const campus = await createDummyCampus(dummyCampus);
     toDropLater.push(campus);
 
     const carModel = await createDummyCarModel();
@@ -21,8 +28,8 @@ const config = {
 
     return [dummyCar, toDropLater];
   },
-  cannotCall: [generateDriverJWTHeader],
-  canCall: [generateRegulatorJWTHeader, generateSuperAdminJWTHeader],
+  cannotCall: [generateRegulatorJWTHeader.bind(null, generateDummyCampus()), generateDriverJWTHeader],
+  canCall: [generateRegulatorJWTHeader.bind(null, dummyCampus), generateSuperAdminJWTHeader],
 };
 
 describe('Test the car API endpoint', () => {
