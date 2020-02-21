@@ -6,10 +6,11 @@ import Campus from '../models/campus';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import { CAN_LIST_ALL_CAMPUSES, CAN_LOGIN } from '../models/rights';
+import { rateLimitMiddleware, handleRateLimit } from '../helpers/rate-limit-manager';
 
 const router = new Router();
 
-router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
+router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, rateLimitMiddleware, async (ctx) => {
   const { request: { body } } = ctx;
   const user = await User.findOne({ email: body.email });
 
@@ -20,6 +21,7 @@ router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
   if (!user
   || (body.password && !(await user.comparePassword(body.password)))
   || (body.token && !(await user.compareResetToken(body.token, body.email)))) {
+    await handleRateLimit(body.email, ctx.request.ip);
     ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
   }
 

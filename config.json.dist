@@ -36,5 +36,9 @@
   "vapid": {
     "public_key": "",
     "private_key": ""
-  }
+  },
+    "rate_limit": {
+      "attempt_number": 5,
+      "lock_duration": 3600000
+    }
 }
