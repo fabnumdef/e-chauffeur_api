@@ -58,4 +58,4 @@ const router = generateCRUD(Category, {
   },
 });
 
-export default router.routes();
+export default router;

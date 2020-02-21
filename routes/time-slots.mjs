@@ -54,4 +54,4 @@ const router = generateCRUD(TimeSlot, {
   },
 });
 
-export default router.routes();
+export default router;

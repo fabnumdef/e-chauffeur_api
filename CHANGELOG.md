@@ -1,6 +1,9 @@
 # Changelog
 ## Current
 ### Features
+* Enforce allowed methods error
+* Enforce CORS allowed origin
+* Add few HTTP headers thanks to helmet
 * Ensure that MX entry exists for an email address
 * Add a limit to email size.
 ### Fix
