@@ -101,4 +101,20 @@ describe('Test the users route', () => {
       expect(e).to.be.an.instanceof(ValidationError);
     }
   });
+
+  it('Register user multiple times should not return something else than 204', async () => {
+    // Reason : uppercased email was returning duplicated key error
+    const email = 'AZERTY@localhost';
+    const dummyUser = generateDummyUser({ email });
+    // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+    for (const _ of [...Array(5).keys()]) {
+      // eslint-disable-next-line no-await-in-loop
+      const { statusCode } = await request()
+        .post(config.route)
+        .set('X-Send-Token', 'true')
+        .send(dummyUser);
+      expect(statusCode).to.equal(204);
+    }
+    await User.findOneAndDelete({ email: email.toLowerCase() });
+  });
 });
