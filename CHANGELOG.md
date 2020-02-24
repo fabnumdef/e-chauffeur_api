@@ -14,6 +14,7 @@
 * Ensure that car is linked to the current selected campus
 * Clean POI authorizations 
 * Throw error if ride has the same departure and arrival POI
+* Fixed rights for user update
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
