@@ -34,12 +34,12 @@ app.use(rangePaginationMiddleware);
 let origin;
 const userWebsiteDomain = config.get('user_website_url');
 if (userWebsiteDomain) {
-  const { host } = url.parse(userWebsiteDomain, false);
+  const { host } = new URL(userWebsiteDomain);
   origin = (ctx) => {
-    if (ctx.headers.host && ctx.headers.host.endsWith(host)) {
-      return ctx.headers.host;
-    }
-    return host;
+    const originHost = new URL(ctx.headers.origin);
+    return (originHost && originHost.host && originHost.host.endsWith(host))
+      ? url.format({ protocol: originHost.protocol, host: originHost.host })
+      : userWebsiteDomain;
   };
 }
 app.use(cors({
