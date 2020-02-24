@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import config from '../services/config';
+import createdAtPlugin from './helpers/created-at';
 
 const { Schema } = mongoose;
 const MODEL_NAME = 'RateLimit';
@@ -11,42 +12,35 @@ const RateLimitSchema = new Schema({
   },
   counter: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   ip: {
     type: String,
     required: true,
   },
   locked: {
-    type: Boolean,
-    default: false,
+    type: Date,
   },
-},
-{
-  timestamp: true,
 });
+
+RateLimitSchema.plugin(createdAtPlugin);
+RateLimitSchema.index(
+  { locked: 1 },
+  { expireAfterSeconds: config.get('rate_limit:lock_duration') },
+);
+RateLimitSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: config.get('rate_limit:lifespan') },
+);
 
 RateLimitSchema.methods.increment = async function increment(ref, ip) {
   if (ref === this.ref && ip === this.ip) {
     this.counter += 1;
-    if (this.counter >= config.get('rate_limit:attempt_number')) {
-      this.lockRateLimit();
-    } else {
-      await this.save();
+    if (this.counter === config.get('rate_limit:attempt_number')) {
+      this.locked = new Date();
     }
   }
-};
-
-RateLimitSchema.methods.lockRateLimit = async function lock() {
-  if (!this.locked) {
-    this.locked = true;
-    await this.save();
-    setTimeout(() => {
-      this.counter = 0;
-      this.locked = false;
-      this.save();
-    }, config.get('rate_limit:lock_duration'));
-  }
+  await this.save();
 };
 
 export default mongoose.model(MODEL_NAME, RateLimitSchema);
