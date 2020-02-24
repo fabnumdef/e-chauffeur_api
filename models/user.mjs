@@ -374,6 +374,10 @@ UserSchema.methods.sendVerificationMail = async function sendVerifMail(token) {
   await sendVerificationMail(this.email, { data: { token, ...this.toObject({ virtuals: true }) } });
 };
 
+UserSchema.statics.findByEmail = function findByEmail(email) {
+  return this.findOne({ email: normalizeEmail(email) });
+};
+
 UserSchema.methods.sendVerificationSMS = async function sendVerifSMS(token) {
   if (!this.phone || !this.phone.canonical) {
     throw new Error('Phone undefined');

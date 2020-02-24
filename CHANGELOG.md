@@ -7,6 +7,7 @@
 * Ensure that MX entry exists for an email address
 * Add a limit to email size.
 ### Fix
+* Normalize email in find
 * Ensure that email is compliant with Regex
 * Check filter for phone listing
 * Don't let admin remove a user

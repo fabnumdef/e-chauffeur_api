@@ -40,7 +40,7 @@ const router = generateCRUD(User, {
       }
 
       const emailO = { email: body.email };
-      const userExists = await User.findOne(emailO);
+      const userExists = await User.findByEmail(body.email);
       if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false') && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
           const { token } = await userExists.generateResetToken(emailO);
