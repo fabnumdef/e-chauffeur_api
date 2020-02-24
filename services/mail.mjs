@@ -12,7 +12,8 @@ const { fileURLToPath } = nodeUrl;
 const currentPath = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_LANG = 'fr';
 
-export default async function sendMail(to, options = {}) {
+export default async function sendMail(recipients, options = {}) {
+  const to = [].concat(recipients).join(';');
   const conf = config.get('mail:transporter');
   if (!conf.auth || (!conf.auth.user && !conf.auth.pass)) {
     delete conf.auth;

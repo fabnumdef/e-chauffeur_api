@@ -55,6 +55,11 @@ const { Schema } = mongoose;
 const UserSchema = new Schema({
   email: {
     type: String,
+    // Same regex than html5 validator, close to RFC compliance but not strictly equivalent.
+    match: new RegExp(
+      '^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}'
+      + '[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
+    ),
     required: true,
     maxlength: 256,
     validate: {

@@ -102,6 +102,18 @@ describe('Test the users route', () => {
     }
   });
 
+  it('It should not be possible to register comma separated emails list', async () => {
+    // Reason : It was possible to register with this kind of email : "foo@bar.com;bar@foo.com"
+    // where the first one was the attacker email, and the second one was the whitelisted email
+    const forgedEmail = 'foo@localhost;bar@localhost';
+    const dummyUser = generateDummyUser({ email: forgedEmail });
+    try {
+      expect(await User.create(dummyUser)).to.be.a('null');
+    } catch (e) {
+      expect(e).to.be.an.instanceof(ValidationError);
+    }
+  });
+
   it('Register user multiple times should not return something else than 204', async () => {
     // Reason : uppercased email was returning duplicated key error
     const email = 'AZERTY@localhost';
