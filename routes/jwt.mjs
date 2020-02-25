@@ -86,4 +86,4 @@ router.get(
   },
 );
 
-export default router.routes();
+export default router;

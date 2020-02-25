@@ -84,22 +84,16 @@ export const CAN_LIST_CATEGORY = stdRule('CAN_LIST_CATEGORY');
 export const CAN_GET_CATEGORY = stdRule('CAN_GET_CATEGORY');
 export const CAN_REMOVE_CATEGORY = stdRule('CAN_REMOVE_CATEGORY');
 
-export const CAN_EDIT_CAR = stdRule('CAN_EDIT_CAR');
-export const CAN_CREATE_CAR = stdRule('CAN_CREATE_CAR');
-export const CAN_LIST_CAR = stdRule('CAN_LIST_CAR');
-export const CAN_GET_CAR = stdRule('CAN_GET_CAR');
-export const CAN_REMOVE_CAR = stdRule('CAN_REMOVE_CAR');
+export const CAN_EDIT_CAR = campusRule('CAN_EDIT_CAR');
+export const CAN_CREATE_CAR = campusRule('CAN_CREATE_CAR');
+export const CAN_LIST_CAR = campusRule('CAN_LIST_CAR');
+export const CAN_GET_CAR = campusRule('CAN_GET_CAR');
+export const CAN_REMOVE_CAR = campusRule('CAN_REMOVE_CAR');
 
-export const CAN_EDIT_POI = stdRule('CAN_EDIT_POI');
-export const CAN_CREATE_POI = stdRule('CAN_CREATE_POI');
 export const CAN_LIST_POI = stdRule('CAN_LIST_POI');
 export const CAN_GET_POI = stdRule('CAN_GET_POI');
-export const CAN_REMOVE_POI = stdRule('CAN_REMOVE_POI');
-
 export const CAN_EDIT_POI_LOCAL = campusRule('CAN_EDIT_POI_LOCAL');
 export const CAN_CREATE_POI_LOCAL = campusRule('CAN_CREATE_POI_LOCAL');
-export const CAN_LIST_POI_LOCAL = campusRule('CAN_LIST_POI_LOCAL');
-export const CAN_GET_POI_LOCAL = campusRule('CAN_GET_POI_LOCAL');
 export const CAN_REMOVE_POI_LOCAL = campusRule('CAN_REMOVE_POI_LOCAL');
 
 export const CAN_GET_POSITION_HISTORY = stdRule('CAN_GET_POSITION_HISTORY');

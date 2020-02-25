@@ -299,4 +299,4 @@ router.post(
   },
 );
 
-export default router.routes();
+export default router;

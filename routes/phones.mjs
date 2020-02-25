@@ -19,6 +19,9 @@ const router = generateCRUD(Phone, {
   },
   list: {
     right: CAN_LIST_PHONE_LOCAL,
+    filters: {
+      campus: 'campus._id',
+    },
     middlewares: [
       contentNegociation,
       maskOutput,
@@ -70,4 +73,4 @@ const router = generateCRUD(Phone, {
   },
 });
 
-export default router.routes();
+export default router;
