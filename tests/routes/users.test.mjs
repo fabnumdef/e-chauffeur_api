@@ -1,4 +1,5 @@
 import chai from 'chai';
+import ValidationError from 'mongoose/lib/error/validation';
 import request, {
   generateSuperAdminJWTHeader,
   generateDriverJWTHeader,
@@ -44,7 +45,7 @@ describe('Test the users route', () => {
   it(...testBatch(User, {
     ...config,
     route: `${config.route}/batch`,
-    refs: ['email'],
+    ref: 'email',
     queryParams: {},
   }));
 
@@ -88,5 +89,44 @@ describe('Test the users route', () => {
     } finally {
       await User.deleteOne(dummyUser);
     }
+  });
+
+  it('It should not be possible to register too long email', async () => {
+    // Reason : It's causing an issue while saving cause of index limitation
+    const forgedEmail = `${'azerty'.repeat(100)}@localhost`;
+    const dummyUser = generateDummyUser({ email: forgedEmail });
+    try {
+      expect(await User.create(dummyUser)).to.be.a('null');
+    } catch (e) {
+      expect(e).to.be.an.instanceof(ValidationError);
+    }
+  });
+
+  it('It should not be possible to register comma separated emails list', async () => {
+    // Reason : It was possible to register with this kind of email : "foo@bar.com;bar@foo.com"
+    // where the first one was the attacker email, and the second one was the whitelisted email
+    const forgedEmail = 'foo@localhost;bar@localhost';
+    const dummyUser = generateDummyUser({ email: forgedEmail });
+    try {
+      expect(await User.create(dummyUser)).to.be.a('null');
+    } catch (e) {
+      expect(e).to.be.an.instanceof(ValidationError);
+    }
+  });
+
+  it('Register user multiple times should not return something else than 204', async () => {
+    // Reason : uppercased email was returning duplicated key error
+    const email = 'AZERTY@localhost';
+    const dummyUser = generateDummyUser({ email });
+    // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+    for (const _ of [...Array(5).keys()]) {
+      // eslint-disable-next-line no-await-in-loop
+      const { statusCode } = await request()
+        .post(config.route)
+        .set('X-Send-Token', 'true')
+        .send(dummyUser);
+      expect(statusCode).to.equal(204);
+    }
+    await User.findOneAndDelete({ email: email.toLowerCase() });
   });
 });

@@ -3,7 +3,9 @@ import RateLimit from '../models/rate-limit';
 
 export const incrementRateLimit = async (ref, ip) => {
   const userRateLimit = await RateLimit.findOneAndUpdate({ ref, ip }, { ref, ip }, { upsert: true });
-  await userRateLimit.increment(ref, ip);
+  if (userRateLimit) {
+    await userRateLimit.increment(ref, ip);
+  }
 };
 
 export const rateLimitMiddleware = async (ctx, next) => {

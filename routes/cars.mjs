@@ -40,4 +40,4 @@ const router = generateCRUD(Car, {
   },
 });
 
-export default router.routes();
+export default router;
