@@ -3,6 +3,7 @@ import Rating from '../models/rating';
 import {
   CAN_CREATE_RATING,
   CAN_LIST_RATING,
+  CAN_GET_RATING,
 } from '../models/rights';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
@@ -39,6 +40,10 @@ const router = generateCRUD(Rating, {
       });
       ctx.body = data;
     },
+  },
+  get: {
+    right: CAN_GET_RATING,
+    middlewares: [maskOutput],
   },
 });
 

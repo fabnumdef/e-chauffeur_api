@@ -222,6 +222,25 @@ CampusSchema.statics.aggregateRidesByPhonePresence = commonAggregateRides.bind(C
   { $sort: { total: -1 } },
 ]);
 
+CampusSchema.statics.getRatingsStats = async function getRatingsStats(campus, start, end) {
+  const Rating = mongoose.model('Rating');
+  const ratings = await Rating.find({
+    'ride.campus._id': campus,
+    createdAt: { $gt: start, $lt: end },
+  });
+
+  const { totalUx, totalRecommandation } = ratings.reduce((acc, { uxGrade, recommandationGrade }) => ({
+    totalUx: acc.totalUx + uxGrade,
+    totalRecommandation: acc.totalRecommandation + recommandationGrade,
+  }), { totalUx: 0, totalRecommandation: 0 });
+
+  return {
+    total: ratings.length || 0,
+    ux: totalUx / (ratings.length || 1),
+    recommandation: totalRecommandation / (ratings.length || 1),
+  };
+};
+
 CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverTime(
   campus, start, end, { timeUnit = 'day', timeScope = 'week' },
 ) {

@@ -18,6 +18,7 @@ const REQUESTABLE = {
   drivers: 'drivers',
   hasPhone: 'has-phone',
   period: 'period',
+  ratings: 'ratings',
 };
 
 router.get(
@@ -95,6 +96,9 @@ router.get(
               v = results;
             }
           }
+          break;
+        case REQUESTABLE.ratings:
+          v = await Campus.getRatingsStats(ctx.params.campus_id, start, end);
           break;
         default:
       }
