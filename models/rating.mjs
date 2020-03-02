@@ -36,6 +36,15 @@ RatingSchema.plugin(createdAtPlugin);
 RatingSchema.plugin(addCSVContentPlugin);
 
 RatingSchema.pre('validate', async function preValidate(next) {
+  const Rating = mongoose.model('Rating');
+  const rating = await Rating.findOne({ 'ride._id': this.ride._id });
+  if (rating) {
+    const err = new Error();
+    err.status = 403;
+    err.message = 'Rating already exists';
+    throw err;
+  }
+
   const ride = await Ride.findById(this.ride._id).lean();
   if (!ride) {
     const err = new Error();
