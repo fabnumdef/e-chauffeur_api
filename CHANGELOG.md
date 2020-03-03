@@ -16,6 +16,7 @@
 * Throw error if ride has the same departure and arrival POI
 * Added rate limit model & handles it for password attempt
 * Fixed rights for user update
+* Added required to coordinates in campus model
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets

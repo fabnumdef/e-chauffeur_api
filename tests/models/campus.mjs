@@ -1,9 +1,15 @@
 import nanoid from 'nanoid';
 import Campus from '../../models/campus';
 
+const randomLoc = () => Math.floor(Math.random() * Math.floor(100));
+
 export const generateDummyCampus = (...params) => ({
   _id: nanoid(),
-  name: 'Test',
+  name: nanoid(),
+  location: {
+    type: 'Point',
+    coordinates: [randomLoc(), randomLoc()],
+  },
   ...params,
 });
 
