@@ -16,6 +16,7 @@
 * Throw error if ride has the same departure and arrival POI
 * Added rate limit model & handles it for password attempt
 * Fixed rights for user update
+* Added required to coordinates in campus model
 * Added rights to drivers-positions.mjs
 * Scoped CRUD rights to campus
 ## Version 1.4.5

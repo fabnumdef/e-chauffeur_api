@@ -90,6 +90,16 @@ const driverFilter = () => ({
   'roles.role': 'ROLE_DRIVER',
 });
 
+CampusSchema.pre('validate', function preValidate(next) {
+  if (this.location.coordinates.length !== 2) {
+    const err = new Error();
+    err.status = 422;
+    err.message = 'location is required to save campus';
+    throw err;
+  }
+  next();
+});
+
 CampusSchema.statics.countUsers = async function countUsers(campus, filters = {}) {
   const User = mongoose.model('User');
   const f = { ...campusFilter(campus), ...filters };
