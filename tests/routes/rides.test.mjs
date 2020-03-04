@@ -62,7 +62,7 @@ describe('Test the rides route', () => {
         const response = await request()
           .get('/rides')
           .set('Accept', 'text/csv')
-          .set(...generateRegulatorJWTHeader())
+          .set(...generateRegulatorJWTHeader(dummyCampus))
           .query(query);
         expect(response.statusCode).to.equal(200);
         expect(response.headers['content-type']).to.contain('text/csv');
@@ -70,7 +70,7 @@ describe('Test the rides route', () => {
       {
         const response = await request()
           .get('/rides')
-          .set(...generateRegulatorJWTHeader())
+          .set(...generateRegulatorJWTHeader(dummyCampus))
           .query(query);
         expect(response.statusCode).to.equal(200);
         expect(response.headers['content-type']).to.contain('application/json');

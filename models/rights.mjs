@@ -98,17 +98,16 @@ export const CAN_REMOVE_POI_LOCAL = campusRule('CAN_REMOVE_POI_LOCAL');
 
 export const CAN_GET_POSITION_HISTORY = stdRule('CAN_GET_POSITION_HISTORY');
 
-// @todo : scope there by campus
-export const CAN_EDIT_RIDE = stdRule('CAN_EDIT_RIDE');
-export const CAN_EDIT_RIDE_STATUS = stdRule('CAN_EDIT_RIDE_STATUS');
+export const CAN_EDIT_RIDE = campusRule('CAN_EDIT_RIDE');
+export const CAN_EDIT_RIDE_STATUS = campusRule('CAN_EDIT_RIDE_STATUS');
 export const CAN_EDIT_OWNED_RIDE_STATUS = ownedRideRule('CAN_EDIT_OWNED_RIDE_STATUS');
-export const CAN_CREATE_RIDE = stdRule('CAN_CREATE_RIDE');
-export const CAN_REQUEST_RIDE = stdRule('CAN_REQUEST_RIDE');
+export const CAN_CREATE_RIDE = campusRule('CAN_CREATE_RIDE');
+export const CAN_REQUEST_RIDE = campusRule('CAN_REQUEST_RIDE');
 export const CAN_GET_OWNED_RIDE = ownedRideRule('CAN_GET_OWNED_RIDE');
 export const CAN_GET_RIDE_WITH_TOKEN = tokenRideRule('CAN_GET_RIDE_WITH_TOKEN');
 export const CAN_EDIT_OWNED_RIDE = ownedRideRule('CAN_EDIT_OWNED_RIDE');
-export const CAN_LIST_RIDE = stdRule('CAN_LIST_RIDE');
-export const CAN_GET_RIDE = stdRule('CAN_GET_RIDE');
+export const CAN_LIST_RIDE = campusRule('CAN_LIST_RIDE');
+export const CAN_GET_RIDE = campusRule('CAN_GET_RIDE');
 export const CAN_GET_RIDE_POSITION = stdRule('CAN_GET_RIDE_POSITION');
 export const CAN_LIST_SELF_RIDE = selfEditingUserRule('CAN_LIST_SELF_RIDE');
 export const CAN_DELETE_SELF_RIDE = selfEditingUserRule('CAN_DELETE_SELF_RIDE');
