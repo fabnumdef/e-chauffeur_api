@@ -9,9 +9,9 @@ export function cleanObject(e, ctx) {
 
   let item = e;
   if (e.toCleanObject) {
-    item = e.toCleanObject({ virtuals: true }, ctx);
+    item = e.toCleanObject({ virtuals: true, aliases: true }, ctx);
   } else if (e.toObject) {
-    item = e.toObject({ virtuals: true });
+    item = e.toObject({ virtuals: true, aliases: true });
   }
 
   if (!isPlainObject(item) && !Array.isArray(item)) {

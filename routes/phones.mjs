@@ -65,7 +65,7 @@ const router = generateCRUD(Phone, {
   },
   batch: {
     right: CAN_CREATE_PHONE_LOCAL,
-    refs: ['_id', 'label'],
+    refs: ['_id', 'imei', 'number'],
     middlewares: [
       csvToJson,
       validateCampus,
