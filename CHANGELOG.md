@@ -22,6 +22,7 @@
 * CSV import duplication error message
 * id to _id conversion
 * Refs for batch phones route
+* Fix drivers right to edit ride status
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets

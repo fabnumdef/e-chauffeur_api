@@ -99,7 +99,7 @@ export const CAN_REMOVE_POI_LOCAL = campusRule('CAN_REMOVE_POI_LOCAL');
 export const CAN_GET_POSITION_HISTORY = stdRule('CAN_GET_POSITION_HISTORY');
 
 export const CAN_EDIT_RIDE = campusRule('CAN_EDIT_RIDE');
-export const CAN_EDIT_RIDE_STATUS = campusRule('CAN_EDIT_RIDE_STATUS');
+export const CAN_EDIT_RIDE_STATUS = stdRule('CAN_EDIT_RIDE_STATUS');
 export const CAN_EDIT_OWNED_RIDE_STATUS = ownedRideRule('CAN_EDIT_OWNED_RIDE_STATUS');
 export const CAN_CREATE_RIDE = campusRule('CAN_CREATE_RIDE');
 export const CAN_REQUEST_RIDE = campusRule('CAN_REQUEST_RIDE');
