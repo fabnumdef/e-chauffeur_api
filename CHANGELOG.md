@@ -19,6 +19,7 @@
 * Added required to coordinates in campus model
 * Added rights to drivers-positions.mjs
 * Scoped CRUD rights to campus
+* Fix drivers right to edit ride status
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
