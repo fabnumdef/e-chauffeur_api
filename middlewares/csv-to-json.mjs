@@ -32,7 +32,7 @@ export const csvToJson = async (ctx, next) => {
   ctx.file = await csv2Json({ delimiter, ignoreEmpty }).fromFile(file.path);
   ctx.file = ctx.file.map((d) => {
     const data = { ...d };
-    if (d.id) {
+    if (d.id && !d.email) {
       data._id = d.id;
       delete data.id;
     }
