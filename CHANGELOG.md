@@ -20,6 +20,7 @@
 * Added rights to drivers-positions.mjs
 * Scoped CRUD rights to campus
 * Fix drivers right to edit ride status
+* Fixed self editing rights for user
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
