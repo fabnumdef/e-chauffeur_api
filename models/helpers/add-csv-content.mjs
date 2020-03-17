@@ -44,8 +44,15 @@ const checkDuplications = async ({
     ...acc,
     ...refs.reduce((a, r) => {
       const counter = documents.reduce((count, document) => (data[r] === document[r] ? count + 1 : count), 0);
-      if (counter > 0 && !a.find((item) => item === `${r} : ${data[r]}`)) {
-        a.push(`${r} : ${data[r]}`);
+      const nestedProperties = r.split('.');
+      let currentData;
+      if (nestedProperties.length > 1) {
+        currentData = nestedProperties.reduce((d, property) => (!d ? data[property] : d[property]), null);
+      } else {
+        currentData = data[r];
+      }
+      if (counter > 0 && !a.find((item) => item === `${r} : ${currentData}`)) {
+        a.push(`${r} : ${currentData}`);
       }
       return a;
     }, []),
