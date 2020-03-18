@@ -23,6 +23,7 @@
 * id to _id conversion
 * Refs for batch phones route
 * Fix drivers right to edit ride status
+* Fixed self editing rights for user
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets
