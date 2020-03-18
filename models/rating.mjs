@@ -12,6 +12,10 @@ const RatingSchema = new Schema({
       type: Schema.Types.ObjectId,
       alias: 'ride.id',
       required: true,
+      index: {
+        unique: true,
+        sparse: true,
+      },
     },
     campus: {
       _id: {
@@ -36,15 +40,6 @@ RatingSchema.plugin(createdAtPlugin);
 RatingSchema.plugin(addCSVContentPlugin);
 
 RatingSchema.pre('validate', async function preValidate(next) {
-  const Rating = mongoose.model('Rating');
-  const rating = await Rating.findOne({ 'ride._id': this.ride._id });
-  if (rating) {
-    const err = new Error();
-    err.status = 403;
-    err.message = 'Rating already exists';
-    throw err;
-  }
-
   const ride = await Ride.findById(this.ride._id).lean();
   if (!ride) {
     const err = new Error();
@@ -52,6 +47,7 @@ RatingSchema.pre('validate', async function preValidate(next) {
     err.message = 'Ride does not exist in database';
     throw err;
   }
+
   this.ride.campus._id = ride.campus._id;
   next();
 });
