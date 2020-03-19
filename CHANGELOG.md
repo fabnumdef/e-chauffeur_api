@@ -1,6 +1,9 @@
 # Changelog
 ## Current
 ### Features
+### Fix
+## Version 1.4.6
+### Features
 * Enforce allowed methods error
 * Enforce CORS allowed origin
 * Add few HTTP headers thanks to helmet
