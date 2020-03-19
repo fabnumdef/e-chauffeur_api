@@ -1,4 +1,5 @@
 stages:
+  - lint
   - test
   - build
   - deploy
@@ -86,7 +87,7 @@ license_management:
       - package-lock.json
 
 lint:
-  stage: test
+  stage: lint
   extends: .node
   script:
     - npm run lint
