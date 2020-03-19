@@ -21,9 +21,10 @@ variables:
     REPLICA_COUNT: 1
     INGRESS_ISSUER: self-signing
     ALERT_MIN_POD: 1
+    KUBECONFIG_CONTENT: ${STAGING_KUBECONFIG}
   before_script:
     - mkdir -p `dirname $KUBECONFIG`
-    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
+    - echo ${KUBECONFIG_CONTENT} | base64 -d > $KUBECONFIG
   script:
     - helm upgrade
       --install
@@ -178,6 +179,7 @@ deploy_staging:
 deploy_prod:
   extends: .deploy
   variables:
+    KUBECONFIG_CONTENT: ${PRODUCTION_KUBECONFIG}
     DEPLOYMENT_HOST: ${PRODUCTION_DOMAIN}
     API_URL: ${PRODUCTION_API_URL}
     HELM_NAME: api
