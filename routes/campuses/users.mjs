@@ -157,7 +157,7 @@ router.del(
      because it is not done anywhere in del request for now
      */
     ctx.assert(
-      !user.roles || !user.roles.find(({ role }) => role === 'ROLE_SUPERADMIN' || role === 'ROLE_ADMIN'),
+      !user.roles || !user.roles.find(({ role }) => role === 'ROLE_SUPERADMIN'),
       403,
       'You\'re not authorized to delete this user',
     );
@@ -195,4 +195,4 @@ router.post('/batch',
     ctx.status = 204;
   });
 
-export default router.routes();
+export default router;

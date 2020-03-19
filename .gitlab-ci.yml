@@ -3,29 +3,104 @@ stages:
   - build
   - deploy
 
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: License-Management.gitlab-ci.yml
+
 variables:
-  URL_REVIEW: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
+  DS_DISABLE_DIND: "true"
   KUBECONFIG: /etc/deploy/config
 
+.deploy:
+  stage: deploy
+  image: dtzar/helm-kubectl:3.1.1
+  variables:
+    KUBECONFIG: /etc/deploy/config
+    K8S_CLUSTER_NAME: current
+    ALERT_ENABLED: "true"
+    REPLICA_COUNT: 1
+    INGRESS_ISSUER: self-signing
+    ALERT_MIN_POD: 1
+  before_script:
+    - mkdir -p `dirname $KUBECONFIG`
+    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
+  script:
+    - helm upgrade
+      --install
+      --namespace e-chauffeur
+      --set replicaCount=${REPLICA_COUNT}
+      --set image.tag="${CI_COMMIT_REF_SLUG}"
+      --set ingress.host="${DEPLOYMENT_HOST}"
+      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
+      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
+      --set imageCredentials.registry="${CI_REGISTRY}"
+      --set env.API_URL="${API_URL}"
+      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
+      --set env.VAPID_PUBLIC_KEY="${VAPID_PUBLIC_KEY}"
+      --set monitoring.alert.enabled="${ALERT_ENABLED}"
+      --set ingress.issuer="${INGRESS_ISSUER}"
+      --set monitoring.alert.minimumPod=${ALERT_MIN_POD}
+      --set env.REDIS="${REDIS}"
+      --set env.MONGODB="${MONGODB}"
+      --set env.TWILIO__SID="${TWILIO__SID}"
+      --set env.TWILIO__TOKEN="${TWILIO__TOKEN}"
+      --set env.TWILIO__MESSAGING_SERVICE_SID="${TWILIO__MESSAGING_SERVICE_SID}"
+      --set env.MAIL__TRANSPORTER__HOST="${MAIL__TRANSPORTER__HOST}"
+      --set env.MAIL__TRANSPORTER__AUTH__USER="${MAIL__TRANSPORTER__AUTH__USER}"
+      --set env.MAIL__TRANSPORTER__AUTH__PASS="${MAIL__TRANSPORTER__AUTH__PASS}"
+      --set env.MAIL__DEFAULT_FROM="${MAIL__DEFAULT_FROM}"
+      --set env.MAIL__FEEDBACK_MAIL="${MAIL__FEEDBACK_MAIL}"
+      --set env.MAIL__CONTACT_MAIL="${MAIL__CONTACT_MAIL}"
+      --set env.REDIRECT_TARGET="${REDIRECT_TARGET}"
+      --set env.USER_WEBSITE_URL="${USER_WEBSITE_URL}"
+      --set env.VAPID__PUBLIC_KEY="${VAPID__PUBLIC_KEY}"
+      --set env.VAPID__PRIVATE_KEY="${VAPID__PRIVATE_KEY}"
+      --set-string env.WHITELIST_DOMAINS="${WHITELIST_DOMAINS}"
+      --wait
+      ${HELM_NAME}
+      .helm-chart
+
+.node:
+  image: node:latest
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  before_script:
+    - npm install
+
+retire-js-dependency_scanning:
+  only:
+    changes:
+      - package-lock.json
+
+gemnasium-dependency_scanning:
+  only:
+    changes:
+      - package-lock.json
+
+license_management:
+  only:
+    changes:
+      - package-lock.json
+
+lint:
+  stage: test
+  extends: .node
+  script:
+    - npm run lint
+
 test:
+  stage: test
+  extends: .node
   variables:
     MONGODB: "mongodb://mongo/e-chauffeur"
-  image: node:latest
-  stage: test
   services:
     - mongo:latest
   before_script:
     - cp config.json.dist config.json
   script:
-    - npm i
     - npm test
-
-lint:
-  image: node:latest
-  stage: test
-  script:
-    - npm i
-    - npm run lint
 
 build:
   stage: build
@@ -40,41 +115,28 @@ build:
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 deploy_review:
-  stage: deploy
-  image: dtzar/helm-kubectl:3.0.2
-  before_script:
-    - mkdir -p `dirname $KUBECONFIG`
-    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-  script:
-    - helm upgrade
-      --install
-      --namespace e-chauffeur
-      --set image.tag="${CI_COMMIT_REF_SLUG}"
-      --set ingress.host="${URL_REVIEW}"
-      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
-      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
-      --set imageCredentials.registry="${CI_REGISTRY}"
-      --set env.REDIS="${STAGING_REDIS}"
-      --set env.MONGODB="${STAGING_MONGODB}"
-      --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
-      --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
-      --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
-      --set env.MAIL__TRANSPORTER__HOST="${STAGING_MAIL__TRANSPORTER__HOST}"
-      --set env.MAIL__TRANSPORTER__AUTH__USER="${STAGING_MAIL__TRANSPORTER__AUTH__USER}"
-      --set env.MAIL__TRANSPORTER__AUTH__PASS="${STAGING_MAIL__TRANSPORTER__AUTH__PASS}"
-      --set env.MAIL__DEFAULT_FROM="${STAGING_MAIL__DEFAULT_FROM}"
-      --set env.MAIL__FEEDBACK_MAIL="${STAGING_MAIL__FEEDBACK_MAIL}"
-      --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
-      --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
-      --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
-      --set env.VAPID__PUBLIC_KEY="${STAGING_VAPID__PUBLIC_KEY}"
-      --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
-      --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
-      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
-      --set monitoring.alert.enabled="false"
-      --wait
-      api-${CI_COMMIT_REF_SLUG}
-      .helm-chart
+  extends: .deploy
+  variables:
+    DEPLOYMENT_HOST: ${CI_COMMIT_REF_SLUG}.${STAGING_DOMAIN}
+    API_URL: ${STAGING_API_URL}
+    ALERT_ENABLED: "false"
+    HELM_NAME: api-${CI_COMMIT_REF_SLUG}
+    REDIS: ${STAGING_REDIS}
+    MONGODB: ${STAGING_MONGODB}
+    TWILIO__SID: ${STAGING_TWILIO__SID}
+    TWILIO__TOKEN: ${STAGING_TWILIO__TOKEN}
+    TWILIO__MESSAGING_SERVICE_SID: ${STAGING_TWILIO__MESSAGING_SERVICE_SID}
+    MAIL__TRANSPORTER__HOST: ${STAGING_MAIL__TRANSPORTER__HOST}
+    MAIL__TRANSPORTER__AUTH__USER: ${STAGING_MAIL__TRANSPORTER__AUTH__USER}
+    MAIL__TRANSPORTER__AUTH__PASS: ${STAGING_MAIL__TRANSPORTER__AUTH__PASS}
+    MAIL__DEFAULT_FROM: ${STAGING_MAIL__DEFAULT_FROM}
+    MAIL__FEEDBACK_MAIL: ${STAGING_MAIL__FEEDBACK_MAIL}
+    MAIL__CONTACT_MAIL: ${STAGING_MAIL__CONTACT_MAIL}
+    REDIRECT_TARGET: ${STAGING_REDIRECT_TARGET}
+    USER_WEBSITE_URL: ${STAGING_USER_WEBSITE_URL}
+    VAPID__PUBLIC_KEY: ${STAGING_VAPID__PUBLIC_KEY}
+    VAPID__PRIVATE_KEY: ${STAGING_VAPID__PRIVATE_KEY}
+    WHITELIST_DOMAINS: ${STAGING_WHITELIST_DOMAINS}
   except:
     refs:
       - tags
@@ -82,43 +144,30 @@ deploy_review:
       - develop
 
 deploy_staging:
-  stage: deploy
-  image: dtzar/helm-kubectl:3.0.2
-  before_script:
-    - mkdir -p `dirname $KUBECONFIG`
-    - echo ${STAGING_KUBECONFIG} | base64 -d > $KUBECONFIG
-  script:
-    - helm upgrade
-      --install
-      --namespace e-chauffeur
-      --set replicaCount=3
-      --set image.tag="${CI_COMMIT_REF_SLUG}"
-      --set ingress.host="${STAGING_DOMAIN}"
-      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
-      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
-      --set imageCredentials.registry="${CI_REGISTRY}"
-      --set env.REDIS="${STAGING_REDIS}"
-      --set env.MONGODB="${STAGING_MONGODB}"
-      --set env.TWILIO__SID="${STAGING_TWILIO__SID}"
-      --set env.TWILIO__TOKEN="${STAGING_TWILIO__TOKEN}"
-      --set env.TWILIO__MESSAGING_SERVICE_SID="${STAGING_TWILIO__MESSAGING_SERVICE_SID}"
-      --set env.MAIL__TRANSPORTER__HOST="${STAGING_MAIL__TRANSPORTER__HOST}"
-      --set env.MAIL__TRANSPORTER__AUTH__USER="${STAGING_MAIL__TRANSPORTER__AUTH__USER}"
-      --set env.MAIL__TRANSPORTER__AUTH__PASS="${STAGING_MAIL__TRANSPORTER__AUTH__PASS}"
-      --set env.MAIL__DEFAULT_FROM="${STAGING_MAIL__DEFAULT_FROM}"
-      --set env.MAIL__FEEDBACK_MAIL="${STAGING_MAIL__FEEDBACK_MAIL}"
-      --set env.MAIL__CONTACT_MAIL="${STAGING_MAIL__CONTACT_MAIL}"
-      --set env.REDIRECT_TARGET="${STAGING_REDIRECT_TARGET}"
-      --set env.USER_WEBSITE_URL="${STAGING_USER_WEBSITE_URL}"
-      --set env.VAPID__PUBLIC_KEY="${STAGING_VAPID__PUBLIC_KEY}"
-      --set env.VAPID__PRIVATE_KEY="${STAGING_VAPID__PRIVATE_KEY}"
-      --set-string env.WHITELIST_DOMAINS="${STAGING_WHITELIST_DOMAINS}"
-      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
-      --set ingress.issuer="letsencrypt-prod"
-      --set monitoring.alert.minimumPod=2
-      --wait
-      api-staging
-      .helm-chart
+  extends: .deploy
+  variables:
+    DEPLOYMENT_HOST: ${STAGING_DOMAIN}
+    API_URL: ${STAGING_API_URL}
+    HELM_NAME: api-staging
+    REPLICA_COUNT: 3
+    INGRESS_ISSUER: letsencrypt-prod
+    ALERT_MIN_POD: 2
+    REDIS: ${STAGING_REDIS}
+    MONGODB: ${STAGING_MONGODB}
+    TWILIO__SID: ${STAGING_TWILIO__SID}
+    TWILIO__TOKEN: ${STAGING_TWILIO__TOKEN}
+    TWILIO__MESSAGING_SERVICE_SID: ${STAGING_TWILIO__MESSAGING_SERVICE_SID}
+    MAIL__TRANSPORTER__HOST: ${STAGING_MAIL__TRANSPORTER__HOST}
+    MAIL__TRANSPORTER__AUTH__USER: ${STAGING_MAIL__TRANSPORTER__AUTH__USER}
+    MAIL__TRANSPORTER__AUTH__PASS: ${STAGING_MAIL__TRANSPORTER__AUTH__PASS}
+    MAIL__DEFAULT_FROM: ${STAGING_MAIL__DEFAULT_FROM}
+    MAIL__FEEDBACK_MAIL: ${STAGING_MAIL__FEEDBACK_MAIL}
+    MAIL__CONTACT_MAIL: ${STAGING_MAIL__CONTACT_MAIL}
+    REDIRECT_TARGET: ${STAGING_REDIRECT_TARGET}
+    USER_WEBSITE_URL: ${STAGING_USER_WEBSITE_URL}
+    VAPID__PUBLIC_KEY: ${STAGING_VAPID__PUBLIC_KEY}
+    VAPID__PRIVATE_KEY: ${STAGING_VAPID__PRIVATE_KEY}
+    WHITELIST_DOMAINS: ${STAGING_WHITELIST_DOMAINS}
   only:
     refs:
       - develop
@@ -127,43 +176,30 @@ deploy_staging:
       - tags
 
 deploy_prod:
-  stage: deploy
-  image: dtzar/helm-kubectl:3.0.2
-  before_script:
-    - mkdir -p `dirname $KUBECONFIG`
-    - echo ${PRODUCTION_KUBECONFIG} | base64 -d > $KUBECONFIG
-  script:
-    - helm upgrade
-      --install
-      --namespace e-chauffeur
-      --set replicaCount=3
-      --set image.tag="${CI_COMMIT_REF_SLUG}"
-      --set ingress.host="${PRODUCTION_DOMAIN}"
-      --set imageCredentials.username="${DOCKER_REGISTRY_USER}"
-      --set imageCredentials.password="${DOCKER_REGISTRY_PASSWORD}"
-      --set imageCredentials.registry="${CI_REGISTRY}"
-      --set env.REDIS="${PRODUCTION_REDIS}"
-      --set env.MONGODB="${PRODUCTION_MONGODB}"
-      --set env.TWILIO__SID="${PRODUCTION_TWILIO__SID}"
-      --set env.TWILIO__TOKEN="${PRODUCTION_TWILIO__TOKEN}"
-      --set env.TWILIO__MESSAGING_SERVICE_SID="${PRODUCTION_TWILIO__MESSAGING_SERVICE_SID}"
-      --set env.MAIL__TRANSPORTER__HOST="${PRODUCTION_MAIL__TRANSPORTER__HOST}"
-      --set env.MAIL__TRANSPORTER__AUTH__USER="${PRODUCTION_MAIL__TRANSPORTER__AUTH__USER}"
-      --set env.MAIL__TRANSPORTER__AUTH__PASS="${PRODUCTION_MAIL__TRANSPORTER__AUTH__PASS}"
-      --set env.MAIL__DEFAULT_FROM="${PRODUCTION_MAIL__DEFAULT_FROM}"
-      --set env.MAIL__FEEDBACK_MAIL="${PRODUCTION_MAIL__FEEDBACK_MAIL}"
-      --set env.MAIL__CONTACT_MAIL="${PRODUCTION_MAIL__CONTACT_MAIL}"
-      --set env.REDIRECT_TARGET="${PRODUCTION_REDIRECT_TARGET}"
-      --set env.USER_WEBSITE_URL="${PRODUCTION_USER_WEBSITE_URL}"
-      --set env.VAPID__PUBLIC_KEY="${PRODUCTION_VAPID__PUBLIC_KEY}"
-      --set env.VAPID__PRIVATE_KEY="${PRODUCTION_VAPID__PRIVATE_KEY}"
-      --set-string env.WHITELIST_DOMAINS="${PRODUCTION_WHITELIST_DOMAINS}"
-      --set env.VERSION="Version ${CI_COMMIT_REF_NAME} - ${CI_COMMIT_SHA} (job \#${CI_JOB_ID})"
-      --set ingress.issuer="letsencrypt-prod"
-      --set monitoring.alert.minimumPod=3
-      --wait
-      api
-      .helm-chart
+  extends: .deploy
+  variables:
+    DEPLOYMENT_HOST: ${PRODUCTION_DOMAIN}
+    API_URL: ${PRODUCTION_API_URL}
+    HELM_NAME: api
+    REPLICA_COUNT: 3
+    INGRESS_ISSUER: letsencrypt-prod
+    ALERT_MIN_POD: 3
+    REDIS: ${PRODUCTION_REDIS}
+    MONGODB: ${PRODUCTION_MONGODB}
+    TWILIO__SID: ${PRODUCTION_TWILIO__SID}
+    TWILIO__TOKEN: ${PRODUCTION_TWILIO__TOKEN}
+    TWILIO__MESSAGING_SERVICE_SID: ${PRODUCTION_TWILIO__MESSAGING_SERVICE_SID}
+    MAIL__TRANSPORTER__HOST: ${PRODUCTION_MAIL__TRANSPORTER__HOST}
+    MAIL__TRANSPORTER__AUTH__USER: ${PRODUCTION_MAIL__TRANSPORTER__AUTH__USER}
+    MAIL__TRANSPORTER__AUTH__PASS: ${PRODUCTION_MAIL__TRANSPORTER__AUTH__PASS}
+    MAIL__DEFAULT_FROM: ${PRODUCTION_MAIL__DEFAULT_FROM}
+    MAIL__FEEDBACK_MAIL: ${PRODUCTION_MAIL__FEEDBACK_MAIL}
+    MAIL__CONTACT_MAIL: ${PRODUCTION_MAIL__CONTACT_MAIL}
+    REDIRECT_TARGET: ${PRODUCTION_REDIRECT_TARGET}
+    USER_WEBSITE_URL: ${PRODUCTION_USER_WEBSITE_URL}
+    VAPID__PUBLIC_KEY: ${PRODUCTION_VAPID__PUBLIC_KEY}
+    VAPID__PRIVATE_KEY: ${PRODUCTION_VAPID__PRIVATE_KEY}
+    WHITELIST_DOMAINS: ${PRODUCTION_WHITELIST_DOMAINS}
   only:
     refs:
       - tags

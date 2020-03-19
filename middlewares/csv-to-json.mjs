@@ -13,7 +13,7 @@ export const validateCampus = async (ctx, next) => {
           id: campusDocument.id,
           name: campusDocument.name,
         };
-      } else if (item.campus.id !== campusDocument._id || item.campus.name !== campusDocument.name) {
+      } else if (item.campus.id !== campusDocument._id && item.campus.name !== campusDocument.name) {
         ctx.throw_and_log(403, 'Campus does not match current one');
       }
       return newItem;
@@ -30,5 +30,13 @@ export const csvToJson = async (ctx, next) => {
   }
 
   ctx.file = await csv2Json({ delimiter, ignoreEmpty }).fromFile(file.path);
+  ctx.file = ctx.file.map((d) => {
+    const data = { ...d };
+    if (d.id && !d.email) {
+      data._id = d.id;
+      delete data.id;
+    }
+    return data;
+  });
   await next();
 };

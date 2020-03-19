@@ -2,6 +2,31 @@
 ## Current
 ### Features
 ### Fix
+## Version 1.4.6
+### Features
+* Enforce allowed methods error
+* Enforce CORS allowed origin
+* Add few HTTP headers thanks to helmet
+* Ensure that MX entry exists for an email address
+* Add a limit to email size.
+### Fix
+* Normalize email in find
+* Ensure that email is compliant with Regex
+* Check filter for phone listing
+* Don't let admin remove a user
+* Ensure that car is linked to the current selected campus
+* Clean POI authorizations 
+* Throw error if ride has the same departure and arrival POI
+* Added rate limit model & handles it for password attempt
+* Fixed rights for user update
+* Added required to coordinates in campus model
+* Added rights to drivers-positions.mjs
+* Scoped CRUD rights to campus
+* CSV import duplication error message
+* id to _id conversion
+* Refs for batch phones route
+* Fix drivers right to edit ride status
+* Fixed self editing rights for user
 ## Version 1.4.5
 ### Features
 * Added connection status management for drivers through sockets

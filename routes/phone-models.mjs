@@ -39,4 +39,4 @@ const router = generateCRUD(PhoneModel, {
   },
 });
 
-export default router.routes();
+export default router;

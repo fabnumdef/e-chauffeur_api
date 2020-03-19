@@ -1,15 +1,10 @@
 import generateCRUD from '../helpers/abstract-route';
 import Poi from '../models/poi';
 import {
-  CAN_CREATE_POI,
   CAN_CREATE_POI_LOCAL,
-  CAN_EDIT_POI,
   CAN_EDIT_POI_LOCAL,
   CAN_GET_POI,
-  CAN_GET_POI_LOCAL,
   CAN_LIST_POI,
-  CAN_LIST_POI_LOCAL,
-  CAN_REMOVE_POI,
   CAN_REMOVE_POI_LOCAL,
 } from '../models/rights';
 import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
@@ -18,19 +13,19 @@ import maskOutput from '../middlewares/mask-output';
 
 const router = generateCRUD(Poi, {
   create: {
-    right: [CAN_CREATE_POI, CAN_CREATE_POI_LOCAL],
+    right: CAN_CREATE_POI_LOCAL,
   },
   get: {
-    right: [CAN_GET_POI, CAN_GET_POI_LOCAL],
+    right: CAN_GET_POI,
   },
   delete: {
-    right: [CAN_REMOVE_POI, CAN_REMOVE_POI_LOCAL],
+    right: CAN_REMOVE_POI_LOCAL,
   },
   update: {
-    right: [CAN_EDIT_POI, CAN_EDIT_POI_LOCAL],
+    right: CAN_EDIT_POI_LOCAL,
   },
   list: {
-    right: [CAN_LIST_POI, CAN_LIST_POI_LOCAL],
+    right: CAN_LIST_POI,
     filters: {
       campus: 'campus._id',
       withDisabled: 'enabled',
@@ -62,7 +57,7 @@ const router = generateCRUD(Poi, {
     },
   },
   batch: {
-    right: [CAN_CREATE_POI, CAN_CREATE_POI_LOCAL],
+    right: CAN_CREATE_POI_LOCAL,
     label: ['label'],
     middlewares: [
       csvToJson,
@@ -71,4 +66,4 @@ const router = generateCRUD(Poi, {
   },
 });
 
-export default router.routes();
+export default router;

@@ -2,7 +2,8 @@ import generateCRUD from '../helpers/abstract-route';
 import User from '../models/user';
 import NotificationDevice from '../models/notification-device';
 import {
-  CAN_CREATE_USER, CAN_EDIT_SELF_USER_NAME, CAN_EDIT_SELF_USER_PASSWORD,
+  CAN_CREATE_USER,
+  CAN_EDIT_SELF_USER_NAME, CAN_EDIT_SELF_USER_PASSWORD, CAN_EDIT_SELF_USER_SENSITIVE_DATA,
   CAN_SEND_CREATION_TOKEN,
   CAN_EDIT_USER,
   CAN_EDIT_USER_SENSITIVE_DATA,
@@ -40,7 +41,7 @@ const router = generateCRUD(User, {
       }
 
       const emailO = { email: body.email };
-      const userExists = await User.findOne(emailO);
+      const userExists = await User.findByEmail(body.email);
       if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false') && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
           const { token } = await userExists.generateResetToken(emailO);
@@ -147,17 +148,25 @@ const router = generateCRUD(User, {
         userBody.password = body.password;
       }
 
-      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.name) {
-        userBody.name = body.name;
+      if (ctx.may(CAN_EDIT_SELF_USER_SENSITIVE_DATA)) {
+        if (body.phone) {
+          userBody.phone = body.phone;
+        }
+        if (body.email) {
+          userBody.email = body.email;
+          userBody.email_token = body.email_token;
+        }
       }
 
-      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.firstname) {
-        userBody.firstname = body.firstname;
+      if (ctx.may(CAN_EDIT_SELF_USER_NAME)) {
+        if (body.firstname) {
+          userBody.firstname = body.firstname;
+        }
+        if (body.lastname) {
+          userBody.lastname = body.lastname;
+        }
       }
 
-      if (ctx.may(CAN_EDIT_SELF_USER_NAME) && body.lastname) {
-        userBody.lastname = body.lastname;
-      }
       const user = await User.findById(id);
 
       if (body.roles) {
@@ -172,22 +181,24 @@ const router = generateCRUD(User, {
         );
       }
 
-      if (!ctx.may(CAN_EDIT_USER_SENSITIVE_DATA)) {
-        delete body.email_confirmed;
-        if (body.phone) {
-          delete body.phone.canonical;
-          delete body.phone.confirmed;
+      if (
+        !ctx.may(CAN_EDIT_USER_SENSITIVE_DATA)
+        && !ctx.may(CAN_EDIT_SELF_USER_SENSITIVE_DATA)
+      ) {
+        delete userBody.email_confirmed;
+        if (userBody.phone) {
+          delete userBody.phone.canonical;
+          delete userBody.phone.confirmed;
         }
       }
 
-      user.set(body);
-
-      if (!user.phone.confirmed && body.phone && body.phone.token) {
+      user.set(userBody);
+      if (!user.phone.confirmed && userBody.phone && userBody.phone.token) {
         await user.confirmPhone(body.phone.token);
       }
 
-      if (!user.email_confirmed && body.email && body.email_token) {
-        await user.confirmEmail(body.email_token);
+      if (!user.email_confirmed && userBody.email && userBody.email_token) {
+        await user.confirmEmail(userBody.email_token);
       }
       ctx.assert(
         ctx.may(CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS, user),
@@ -195,7 +206,6 @@ const router = generateCRUD(User, {
         'You\'re not authorized to update this user',
       );
       ctx.body = await user.save();
-
       if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false')) {
         const toSend = ctx.headers[X_SEND_TOKEN].split(',');
         if (toSend.includes('email') && !user.email_confirmed) {
@@ -221,7 +231,7 @@ const router = generateCRUD(User, {
       ctx.log(
         ctx.log.INFO,
         `${User.modelName} "${id}" has been modified`,
-        { body },
+        { userBody },
       );
     },
   },
@@ -244,4 +254,4 @@ router.post(
   },
 );
 
-export default router.routes();
+export default router;

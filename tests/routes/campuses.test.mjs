@@ -25,7 +25,7 @@ describe('Test the campuses route', () => {
     ...config,
     requestCallBack: (r) => r
       .set(...generateSuperAdminJWTHeader()),
-    transformObject: { id: '_id', name: 'name' },
+    transformObject: { id: '_id', name: 'name', location: { coordinates: 'coordinates' } },
   }));
 
   it(...testList(Campus, {

@@ -3,14 +3,16 @@ import jwt from 'koa-jwt';
 import config from '../services/config';
 import User, { ExpiredPasswordError } from '../models/user';
 import Campus from '../models/campus';
+import RateLimit from '../models/rate-limit';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import { CAN_LIST_ALL_CAMPUSES, CAN_LOGIN } from '../models/rights';
+import rateLimitMiddleware from '../middlewares/rate-limit';
 
 const router = new Router();
 
-router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
-  const { request: { body } } = ctx;
+router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, rateLimitMiddleware, async (ctx) => {
+  const { request: { body, ip } } = ctx;
   const user = await User.findOne({ email: body.email });
 
   if (!body.password && !body.token) {
@@ -20,6 +22,7 @@ router.post('/generate', resolveRights(CAN_LOGIN), maskOutput, async (ctx) => {
   if (!user
   || (body.password && !(await user.comparePassword(body.password)))
   || (body.token && !(await user.compareResetToken(body.token, body.email)))) {
+    await RateLimit.create({ ref: body.email, ip });
     ctx.throw_and_log(403, `Username and password do not match for user "${body.email}".`);
   }
 
@@ -83,4 +86,4 @@ router.get(
   },
 );
 
-export default router.routes();
+export default router;

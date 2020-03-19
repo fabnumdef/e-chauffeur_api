@@ -42,4 +42,4 @@ const router = generateCRUD(Rating, {
   },
 });
 
-export default router.routes();
+export default router;

@@ -35,6 +35,7 @@ export const ROLE_USER = new RoleList(
   rights.CAN_ACCESS_OWN_DATA_ON_RIDE,
   rights.CAN_EDIT_SELF_USER_NAME,
   rights.CAN_EDIT_SELF_USER_PASSWORD,
+  rights.CAN_EDIT_SELF_USER_SENSITIVE_DATA,
   rights.CAN_GET_CAMPUS_BASIC,
 
   rights.CAN_REQUEST_RIDE,
@@ -44,8 +45,6 @@ export const ROLE_USER = new RoleList(
   rights.CAN_LIST_SELF_RIDE,
   rights.CAN_DELETE_SELF_RIDE,
 
-  rights.CAN_GET_POI_LOCAL,
-  rights.CAN_LIST_POI_LOCAL,
   rights.CAN_GET_POI,
   rights.CAN_LIST_POI,
 
@@ -174,12 +173,6 @@ export const ROLE_SUPERADMIN = new RoleList(
   rights.CAN_GET_CATEGORY,
   rights.CAN_REMOVE_CATEGORY,
 
-  rights.CAN_EDIT_POI,
-  rights.CAN_CREATE_POI,
-
-  rights.CAN_REMOVE_POI,
-
-  rights.CAN_LIST_LOG,
   rights.CAN_GET_POSITION_HISTORY,
 
   rights.CAN_CREATE_PHONE_MODEL,

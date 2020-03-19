@@ -33,6 +33,7 @@ export const CAN_SEND_CREATION_TOKEN = stdRule('CAN_SEND_CREATION_TOKEN');
 
 export const CAN_EDIT_SELF_USER_PASSWORD = selfEditingUserRule('CAN_EDIT_SELF_USER_PASSWORD');
 export const CAN_EDIT_SELF_USER_NAME = selfEditingUserRule('CAN_EDIT_SELF_USER_NAME');
+export const CAN_EDIT_SELF_USER_SENSITIVE_DATA = selfEditingUserRule('CAN_EDIT_SELF_USER_SENSITIVE_DATA');
 
 export const CAN_EDIT_USER_EVENT = stdRule('CAN_EDIT_USER_EVENT');
 export const CAN_CREATE_USER_EVENT = stdRule('CAN_CREATE_USER_EVENT');
@@ -84,37 +85,30 @@ export const CAN_LIST_CATEGORY = stdRule('CAN_LIST_CATEGORY');
 export const CAN_GET_CATEGORY = stdRule('CAN_GET_CATEGORY');
 export const CAN_REMOVE_CATEGORY = stdRule('CAN_REMOVE_CATEGORY');
 
-export const CAN_EDIT_CAR = stdRule('CAN_EDIT_CAR');
-export const CAN_CREATE_CAR = stdRule('CAN_CREATE_CAR');
-export const CAN_LIST_CAR = stdRule('CAN_LIST_CAR');
-export const CAN_GET_CAR = stdRule('CAN_GET_CAR');
-export const CAN_REMOVE_CAR = stdRule('CAN_REMOVE_CAR');
+export const CAN_EDIT_CAR = campusRule('CAN_EDIT_CAR');
+export const CAN_CREATE_CAR = campusRule('CAN_CREATE_CAR');
+export const CAN_LIST_CAR = campusRule('CAN_LIST_CAR');
+export const CAN_GET_CAR = campusRule('CAN_GET_CAR');
+export const CAN_REMOVE_CAR = campusRule('CAN_REMOVE_CAR');
 
-export const CAN_EDIT_POI = stdRule('CAN_EDIT_POI');
-export const CAN_CREATE_POI = stdRule('CAN_CREATE_POI');
 export const CAN_LIST_POI = stdRule('CAN_LIST_POI');
 export const CAN_GET_POI = stdRule('CAN_GET_POI');
-export const CAN_REMOVE_POI = stdRule('CAN_REMOVE_POI');
-
 export const CAN_EDIT_POI_LOCAL = campusRule('CAN_EDIT_POI_LOCAL');
 export const CAN_CREATE_POI_LOCAL = campusRule('CAN_CREATE_POI_LOCAL');
-export const CAN_LIST_POI_LOCAL = campusRule('CAN_LIST_POI_LOCAL');
-export const CAN_GET_POI_LOCAL = campusRule('CAN_GET_POI_LOCAL');
 export const CAN_REMOVE_POI_LOCAL = campusRule('CAN_REMOVE_POI_LOCAL');
 
 export const CAN_GET_POSITION_HISTORY = stdRule('CAN_GET_POSITION_HISTORY');
 
-// @todo : scope there by campus
-export const CAN_EDIT_RIDE = stdRule('CAN_EDIT_RIDE');
+export const CAN_EDIT_RIDE = campusRule('CAN_EDIT_RIDE');
 export const CAN_EDIT_RIDE_STATUS = stdRule('CAN_EDIT_RIDE_STATUS');
 export const CAN_EDIT_OWNED_RIDE_STATUS = ownedRideRule('CAN_EDIT_OWNED_RIDE_STATUS');
-export const CAN_CREATE_RIDE = stdRule('CAN_CREATE_RIDE');
-export const CAN_REQUEST_RIDE = stdRule('CAN_REQUEST_RIDE');
+export const CAN_CREATE_RIDE = campusRule('CAN_CREATE_RIDE');
+export const CAN_REQUEST_RIDE = campusRule('CAN_REQUEST_RIDE');
 export const CAN_GET_OWNED_RIDE = ownedRideRule('CAN_GET_OWNED_RIDE');
 export const CAN_GET_RIDE_WITH_TOKEN = tokenRideRule('CAN_GET_RIDE_WITH_TOKEN');
 export const CAN_EDIT_OWNED_RIDE = ownedRideRule('CAN_EDIT_OWNED_RIDE');
-export const CAN_LIST_RIDE = stdRule('CAN_LIST_RIDE');
-export const CAN_GET_RIDE = stdRule('CAN_GET_RIDE');
+export const CAN_LIST_RIDE = campusRule('CAN_LIST_RIDE');
+export const CAN_GET_RIDE = campusRule('CAN_GET_RIDE');
 export const CAN_GET_RIDE_POSITION = stdRule('CAN_GET_RIDE_POSITION');
 export const CAN_LIST_SELF_RIDE = selfEditingUserRule('CAN_LIST_SELF_RIDE');
 export const CAN_DELETE_SELF_RIDE = selfEditingUserRule('CAN_DELETE_SELF_RIDE');
