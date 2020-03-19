@@ -15,7 +15,7 @@ import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-status';
 import config from '../../services/config';
 import contentNegociation from '../../middlewares/content-negociation';
-
+import convertToStepsMiddleware from '../../middlewares/rides-to-steps';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -63,6 +63,7 @@ router.get(
   '/:driver_id/rides',
   resolveRights(CAN_LIST_CAMPUS_DRIVER_RIDE),
   maskOutput,
+  convertToStepsMiddleware,
   ensureThatFiltersExists('status'),
   async (ctx) => {
     const { filters } = ctx.query;

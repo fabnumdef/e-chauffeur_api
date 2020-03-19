@@ -33,7 +33,6 @@ export const CREATE = 'create';
 export const VALIDATE = 'validation';
 export const REJECT_BOUNDARY = 'rejection_boundary';
 export const REJECT_CAPACITY = 'rejection_capacity';
-export const ACCEPT = 'accept';
 export const DECLINE = 'decline';
 export const START = 'start-up';
 export const WAIT = 'stay';
@@ -44,6 +43,13 @@ export const CANCEL_TECHNICAL = 'cancel_technical';
 export const CANCEL_REQUESTED_CUSTOMER = 'cancel_requested_by_customer';
 export const CANCEL_CUSTOMER_OVERLOAD = 'cancel_customer_overload';
 export const CANCEL_CUSTOMER_MISSING = 'cancel_customer_missing';
+export const CANCEL_STATUSES = [
+  CANCEL,
+  CANCEL_TECHNICAL,
+  CANCEL_REQUESTED_CUSTOMER,
+  CANCEL_CUSTOMER_OVERLOAD,
+  CANCEL_CUSTOMER_MISSING,
+];
 
 export const CANCELABLE = [CREATED, VALIDATED, ACCEPTED, STARTED, WAITING, IN_PROGRESS];
 
@@ -54,9 +60,8 @@ export default {
     { name: VALIDATE, from: CREATED, to: VALIDATED },
     { name: REJECT_BOUNDARY, from: CREATED, to: REJECTED_BOUNDARY },
     { name: REJECT_CAPACITY, from: CREATED, to: REJECTED_CAPACITY },
-    { name: ACCEPT, from: VALIDATED, to: ACCEPTED },
     { name: DECLINE, from: VALIDATED, to: DECLINED },
-    { name: START, from: ACCEPTED, to: STARTED },
+    { name: START, from: VALIDATED, to: STARTED },
     { name: WAIT, from: STARTED, to: WAITING },
     { name: PROGRESS, from: WAITING, to: IN_PROGRESS },
     { name: DELIVER, from: IN_PROGRESS, to: DELIVERED },

@@ -5,6 +5,7 @@ import Luxon from 'luxon';
 import {
   CANCEL_REQUESTED_CUSTOMER,
   CANCELED_STATUSES, CREATE, DELIVERED, DRAFTED,
+  CANCEL_STATUSES,
 } from '../models/status';
 import maskOutput, { cleanObject } from '../middlewares/mask-output';
 import contentNegociation from '../middlewares/content-negociation';
@@ -29,6 +30,7 @@ import {
   CAN_DELETE_SELF_RIDE,
 } from '../models/rights';
 import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
+import convertRideToSteps from '../helpers/step-management/generator';
 
 const { DateTime } = Luxon;
 
@@ -39,6 +41,14 @@ function ioEmit(ctx, data, eventName = '', rooms = []) {
   });
   io.emit(eventName, data);
 }
+const getRooms = (ride) => ({
+  rooms: [
+    `ride/${ride.id}`,
+    `campus/${ride.campus.id}`,
+  ],
+  driverRoom: [`driver/${ride.driver.id}`],
+});
+
 const REQUEST_PRE_MASK = 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments,status';
 const REQUEST_POST_MASK = 'id,start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments,status';
 const router = generateCRUD(Ride, {
@@ -67,11 +77,15 @@ const router = generateCRUD(Ride, {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
       }
       ctx.log(ctx.log.INFO, `${Ride.modelName} "${ride.id}" has been created`);
-      ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
-        `ride/${ride.id}`,
-        `campus/${ride.campus.id}`,
-        `driver/${ride.driver.id}`,
-      ]);
+
+      const { rooms, driverRoom } = getRooms(ride);
+
+      if (!isRequest) {
+        const steps = convertRideToSteps(ride);
+        ioEmit(ctx, cleanObject(steps), 'rideUpdate', driverRoom);
+      }
+      ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
+
       // Todo: add this to a queue system to ensure this will be executed
       NotificationDevice.findOneByUser(ride.driver.id).then((device) => {
         if (device) {
@@ -123,14 +137,16 @@ const router = generateCRUD(Ride, {
         `${Ride.modelName} "${id}" has been modified`,
         { body },
       );
-      const rooms = [
-        `ride/${ride.id}`,
-        `campus/${ride.campus.id}`,
-        `driver/${ride.driver.id}`,
-      ];
 
+      const { rooms, driverRoom } = getRooms(ride);
       if (previousDriverId && body.driver.id !== previousDriverId) {
-        rooms.push(`driver/${previousDriverId}`);
+        driverRoom.push(`driver/${previousDriverId}`);
+      }
+
+      if (ctx.query && ctx.query.step) {
+        const { step } = ctx.query;
+        step.status = ctx.body.status;
+        ioEmit(ctx, [step], 'rideUpdate', driverRoom);
       }
 
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
@@ -273,6 +289,7 @@ router.post(
   async (ctx) => {
     // @todo: rights - driver should be able to update only some status
     const { params: { id, action } } = ctx;
+
     if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE && action !== CANCEL_REQUESTED_CUSTOMER) {
       ctx.throw_and_log(403, `You're not authorized to mutate to "${action}"`);
     }
@@ -291,11 +308,21 @@ router.post(
       `${Ride.modelName} "${id}" has been modified`,
       { ride },
     );
-    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
-      `ride/${ride.id}`,
-      `campus/${ride.campus.id}`,
-      `driver/${ride.driver.id}`,
-    ]);
+
+    const { rooms, driverRoom } = getRooms(ride);
+
+    const isActionCancel = CANCEL_STATUSES.filter((status) => action === status).length > 0;
+    if (isActionCancel) {
+      ioEmit(ctx, ride._id, 'deleteStep', driverRoom);
+    }
+
+    if (ctx.query && ctx.query.step) {
+      const { step } = ctx.query;
+      step.status = ctx.body.status;
+      ioEmit(ctx, cleanObject([step]), 'rideUpdate', driverRoom);
+    }
+
+    ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', rooms);
   },
 );
 
