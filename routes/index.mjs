@@ -15,6 +15,7 @@ import phoneModels from './phone-models';
 import timeSlots from './time-slots';
 import config from '../services/config';
 import ratings from './ratings';
+import stats from './stats';
 
 const router = new Router();
 
@@ -52,5 +53,7 @@ router.use('/time-slots', timeSlots.routes());
 router.use('/time-slots', timeSlots.allowedMethods());
 router.use('/users', users.routes());
 router.use('/users', users.allowedMethods());
+router.use('/stats', stats.routes());
+router.use('/stats', stats.allowedMethods());
 
 export default router;

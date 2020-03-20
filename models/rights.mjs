@@ -51,6 +51,7 @@ export const CAN_GET_CAMPUS_BASIC = stdRule('CAN_GET_CAMPUS_BASIC');
 export const CAN_REMOVE_CAMPUS = stdRule('CAN_REMOVE_CAMPUS');
 
 export const CAN_GET_CAMPUS_STATS = campusRule('CAN_GET_CAMPUS_STATS');
+export const CAN_GET_STATS = stdRule('CAN_GET_STATS');
 
 export const CAN_LIST_CAMPUS_CAR = campusRule('CAN_LIST_CAMPUS_CAR');
 export const CAN_LIST_CAMPUS_DRIVER_RIDE = campusRule('CAN_LIST_CAMPUS_DRIVER_RIDE');

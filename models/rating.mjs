@@ -47,4 +47,13 @@ RatingSchema.pre('validate', async function preValidate(next) {
   next();
 });
 
+RatingSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
+  const filters = f;
+  filters.$and = [
+    { createdAt: { $gte: start } },
+    { createdAt: { $lte: end } },
+  ];
+  return filters;
+};
+
 export default mongoose.model(MODEL_NAME, RatingSchema, 'ratings');
