@@ -18,7 +18,8 @@ const REQUESTABLE = {
   drivers: 'drivers',
   hasPhone: 'has-phone',
   period: 'period',
-  ratings: 'ratings',
+  uxGrade: 'uxGrade',
+  recommendationGrade: 'recommendationGrade',
 };
 
 router.get(
@@ -97,11 +98,15 @@ router.get(
             }
           }
           break;
-        case REQUESTABLE.ratings:
-          v = await Campus.getRatingsStats(ctx.params.campus_id, start, end);
+        case REQUESTABLE.uxGrade:
+          v = await Campus.aggregateRatingsByUXGrade(ctx.params.campus_id, start, end);
+          break;
+        case REQUESTABLE.recommendationGrade:
+          v = await Campus.aggregateRatingsByRecommendationGrade(ctx.params.campus_id, start, end);
           break;
         default:
       }
+
       return { [r]: v };
     }))).reduce((acc, curr) => Object.assign(acc, curr), {});
   },

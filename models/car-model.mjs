@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
+import {
+  CAR_MODEL_COLLECTION_NAME,
+  CAR_MODEL_DASHED_NAME,
+  CAR_MODEL_MODEL_NAME,
+} from './helpers/constants';
 
 const { Schema } = mongoose;
-const MODEL_NAME = 'CarModel';
 
 const CarModelSchema = new Schema({
   _id: String,
@@ -21,6 +25,6 @@ CarModelSchema.index({
   label: 'text',
 });
 
-CarModelSchema.statics.getDashedName = () => 'car-model';
+CarModelSchema.statics.getDashedName = () => CAR_MODEL_DASHED_NAME;
 
-export default mongoose.model(MODEL_NAME, CarModelSchema, 'car-models');
+export default mongoose.model(CAR_MODEL_MODEL_NAME, CarModelSchema, CAR_MODEL_COLLECTION_NAME);

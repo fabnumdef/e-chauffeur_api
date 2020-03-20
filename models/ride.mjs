@@ -14,9 +14,15 @@ import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 import cleanObjectPlugin from './helpers/object-cleaner';
+import {
+  CAMPUS_MODEL_NAME,
+  CAR_MODEL_NAME, GEO_TRACKING_MODEL_NAME,
+  POI_MODEL_NAME, RIDE_COLLECTION_NAME,
+  RIDE_MODEL_NAME,
+  USER_MODEL_NAME,
+} from './helpers/constants';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
-const MODEL_NAME = 'Ride';
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
@@ -129,7 +135,7 @@ const RideSchema = new Schema({
 });
 
 RideSchema.plugin(createdAtPlugin);
-RideSchema.plugin(cleanObjectPlugin, MODEL_NAME);
+RideSchema.plugin(cleanObjectPlugin, RIDE_MODEL_NAME);
 RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
@@ -169,7 +175,7 @@ RideSchema.pre('validate', async function beforeSave() {
         err.message = 'Campus not found';
         throw err;
       }
-    })(mongoose.model('Campus')),
+    })(mongoose.model(CAMPUS_MODEL_NAME)),
     (async (User) => {
       const userId = this.owner._id;
       if (!userId) {
@@ -181,16 +187,16 @@ RideSchema.pre('validate', async function beforeSave() {
       if (phone && !this.phone && lGet(owner, 'phone.confirmed', false)) {
         this.phone = phone;
       }
-    })(mongoose.model('User')),
+    })(mongoose.model(USER_MODEL_NAME)),
     (async (Car) => {
       const carId = this.car._id;
       this.car = await Car.findById(carId).lean();
-    })(mongoose.model('Car')),
+    })(mongoose.model(CAR_MODEL_NAME)),
     (async (Poi) => {
       const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
       this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
       this.departure = pois.find(({ _id }) => _id === this.departure._id);
-    })(mongoose.model('Poi')),
+    })(mongoose.model(POI_MODEL_NAME)),
   ]);
 });
 
@@ -290,7 +296,7 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(...param
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {
-  const GeoTracking = mongoose.model('GeoTracking');
+  const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
   const [position = null] = await GeoTracking.aggregate([
     {
       $match: { 'driver._id': this.driver._id },
@@ -334,4 +340,4 @@ RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQue
   return `${config.get('user_website_url')}/rating?rideId=${this.id}`;
 };
 
-export default mongoose.model(MODEL_NAME, RideSchema);
+export default mongoose.model(RIDE_MODEL_NAME, RideSchema, RIDE_COLLECTION_NAME);

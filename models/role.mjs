@@ -1,6 +1,13 @@
 // eslint-disable-next-line import/no-cycle
 import * as rights from './rights';
 
+export const ROLE_ANONYMOUS_NAME = 'ROLE_ANONYMOUS';
+export const ROLE_USER_NAME = 'ROLE_USER';
+export const ROLE_DRIVER_NAME = 'ROLE_DRIVER';
+export const ROLE_REGULATOR_NAME = 'ROLE_REGULATOR';
+export const ROLE_ADMIN_NAME = 'ROLE_ADMIN';
+export const ROLE_SUPERADMIN_NAME = 'ROLE_SUPERADMIN';
+
 class RoleList extends Set {
   constructor(name, ...items) {
     super(items.reduce((acc, row) => acc.concat(row instanceof Set ? Array.from(row) : row), []));
@@ -19,7 +26,7 @@ class RoleList extends Set {
 const roles = {};
 
 export const ROLE_ANONYMOUS = new RoleList(
-  'ROLE_ANONYMOUS',
+  ROLE_ANONYMOUS_NAME,
   rights.CAN_LOGIN,
   rights.CAN_GET_RIDE_WITH_TOKEN,
   rights.CAN_GET_RIDE_POSITION,
@@ -30,7 +37,7 @@ export const ROLE_ANONYMOUS = new RoleList(
 roles.ROLE_ANONYMOUS = ROLE_ANONYMOUS;
 
 export const ROLE_USER = new RoleList(
-  'ROLE_USER',
+  ROLE_USER_NAME,
   ROLE_ANONYMOUS,
   rights.CAN_ACCESS_OWN_DATA_ON_RIDE,
   rights.CAN_EDIT_SELF_USER_NAME,
@@ -53,7 +60,7 @@ export const ROLE_USER = new RoleList(
 roles.ROLE_USER = ROLE_USER;
 
 export const ROLE_DRIVER = new RoleList(
-  'ROLE_DRIVER',
+  ROLE_DRIVER_NAME,
   ROLE_USER,
   rights.CAN_GET_CAMPUS,
   rights.CAN_LIST_CAMPUS,
@@ -72,7 +79,7 @@ export const ROLE_DRIVER = new RoleList(
 roles.ROLE_DRIVER = ROLE_DRIVER;
 
 export const ROLE_REGULATOR = new RoleList(
-  'ROLE_REGULATOR',
+  ROLE_REGULATOR_NAME,
   ROLE_DRIVER,
   rights.CAN_ACCESS_PERSONNAL_DATA_ON_RIDE,
   rights.CAN_LIST_USER,
@@ -129,7 +136,7 @@ export const ROLE_REGULATOR = new RoleList(
 roles.ROLE_REGULATOR = ROLE_REGULATOR;
 
 export const ROLE_ADMIN = new RoleList(
-  'ROLE_ADMIN',
+  ROLE_ADMIN_NAME,
   ROLE_REGULATOR,
   rights.CAN_EDIT_POI_LOCAL,
   rights.CAN_CREATE_POI_LOCAL,
@@ -154,7 +161,7 @@ export const ROLE_ADMIN = new RoleList(
 roles.ROLE_ADMIN = ROLE_ADMIN;
 
 export const ROLE_SUPERADMIN = new RoleList(
-  'ROLE_SUPERADMIN',
+  ROLE_SUPERADMIN_NAME,
   ROLE_ADMIN,
   rights.CAN_EDIT_CAR_MODEL,
   rights.CAN_CREATE_CAR_MODEL,

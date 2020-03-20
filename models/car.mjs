@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 import Luxon from 'luxon';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
+import { CAR_COLLECTION_NAME, CAR_MODEL_NAME } from './helpers/constants';
 
 const { Interval } = Luxon;
 const { Schema } = mongoose;
-const MODEL_NAME = 'Car';
 
 const CarSchema = new Schema({
   _id: String,
@@ -59,4 +59,4 @@ CarSchema.methods.getAvailabilities = function isAvailable(start, end, events) {
   }
 };
 
-export default mongoose.model(MODEL_NAME, CarSchema);
+export default mongoose.model(CAR_MODEL_NAME, CarSchema, CAR_COLLECTION_NAME);

@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
 import Ride from './ride';
+import { RATING_COLLECTION_NAME, RATING_MODEL_NAME } from './helpers/constants';
 
 const { Schema } = mongoose;
-const MODEL_NAME = 'Rating';
 
 const RatingSchema = new Schema({
   ride: {
@@ -52,4 +52,18 @@ RatingSchema.pre('validate', async function preValidate(next) {
   next();
 });
 
-export default mongoose.model(MODEL_NAME, RatingSchema, 'ratings');
+RatingSchema.statics.generateCampusFilter = function generateCampusFilter(campusId) {
+  const path = 'ride.campus._id';
+  return { [path]: campusId };
+};
+
+RatingSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
+  const filters = f;
+  filters.$and = [
+    { createdAt: { $gte: start } },
+    { createdAt: { $lte: end } },
+  ];
+  return filters;
+};
+
+export default mongoose.model(RATING_MODEL_NAME, RatingSchema, RATING_COLLECTION_NAME);
