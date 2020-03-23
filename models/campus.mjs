@@ -182,21 +182,27 @@ CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(dr
     });
 };
 
-CampusSchema.statics.countRides = async function countRides(campus, start, end) {
+const generateCampusesFilter = (campuses) => (
+  campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'campus._id': campusId })) } : []
+);
+
+CampusSchema.statics.countRides = async function countRides(campuses, start, end) {
   const Ride = mongoose.model(RIDE_MODEL_NAME);
+  const campusesFilter = generateCampusesFilter(campuses);
   return Ride.countDocuments({
     ...Ride.filtersWithin(start, end),
-    'campus._id': campus,
+    ...campusesFilter,
     status: { $ne: DRAFTED },
   });
 };
 
-async function commonAggregateRides(custom, campus, start, end) {
+async function commonAggregateRides(custom, campuses, start, end) {
   const Ride = mongoose.model(RIDE_MODEL_NAME);
-
   const match = {
-    'campus._id': campus,
-    ...Ride.filtersWithin(start, end),
+    $and: [
+      { ...generateCampusesFilter(campuses) },
+      { ...Ride.filtersWithin(start, end) },
+    ],
     status: { $ne: DRAFTED },
   };
 
@@ -242,11 +248,14 @@ CampusSchema.statics.aggregateRidesByPhonePresence = commonAggregateRides.bind(C
   { $sort: { total: -1 } },
 ]);
 
-async function commonAggregateRatings(custom, campus, start, end) {
+async function commonAggregateRatings(custom, campuses, start, end) {
   const Rating = mongoose.model(RATING_MODEL_NAME);
+
   const match = {
-    'ride.campus._id': campus,
-    ...Rating.filtersWithin(start, end),
+    $and: [
+      { ...generateCampusesFilter(campuses) },
+      { ...Rating.filtersWithin(start, end) },
+    ],
   };
 
   return Rating.aggregate([
@@ -255,7 +264,6 @@ async function commonAggregateRatings(custom, campus, start, end) {
     ...custom,
   ]);
 }
-
 
 CampusSchema.statics.aggregateRatingsByUXGrade = commonAggregateRatings.bind(CampusSchema.statics, [
   { $group: { _id: '$uxGrade', total: { $sum: 1 } } },
@@ -282,7 +290,7 @@ CampusSchema.statics.aggregateRatingsByRecommendationGrade = commonAggregateRati
 ]);
 
 CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverTime(
-  campus, start, end, { timeUnit = 'day', timeScope = 'week' },
+  campuses, start, end, { timeUnit = 'day', timeScope = 'week' },
 ) {
   const Ride = mongoose.model(RIDE_MODEL_NAME);
   let averageKey;
@@ -319,8 +327,10 @@ CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverT
   return Ride.aggregate([
     {
       $match: {
-        ...Ride.filtersWithin(start, end),
-        'campus._id': campus,
+        $and: [
+          { ...Ride.filtersWithin(start, end) },
+          { ...generateCampusesFilter(campuses) },
+        ],
         status: { $ne: DRAFTED },
       },
     },

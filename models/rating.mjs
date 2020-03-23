@@ -52,6 +52,15 @@ RatingSchema.pre('validate', async function preValidate(next) {
   next();
 });
 
+RatingSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) {
+  const filters = f;
+  filters.$and = [
+    { createdAt: { $gte: start } },
+    { createdAt: { $lte: end } },
+  ];
+  return filters;
+};
+
 RatingSchema.statics.generateCampusFilter = function generateCampusFilter(campusId) {
   const path = 'ride.campus._id';
   return { [path]: campusId };

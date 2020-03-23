@@ -1,16 +1,16 @@
 import Router from '@koa/router';
 import mask from 'json-mask';
-import maskOutput from '../../middlewares/mask-output';
-import { ensureThatFiltersExists } from '../../middlewares/query-helper';
-import resolveRights from '../../middlewares/check-rights';
-import { CAN_GET_CAMPUS_STATS } from '../../models/rights';
-import statAggregator, { REQUESTABLE } from '../../helpers/stats-aggregator';
+import maskOutput from '../middlewares/mask-output';
+import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import resolveRights from '../middlewares/check-rights';
+import { CAN_GET_STATS } from '../models/rights';
+import statAggregator, { REQUESTABLE } from '../helpers/stats-aggregator';
 
 const router = new Router();
 
 router.get(
   '/',
-  resolveRights(CAN_GET_CAMPUS_STATS),
+  resolveRights(CAN_GET_STATS),
   maskOutput,
   ensureThatFiltersExists('start', 'end'),
   async (ctx) => {
@@ -24,11 +24,11 @@ router.get(
     ctx.body = await statAggregator(
       requested,
       {
-        timeUnit: filters['time-unit'] || 'day',
-        timeScope: filters['time-scope'] || 'week',
         start: new Date(filters.start),
         end: new Date(filters.end),
-        campuses: [ctx.params.campus_id],
+        timeScope: filters['time-scope'] || 'week',
+        timeUnit: filters['time-unit'] || 'day',
+        campuses: filters.campuses || [],
       },
     );
   },

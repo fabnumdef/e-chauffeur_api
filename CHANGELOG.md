@@ -1,6 +1,7 @@
 # Changelog
 ## Current
 ### Features
+* Added stats route
 ### Fix
 ## Version 1.4.6
 ### Features
