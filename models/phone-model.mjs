@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
+import { PHONE_MODEL_DASHED_NAME, PHONE_MODEL_COLLECTION_NAME, PHONE_MODEL_MODEL_NAME } from './helpers/constants';
 
 const { Schema } = mongoose;
-const MODEL_NAME = 'PhoneModel';
 
 const PhoneModelSchema = new Schema({
   _id: String,
@@ -18,6 +18,6 @@ PhoneModelSchema.index({
   label: 'text',
 });
 
-PhoneModelSchema.statics.getDashedName = () => 'phone-model';
+PhoneModelSchema.statics.getDashedName = () => PHONE_MODEL_DASHED_NAME;
 
-export default mongoose.model(MODEL_NAME, PhoneModelSchema, 'phone-models');
+export default mongoose.model(PHONE_MODEL_MODEL_NAME, PhoneModelSchema, PHONE_MODEL_COLLECTION_NAME);

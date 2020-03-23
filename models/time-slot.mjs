@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
 import Luxon from 'luxon';
 import createdAtPlugin from './helpers/created-at';
+import { TIME_SLOT_COLLECTION_NAME, TIME_SLOT_DASHED_NAME, TIME_SLOT_MODEL_NAME } from './helpers/constants';
 
 const { DateTime } = Luxon;
 export const WEEKLY = 'weekly';
 export const MONTHLY = 'monthly';
-const MODEL_NAME = 'TimeSlot';
-const COLLECTION_NAME = 'time-slots';
 
 const { Schema } = mongoose;
 
@@ -67,7 +66,7 @@ TimeSlotSchema.pre('validate', async function preValidate(next) {
   next();
 });
 
-TimeSlotSchema.statics.getDashedName = () => 'time-slot';
+TimeSlotSchema.statics.getDashedName = () => TIME_SLOT_DASHED_NAME;
 
 TimeSlotSchema.statics.filtersWithin = function filtersWithin(after, before, f = {}) {
   const filters = f;
@@ -102,7 +101,7 @@ TimeSlotSchema.methods.createNextHop = async function createNextHop() {
   if (!this.recurrence.enabled || (this.recurrence.nextHop || {})._id) {
     return null;
   }
-  const TimeSlot = mongoose.model(MODEL_NAME);
+  const TimeSlot = mongoose.model(TIME_SLOT_MODEL_NAME);
   let start = DateTime.fromJSDate(this.start);
   let end = DateTime.fromJSDate(this.end);
   switch (this.recurrence.frequency) {
@@ -166,4 +165,4 @@ TimeSlotSchema.statics.findSlotsToCopy = async function findSlotsToCopy() {
   return [].concat(...slots);
 };
 
-export default mongoose.model(MODEL_NAME, TimeSlotSchema, COLLECTION_NAME);
+export default mongoose.model(TIME_SLOT_MODEL_NAME, TimeSlotSchema, TIME_SLOT_COLLECTION_NAME);

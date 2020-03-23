@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import webPush from 'web-push';
 import createdAtPlugin from './helpers/created-at';
 import config from '../services/config';
+import { NOTIFICATION_DEVICE_COLLECTION_NAME, NOTIFICATION_DEVICE_MODEL_NAME } from './helpers/constants';
 
 const { Schema } = mongoose;
 
@@ -60,4 +61,8 @@ NotificationDeviceSchema.methods.notify = async function notify(payload = {}) {
   );
 };
 
-export default mongoose.model('NotificationDevice', NotificationDeviceSchema, 'notification-devices');
+export default mongoose.model(
+  NOTIFICATION_DEVICE_MODEL_NAME,
+  NotificationDeviceSchema,
+  NOTIFICATION_DEVICE_COLLECTION_NAME,
+);

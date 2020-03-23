@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
+import { CATEGORY_COLLECTION_NAME, CATEGORY_MODEL_NAME } from './helpers/constants';
 
 const { Schema } = mongoose;
-const MODEL_NAME = 'Category';
 
 const CategorySchema = new Schema({
   _id: String,
@@ -13,4 +13,4 @@ const CategorySchema = new Schema({
 CategorySchema.plugin(createdAtPlugin);
 CategorySchema.plugin(addCSVContentPlugin);
 
-export default mongoose.model(MODEL_NAME, CategorySchema, 'categories');
+export default mongoose.model(CATEGORY_MODEL_NAME, CategorySchema, CATEGORY_COLLECTION_NAME);
