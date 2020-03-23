@@ -182,16 +182,11 @@ CampusSchema.statics.findRidesWithStatus = async function findRidesWithStatus(dr
     });
 };
 
-const generateCampusesFilter = (campuses) => (
-  campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'campus._id': campusId })) } : []
-);
-
 CampusSchema.statics.countRides = async function countRides(campuses, start, end) {
   const Ride = mongoose.model(RIDE_MODEL_NAME);
-  const campusesFilter = generateCampusesFilter(campuses);
   return Ride.countDocuments({
     ...Ride.filtersWithin(start, end),
-    ...campusesFilter,
+    ...Ride.generateCampusFilter(campuses),
     status: { $ne: DRAFTED },
   });
 };
@@ -200,7 +195,7 @@ async function commonAggregateRides(custom, campuses, start, end) {
   const Ride = mongoose.model(RIDE_MODEL_NAME);
   const match = {
     $and: [
-      { ...generateCampusesFilter(campuses) },
+      { ...Ride.generateCampusFilter(campuses) },
       { ...Ride.filtersWithin(start, end) },
     ],
     status: { $ne: DRAFTED },
@@ -250,10 +245,9 @@ CampusSchema.statics.aggregateRidesByPhonePresence = commonAggregateRides.bind(C
 
 async function commonAggregateRatings(custom, campuses, start, end) {
   const Rating = mongoose.model(RATING_MODEL_NAME);
-
   const match = {
     $and: [
-      { ...generateCampusesFilter(campuses) },
+      { ...Rating.generateCampusFilter(campuses) },
       { ...Rating.filtersWithin(start, end) },
     ],
   };
@@ -329,7 +323,7 @@ CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverT
       $match: {
         $and: [
           { ...Ride.filtersWithin(start, end) },
-          { ...generateCampusesFilter(campuses) },
+          { ...Ride.generateCampusFilter(campuses) },
         ],
         status: { $ne: DRAFTED },
       },

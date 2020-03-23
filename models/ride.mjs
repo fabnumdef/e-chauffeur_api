@@ -295,6 +295,10 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(...param
   return this.countDocuments(this.formatFilters(...params));
 };
 
+RideSchema.statics.generateCampusFilter = function generateCampusFilter(campuses) {
+  return campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'campus._id': campusId })) } : [];
+};
+
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {
   const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
   const [position = null] = await GeoTracking.aggregate([
