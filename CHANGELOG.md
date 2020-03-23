@@ -9,6 +9,7 @@
 * Add few HTTP headers thanks to helmet
 * Ensure that MX entry exists for an email address
 * Add a limit to email size.
+* Add ratings stats to :campus/stats route
 ### Fix
 * Normalize email in find
 * Ensure that email is compliant with Regex

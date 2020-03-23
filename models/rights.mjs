@@ -143,3 +143,4 @@ export const CAN_ACCESS_PERSONAL_DATA_ON_RIDE = campusRule('CAN_ACCESS_PERSONAL_
 
 export const CAN_CREATE_RATING = stdRule('CAN_CREATE_RATING');
 export const CAN_LIST_RATING = stdRule('CAN_LIST_RATING');
+export const CAN_GET_RATING = stdRule('CAN_GET_RATING');

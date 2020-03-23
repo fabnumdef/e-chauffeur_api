@@ -3,6 +3,7 @@ import Rating from '../models/rating';
 import {
   CAN_CREATE_RATING,
   CAN_LIST_RATING,
+  CAN_GET_RATING,
 } from '../models/rights';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
@@ -20,9 +21,14 @@ const router = generateCRUD(Rating, {
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Rating);
+      let campusFilter = {};
+      if (ctx.query.filters && ctx.query.filters.campus) {
+        campusFilter = Rating.generateCampusFilter(ctx.query.filters.campus);
+      }
+
       const [total, data] = await Promise.all([
-        Rating.countDocuments(ctx.filters),
-        Rating.find(ctx.filters).skip(offset).limit(limit).sort({ createdAt: 'desc' })
+        Rating.countDocuments(campusFilter),
+        Rating.find(campusFilter).skip(offset).limit(limit).sort({ createdAt: 'desc' })
           .lean(),
       ]);
 
@@ -39,6 +45,10 @@ const router = generateCRUD(Rating, {
       });
       ctx.body = data;
     },
+  },
+  get: {
+    right: CAN_GET_RATING,
+    middlewares: [maskOutput],
   },
 });
 

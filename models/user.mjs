@@ -29,6 +29,7 @@ import {
   CAN_REVOKE_ROLE_REGULATOR, CAN_REVOKE_ROLE_SUPERADMIN,
 } from './rights';
 import * as rolesImport from './role';
+import { CAMPUS_MODEL_NAME, USER_COLLECTION_NAME, USER_MODEL_NAME } from './helpers/constants';
 
 const { DateTime } = Luxon;
 const { normalizeEmail } = validator;
@@ -41,7 +42,6 @@ const {
     .reduce((acc, r) => Object.assign(acc, r), {}),
 };
 
-const MODEL_NAME = 'User';
 const SALT_WORK_FACTOR = 10;
 const RESET_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24;
 const RESET_TOKEN_ALPHABET = '123456789abcdefghjkmnpqrstuvwxyz';
@@ -135,7 +135,7 @@ const UserSchema = new Schema({
 });
 
 UserSchema.plugin(createdAtPlugin);
-UserSchema.plugin(cleanObjectPlugin, MODEL_NAME);
+UserSchema.plugin(cleanObjectPlugin, USER_MODEL_NAME);
 UserSchema.plugin(addCSVContentPlugin);
 
 UserSchema.pre('validate', function preValidate() {
@@ -289,7 +289,7 @@ UserSchema.methods.getCampusesAccessibles = async function getCampusesAccessible
   const campuses = this.roles
     .map((r) => r.campuses)
     .reduce((a, b) => a.concat(b), []);
-  const Campus = mongoose.model('Campus');
+  const Campus = mongoose.model(CAMPUS_MODEL_NAME);
   return Campus.find({ _id: { $in: campuses.map(({ _id }) => _id) } });
 };
 
@@ -398,4 +398,4 @@ UserSchema.methods.generateResetToken = async function generateResetToken({ emai
   return token;
 };
 
-export default mongoose.model(MODEL_NAME, UserSchema);
+export default mongoose.model(USER_MODEL_NAME, UserSchema, USER_COLLECTION_NAME);

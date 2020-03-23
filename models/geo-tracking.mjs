@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Luxon from 'luxon';
+import { GEO_TRACKING_COLLECTION_NAME, GEO_TRACKING_MODEL_NAME, USER_MODEL_NAME } from './helpers/constants';
 
 const { Schema, Types: { ObjectId } } = mongoose;
 // @todo: move to native way when [this issue](https://github.com/moment/luxon/issues/252) will be solved.
@@ -33,7 +34,7 @@ const GeoTrackingSchema = new Schema({
 GeoTrackingSchema.statics.getLatestPosition = async function getLatestPositions(drivers = [], date) {
   const upperDate = date;
   const lowerDate = new Date((date * 1) - (1000 * 3600));
-  const GeoTracking = mongoose.model('GeoTracking');
+  const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
   return GeoTracking.aggregate([
     {
       $match: {
@@ -68,8 +69,8 @@ GeoTrackingSchema.statics.getHistory = async function getHistory(
   before = new Date(),
   campusId = null,
 ) {
-  const GeoTracking = mongoose.model('GeoTracking');
-  const User = mongoose.model('User');
+  const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
+  const User = mongoose.model(USER_MODEL_NAME);
   const $match = {
     $or: [
       {
@@ -132,14 +133,14 @@ GeoTrackingSchema.statics.getHistory = async function getHistory(
 };
 
 GeoTrackingSchema.statics.pushHourlyTrack = async function pushHourlyTrack(user, campus, position) {
-  const GeoTracking = mongoose.model('GeoTracking');
+  const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
   const start = DateTime.local().startOf('hours').toJSDate();
   const end = DateTime.local().endOf('hours').toJSDate();
   return GeoTracking.pushTrack(start, end, user, campus, position);
 };
 
 GeoTrackingSchema.statics.pushTrack = async function pushTrack(start, end, user, campus, [lon, lat]) {
-  const GeoTracking = mongoose.model('GeoTracking');
+  const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
   return GeoTracking.updateOne(
     {
       start,
@@ -172,4 +173,4 @@ GeoTrackingSchema.virtual('driver.id')
     this.driver._id = id;
   });
 
-export default mongoose.model('GeoTracking', GeoTrackingSchema, 'geo-tracking');
+export default mongoose.model(GEO_TRACKING_MODEL_NAME, GeoTrackingSchema, GEO_TRACKING_COLLECTION_NAME);

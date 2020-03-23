@@ -15,6 +15,7 @@ import { ensureThatFiltersExists } from '../../middlewares/query-helper';
 import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-status';
 import config from '../../services/config';
 import contentNegociation from '../../middlewares/content-negociation';
+import { ROLE_DRIVER_NAME } from '../../models/role';
 
 
 const router = new Router();
@@ -85,10 +86,10 @@ router.post(
       if (!Array.isArray(user.roles)) {
         user.roles = [];
       }
-      const roleIndex = user.roles.findIndex(({ role }) => role === 'ROLE_DRIVER');
+      const roleIndex = user.roles.findIndex(({ role }) => role === ROLE_DRIVER_NAME);
       if (roleIndex < 0) {
         user.roles.push({
-          role: 'ROLE_DRIVER',
+          role: ROLE_DRIVER_NAME,
           campuses: [campus],
         });
       } else {
@@ -108,7 +109,7 @@ router.post(
         roles:
           [
             {
-              role: 'ROLE_DRIVER',
+              role: ROLE_DRIVER_NAME,
               campuses: [campus],
             },
           ],
@@ -152,7 +153,7 @@ router.del(
     ctx.assert(!isEmpty(driver), 404, 'Driver not found.');
     driver.roles = driver.roles
       .map(({ role, campuses = [] }) => {
-        if (role !== 'ROLE_DRIVER') {
+        if (role !== ROLE_DRIVER_NAME) {
           return { role, campuses };
         }
         return {
@@ -160,7 +161,7 @@ router.del(
           campuses: campuses.filter(({ _id: id }) => (id !== ctx.params.campus_id)),
         };
       })
-      .filter(({ role, campuses }) => (role !== 'ROLE_DRIVER' || campuses.length > 0));
+      .filter(({ role, campuses }) => (role !== ROLE_DRIVER_NAME || campuses.length > 0));
     ctx.body = await driver.save();
   },
 );

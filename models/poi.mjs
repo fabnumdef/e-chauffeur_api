@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
+import { POI_COLLECTION_NAME, POI_MODEL_NAME } from './helpers/constants';
 
 const { Schema } = mongoose;
-const MODEL_NAME = 'Poi';
 
 const PoiSchema = new Schema({
   _id: String,
@@ -82,4 +82,4 @@ PoiSchema.index({
   label: 'text',
 });
 
-export default mongoose.model(MODEL_NAME, PoiSchema);
+export default mongoose.model(POI_MODEL_NAME, PoiSchema, POI_COLLECTION_NAME);
