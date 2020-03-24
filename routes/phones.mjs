@@ -60,7 +60,7 @@ const router = generateCRUD(Phone, {
 
       phone.set(body);
       ctx.body = await phone.save();
-      ctx.log(ctx.log.INFO, `${Phone.modelName} "${body.id}" has been updated.`);
+      ctx.log.info(`${Phone.modelName} "${body.id}" has been updated.`);
     },
   },
   batch: {

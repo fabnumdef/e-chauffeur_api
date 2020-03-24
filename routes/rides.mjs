@@ -66,7 +66,7 @@ const router = generateCRUD(Ride, {
       if (!ctx.may(CAN_CREATE_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
       }
-      ctx.log(ctx.log.INFO, `${Ride.modelName} "${ride.id}" has been created`);
+      ctx.log.info(`${Ride.modelName} "${ride.id}" has been created`);
       ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
         `ride/${ride.id}`,
         `campus/${ride.campus.id}`,
@@ -118,10 +118,9 @@ const router = generateCRUD(Ride, {
       if (!ctx.may(CAN_EDIT_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
       }
-      ctx.log(
-        ctx.log.INFO,
-        `${Ride.modelName} "${id}" has been modified`,
+      ctx.log.info(
         { body },
+        `${Ride.modelName} "${id}" has been modified`,
       );
       const rooms = [
         `ride/${ride.id}`,
@@ -151,10 +150,7 @@ const router = generateCRUD(Ride, {
       }
 
       ctx.body = ride;
-      ctx.log(
-        ctx.log.INFO,
-        `Find ${Ride.modelName} with "${id}"`,
-      );
+      ctx.log.info(`Find ${Ride.modelName} with "${id}"`);
     },
   },
   list: {
@@ -214,10 +210,9 @@ const router = generateCRUD(Ride, {
       });
 
       ctx.body = data;
-      ctx.log(
-        ctx.log.INFO,
-        `Find query in ${Ride.modelName}`,
+      ctx.log.info(
         { filters: ctx.filters, offset, limit },
+        `Find query in ${Ride.modelName}`,
       );
     },
   },
@@ -258,10 +253,7 @@ router.get(
     }
 
     ctx.body = position;
-    ctx.log(
-      ctx.log.INFO,
-      `Find position of ${Ride.modelName} with "${id}"`,
-    );
+    ctx.log.info(`Find position of ${Ride.modelName} with "${id}"`);
   },
 );
 
@@ -286,10 +278,9 @@ router.post(
 
     ride[camelCase(action)]();
     ctx.body = await ride.save();
-    ctx.log(
-      ctx.log.INFO,
-      `${Ride.modelName} "${id}" has been modified`,
+    ctx.log.info(
       { ride },
+      `${Ride.modelName} "${id}" has been modified`,
     );
     ioEmit(ctx, cleanObject(ctx.body), 'rideUpdate', [
       `ride/${ride.id}`,

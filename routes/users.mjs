@@ -51,7 +51,7 @@ const router = generateCRUD(User, {
             ctx.throw_and_log(...addDomainInError(e));
           }
           await userExists.sendResetPasswordMail(token);
-          ctx.log(ctx.log.INFO, `Password reset requested by ${body.email}.`);
+          ctx.log.info(`Password reset requested by ${body.email}.`);
         } else {
           const user = new User(emailO);
           const { token } = await user.generateResetToken(emailO);
@@ -61,7 +61,7 @@ const router = generateCRUD(User, {
             ctx.throw_and_log(...addDomainInError(e));
           }
           await user.sendRegistrationTokenMail(token);
-          ctx.log(ctx.log.INFO, `User creation requested by ${body.email}.`);
+          ctx.log.info(`User creation requested by ${body.email}.`);
         }
         ctx.status = 204;
       } else if (ctx.may(CAN_CREATE_USER)) {
@@ -87,7 +87,7 @@ const router = generateCRUD(User, {
         } catch (e) {
           ctx.throw_and_log(...addDomainInError(e));
         }
-        ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
+        ctx.log.info(`${User.modelName} "${body.id}" has been created`);
       } else {
         ctx.status = 403;
       }
@@ -228,10 +228,9 @@ const router = generateCRUD(User, {
         }
       }
 
-      ctx.log(
-        ctx.log.INFO,
-        `${User.modelName} "${id}" has been modified`,
+      ctx.log.info(
         { userBody },
+        `${User.modelName} "${id}" has been modified`,
       );
     },
   },
