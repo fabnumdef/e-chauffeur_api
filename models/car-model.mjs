@@ -13,6 +13,7 @@ const CarModelSchema = new Schema({
   _id: String,
   label: {
     type: String,
+    unique: true,
   },
   capacity: {
     type: Number,

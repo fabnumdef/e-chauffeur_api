@@ -2,6 +2,8 @@
 ## Current
 ### Features
 * Added stats route
+* Added capacity to car model model
+* Added capacity check in ride pre validate hook
 ### Fix
 ## Version 1.4.6
 ### Features
