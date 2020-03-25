@@ -156,6 +156,9 @@ const router = generateCRUD(User, {
           userBody.email = body.email;
           userBody.email_token = body.email_token;
         }
+        if (body.gprd) {
+          userBody.gprd = body.gprd;
+        }
       }
 
       if (ctx.may(CAN_EDIT_SELF_USER_NAME)) {
