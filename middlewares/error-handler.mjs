@@ -15,7 +15,7 @@ export default async (ctx, next) => {
         return key;
       });
     } else {
-      ctx.log(ctx.log.ERROR, err.message, err);
+      ctx.log.error(err.message, err);
       // eslint-disable-next-line no-console
       console.error(err);
       ctx.status = err.status || 500;

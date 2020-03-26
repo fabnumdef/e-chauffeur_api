@@ -88,7 +88,7 @@ router.post(
     } catch (e) {
       ctx.throw_and_log(...addDomainInError(e));
     }
-    ctx.log(ctx.log.INFO, `${User.modelName} "${body.id}" has been created`);
+    ctx.log.info(`${User.modelName} "${body.id}" has been created`);
   },
 );
 
@@ -162,10 +162,7 @@ router.del(
       'You\'re not authorized to delete this user',
     );
     await User.deleteOne({ _id: user.id });
-    ctx.log(
-      ctx.log.INFO,
-      `${User.modelName} "${user.id}" has been removed`,
-    );
+    ctx.log.info(`${User.modelName} "${user.id}" has been removed`);
     ctx.status = 204;
   },
 );
@@ -191,7 +188,7 @@ router.post('/batch',
   },
   async (ctx) => {
     await User.createFromCSV({ model: User, refs: ['email'], datas: ctx.file });
-    ctx.log(ctx.log.INFO, 'User batch has been created');
+    ctx.log.info('User batch has been created');
     ctx.status = 204;
   });
 

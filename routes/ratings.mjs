@@ -32,12 +32,11 @@ const router = generateCRUD(Rating, {
           .lean(),
       ]);
 
-      ctx.log(
-        ctx.log.INFO,
-        `Find query in ${Rating.modelName}`,
+      ctx.log.info(
         {
           filters: ctx.filters, offset, limit, total,
         },
+        `Find query in ${Rating.modelName}`,
       );
 
       ctx.setRangePagination(Rating, {

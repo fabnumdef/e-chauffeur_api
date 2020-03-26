@@ -21,9 +21,7 @@ router.get(
       date = DateTime.fromISO(dateFilter);
     }
 
-    ctx.log(
-      ctx.log.INFO,
-      'Positions history fetched',
+    ctx.log.info(
       {
         filters: {
           date: date.toJSDate(),
@@ -31,6 +29,7 @@ router.get(
           campus,
         },
       },
+      'Positions history fetched',
     );
 
     ctx.body = await GeoTracking

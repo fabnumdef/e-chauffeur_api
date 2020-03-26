@@ -20,7 +20,7 @@ export function addBatchToRouter(Model, {
       await Model.createFromCSV({
         model: Model, refs, datas: ctx.file,
       });
-      ctx.log(ctx.log.INFO, `${Model.modelName} batch has been created`);
+      ctx.log.info(`${Model.modelName} batch has been created`);
       ctx.status = 204;
     }),
   );
@@ -57,7 +57,7 @@ export function addCreateToRouter(Model, {
       if (successCode !== 204) {
         ctx.body = document;
       }
-      ctx.log(ctx.log.INFO, `${Model.modelName} "${body.id}" has been created`);
+      ctx.log.info(`${Model.modelName} "${body.id}" has been created`);
     }),
   );
 }
@@ -86,12 +86,11 @@ export function addListToRouter(Model, {
           : Model.find(ctx.filters).skip(offset).limit(limit),
       ]);
 
-      ctx.log(
-        ctx.log.INFO,
-        `Find query in ${Model.modelName}`,
+      ctx.log.info(
         {
           filters: ctx.filters, offset, limit, total,
         },
+        `Find query in ${Model.modelName}`,
       );
 
       ctx.setRangePagination(Model, {
@@ -126,10 +125,7 @@ export function addGetToRouter(Model, {
         if (!ctx.body) {
           ctx.throw_and_log(404, `${Model.modelName} "${id}" not found`);
         }
-        ctx.log(
-          ctx.log.INFO,
-          `Find ${Model.modelName} with "${id}"`,
-        );
+        ctx.log.info(`Find ${Model.modelName} with "${id}"`);
       } catch (e) {
         ctx.throw_and_log(404, `${Model.modelName} "${id}" not found`);
       }
@@ -150,10 +146,7 @@ export function addDeleteToRouter(Model, {
       const { params } = ctx;
       const id = params[paramId];
       await Model.deleteOne({ _id: id });
-      ctx.log(
-        ctx.log.INFO,
-        `${Model.modelName} "${id}" has been removed`,
-      );
+      ctx.log.info(`${Model.modelName} "${id}" has been removed`);
       ctx.status = 204;
     }),
   );
@@ -178,10 +171,9 @@ export function addUpdateToRouter(Model, {
 
       model.set(body);
       ctx.body = await model.save();
-      ctx.log(
-        ctx.log.INFO,
-        `${Model.modelName} "${id}" has been modified`,
+      ctx.log.info(
         { body },
+        `${Model.modelName} "${id}" has been modified`,
       );
     }),
   );

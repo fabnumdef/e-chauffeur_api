@@ -33,11 +33,7 @@ const router = generateCRUD(TimeSlot, {
       });
 
       ctx.body = data;
-      ctx.log(
-        ctx.log.INFO,
-        `Find query in ${TimeSlot.modelName}`,
-        { filters: ctx.filters, offset, limit },
-      );
+      ctx.log.info(`Find query in ${TimeSlot.modelName}`);
     },
   },
   delete: {
