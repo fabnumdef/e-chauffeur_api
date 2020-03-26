@@ -65,8 +65,7 @@
     "timezone-validator": "^1.0.3",
     "twilio": "^3.39.5",
     "validator": "^12.2.0",
-    "web-push": "^3.4.3",
-    "winston": "^3.2.1"
+    "web-push": "^3.4.3"
   },
   "devDependencies": {
     "@std/esm": "^0.26.0",
@@ -81,8 +80,7 @@
     "supertest": "^4.0.2"
   },
   "peerDependencies": {
-    "chai": "4.x",
-    "winston-transport": "^4.3.0"
+    "chai": "4.x"
   },
   "version": "1.4.6"
 }
