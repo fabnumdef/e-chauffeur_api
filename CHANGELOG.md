@@ -2,6 +2,9 @@
 ## Current
 ### Features
 ### Fix
+## Version 1.4.6c
+### Fix
+* Website user was not able to request a ride
 ## Version 1.4.6
 ### Features
 * Enforce allowed methods error
