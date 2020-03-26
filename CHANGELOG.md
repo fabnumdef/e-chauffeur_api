@@ -6,6 +6,9 @@
 * Added capacity check in ride pre validate hook
 * Changed logger from Winston to Pino
 ### Fix
+## Version 1.4.6c
+### Fix
+* Website user was not able to request a ride
 ## Version 1.4.6
 ### Features
 * Enforce allowed methods error
