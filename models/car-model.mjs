@@ -14,6 +14,10 @@ const CarModelSchema = new Schema({
   label: {
     type: String,
   },
+  capacity: {
+    type: Number,
+    default: 3,
+  },
 });
 
 CarModelSchema.plugin(createdAtPlugin);

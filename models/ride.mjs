@@ -15,7 +15,7 @@ import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 import cleanObjectPlugin from './helpers/object-cleaner';
 import {
-  CAMPUS_MODEL_NAME,
+  CAMPUS_MODEL_NAME, CAR_MODEL_MODEL_NAME,
   CAR_MODEL_NAME, GEO_TRACKING_MODEL_NAME,
   POI_MODEL_NAME, RIDE_COLLECTION_NAME,
   RIDE_MODEL_NAME,
@@ -102,6 +102,7 @@ const RideSchema = new Schema({
     model: {
       _id: { type: String },
       label: { type: String },
+      capacity: { type: Number },
     },
   },
   campus: {
@@ -142,6 +143,14 @@ RideSchema.pre('validate', async function beforeSave() {
   if (this.start >= this.end) {
     throw new Error('End date should be higher than start date');
   }
+
+  if (this.status && this.status !== DRAFTED && !this.car._id) {
+    const err = new Error();
+    err.status = 422;
+    err.message = 'Car must be provided';
+    throw err;
+  }
+
   try {
     const phoneUtil = PhoneNumberUtil.getInstance();
     this.phone = phoneUtil.format(phoneUtil.parse(this.phone, 'FR'), PhoneNumberFormat.E164);
@@ -189,14 +198,38 @@ RideSchema.pre('validate', async function beforeSave() {
       }
     })(mongoose.model(USER_MODEL_NAME)),
     (async (Car) => {
-      const carId = this.car._id;
-      this.car = await Car.findById(carId).lean();
+      this.car = await Car.findById(this.car._id).lean();
     })(mongoose.model(CAR_MODEL_NAME)),
     (async (Poi) => {
       const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
       this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
       this.departure = pois.find(({ _id }) => _id === this.departure._id);
     })(mongoose.model(POI_MODEL_NAME)),
+    (async (CarModel) => {
+      if (!this.car.model || !this.car.model.label) {
+        const err = new Error();
+        err.status = 422;
+        err.message = 'Car model must be provided';
+        throw err;
+      }
+      const carModel = await CarModel.findOne({ label: this.car.model.label });
+      if (!carModel) {
+        const err = new Error();
+        err.status = 404;
+        err.message = 'Car model not found';
+        throw err;
+      }
+      if (!carModel.capacity) {
+        carModel.capacity = 3;
+      }
+      if (this.passengersCount > carModel.capacity || this.passengersCount > 3) {
+        const err = new Error();
+        err.status = 422;
+        err.message = 'Passenger count is higher than car capacity';
+        throw err;
+      }
+      this.car.model = carModel;
+    })(mongoose.model(CAR_MODEL_MODEL_NAME)),
   ]);
 });
 
