@@ -42,12 +42,11 @@ const router = generateCRUD(Poi, {
         Poi.findWithin(ctx.filters, ctx.query).skip(offset).limit(limit).lean(),
       ]);
 
-      ctx.log(
-        ctx.log.INFO,
-        `Find query in ${Poi.modelName}`,
+      ctx.log.info(
         {
           filters: ctx.filters, offset, limit, total,
         },
+        `Find query in ${Poi.modelName}`,
       );
 
       ctx.setRangePagination(Poi, {

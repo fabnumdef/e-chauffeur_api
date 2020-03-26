@@ -2,6 +2,7 @@
 ## Current
 ### Features
 * Added stats route
+* Changed logger from Winston to Pino
 ### Fix
 ## Version 1.4.6
 ### Features
