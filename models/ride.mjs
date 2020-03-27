@@ -329,7 +329,7 @@ RideSchema.statics.countDocumentsWithin = function countDocumentsWithin(...param
 };
 
 RideSchema.statics.generateCampusFilter = function generateCampusFilter(campuses) {
-  return campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'campus._id': campusId })) } : [];
+  return campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'campus._id': campusId })) } : {};
 };
 
 RideSchema.methods.findDriverPosition = async function findDriverPosition() {
