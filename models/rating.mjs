@@ -62,7 +62,7 @@ RatingSchema.statics.filtersWithin = function filtersWithin(start, end, f = {}) 
 };
 
 RatingSchema.statics.generateCampusFilter = function generateCampusFilter(campuses) {
-  return campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'ride.campus._id': campusId })) } : [];
+  return campuses.length > 0 ? { $or: [].concat(campuses).map((campusId) => ({ 'ride.campus._id': campusId })) } : {};
 };
 
 export default mongoose.model(RATING_MODEL_NAME, RatingSchema, RATING_COLLECTION_NAME);
