@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 import Luxon from 'luxon';
 import createdAtPlugin from './helpers/created-at';
-import { TIME_SLOT_COLLECTION_NAME, TIME_SLOT_DASHED_NAME, TIME_SLOT_MODEL_NAME } from './helpers/constants';
+import {
+  TIME_SLOT_COLLECTION_NAME,
+  TIME_SLOT_DASHED_NAME,
+  TIME_SLOT_MODEL_NAME,
+  MONTHLY, WEEKLY,
+} from './helpers/constants';
 
 const { DateTime } = Luxon;
-export const WEEKLY = 'weekly';
-export const MONTHLY = 'monthly';
-
 const { Schema } = mongoose;
 
 const TimeSlotSchema = new Schema({
