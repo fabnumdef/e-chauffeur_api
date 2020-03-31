@@ -6,7 +6,7 @@ import nanoid from 'nanoid';
 import { CAN_LIST_ALL_CAMPUSES } from './rights';
 // eslint-disable-next-line import/no-cycle
 import * as roles from './role';
-import { getPrefetchedRide } from '../helpers/prefetch-ride';
+import { getPrefetchedRide } from '../helpers/prefetch-document';
 
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
 /**

@@ -145,3 +145,9 @@ export const CAN_ACCESS_PERSONAL_DATA_ON_RIDE = campusRule('CAN_ACCESS_PERSONAL_
 export const CAN_CREATE_RATING = stdRule('CAN_CREATE_RATING');
 export const CAN_LIST_RATING = stdRule('CAN_LIST_RATING');
 export const CAN_GET_RATING = stdRule('CAN_GET_RATING');
+
+export const CAN_CREATE_LOOP_PATTERN = campusRule('CAN_CREATE_LOOP_PATTERN');
+export const CAN_LIST_LOOP_PATTERN = campusRule('CAN_LIST_LOOP_PATTERN');
+export const CAN_GET_LOOP_PATTERN = campusRule('CAN_GET_LOOP_PATTERN');
+export const CAN_UPDATE_LOOP_PATTERN = campusRule('CAN_UPDATE_LOOP_PATTERN');
+export const CAN_DELETE_LOOP_PATTERN = campusRule('CAN_DELETE_LOOP_PATTERN');
