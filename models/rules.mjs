@@ -6,7 +6,7 @@ import nanoid from 'nanoid';
 import { CAN_LIST_ALL_CAMPUSES } from './rights';
 // eslint-disable-next-line import/no-cycle
 import * as roles from './role';
-import { getPrefetchedRide } from '../helpers/prefetch-document';
+import { getPrefetchedDocument } from '../helpers/prefetch-document';
 
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
 /**
@@ -44,13 +44,19 @@ export const roleEditingRule = ruleGenerator((
 ) => campusId && !!campuses.find((c) => c._id === campusId));
 
 export const tokenRideRule = ruleGenerator((_, ctx) => {
-  const ride = getPrefetchedRide(ctx, ctx.params.id);
+  // eslint-disable-next-line no-unused-vars,prefer-const
+  let [__, modelName] = ctx.url.split('/');
+  modelName = modelName[0].toUpperCase() + modelName.slice(1, -1);
+  const ride = getPrefetchedDocument(ctx, ctx.params.id, modelName);
   return ride.token === ctx.query.token;
 });
 
 export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
   const { user } = ctx.state;
-  const ride = entity || getPrefetchedRide(ctx, ctx.params.id);
+  // eslint-disable-next-line no-unused-vars,prefer-const
+  let [__, modelName] = ctx.url.split('/');
+  modelName = modelName[0].toUpperCase() + modelName.slice(1, -1);
+  const ride = entity || getPrefetchedDocument(ctx, ctx.params.id, modelName);
   return ride.owner && ride.owner.id && ride.owner.id.toString() === user.id;
 });
 

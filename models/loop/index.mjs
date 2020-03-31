@@ -47,14 +47,14 @@ const LoopSchema = new Schema({
     _id: {
       type: Types.ObjectId,
       required: true,
-      alias: 'id',
+      alias: 'pattern.id',
     },
   },
   timeSlot: {
     _id: {
       type: Types.ObjectId,
       required: true,
-      alias: 'id',
+      alias: 'timeSlot.id',
     },
   },
   passengers: [{
@@ -157,7 +157,7 @@ LoopSchema.pre('validate', async function beforeSave() {
 
   await Promise.all([
     (async (LoopPattern) => {
-      const loopPattern = await LoopPattern.findById(this.loopPattern.id);
+      const loopPattern = await LoopPattern.findById(this.pattern.id);
 
       if (!loopPattern) {
         throw new HttpError(404, 'Loop pattern not found');
@@ -165,7 +165,7 @@ LoopSchema.pre('validate', async function beforeSave() {
     })(model(LOOP_PATTERN_MODEL_NAME)),
 
     (async (LoopTimeSlot) => {
-      const loopTimeSlot = await LoopTimeSlot.findById(this.loopTimeSlot.id);
+      const loopTimeSlot = await LoopTimeSlot.findById(this.timeSlot.id);
 
       if (!loopTimeSlot) {
         throw new HttpError(404, 'Loop time slot not found');
@@ -225,6 +225,14 @@ LoopSchema.pre('validate', async function beforeSave() {
     })(model(CAR_MODEL_NAME)),
   ]);
 });
+
+LoopSchema.statics.castId = (v) => {
+  try {
+    return new Types.ObjectId(v);
+  } catch (e) {
+    return new Types.ObjectId(Buffer.from(v, 'base64').toString('hex'));
+  }
+};
 
 LoopSchema.statics.withinFilter = function withinFilter(rawStart, rawEnd) {
   const start = new Date(rawStart);

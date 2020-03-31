@@ -50,7 +50,6 @@ export function addCreateToRouter(Model, {
 
         Object.assign(body, { _id: body.id });
       }
-
       const document = await Model.create(body);
       ctx.status = successCode;
 

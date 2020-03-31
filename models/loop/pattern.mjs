@@ -42,7 +42,7 @@ const LoopPatternSchema = new Schema({
   },
   stops: [{
     _id: {
-      type: Schema.ObjectId,
+      type: Types.ObjectId,
       default: () => Types.ObjectId(),
       alias: 'id',
     },
@@ -101,7 +101,7 @@ LoopPatternSchema.pre('validate', async function beforeSave() {
         if (!poi) {
           throw new HttpError(422, 'Poi not found');
         }
-        return poi;
+        return { poi };
       }));
     })(model(POI_MODEL_NAME)),
   ]);

@@ -16,7 +16,7 @@ import timeSlots from './time-slots';
 import config from '../services/config';
 import ratings from './ratings';
 import stats from './stats';
-import loops from './loops/loops';
+import loops from './loops';
 import loopPatterns from './loops/patterns';
 import loopTimeSlots from './loops/time-slots';
 

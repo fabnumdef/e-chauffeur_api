@@ -4,6 +4,7 @@
 import mongoose from 'mongoose';
 import HttpError from '../../helpers/http-error';
 import {
+  LOOP_PATTERN_MODEL_NAME,
   LOOP_TIME_SLOT_COLLECTION_NAME,
   LOOP_TIME_SLOTS_MODEL_NAME,
   MONTHLY, WEEKLY,
@@ -24,7 +25,8 @@ const LoopTimeSlotSchema = new Schema({
   pattern: {
     _id: {
       type: Types.ObjectId,
-      alias: 'id',
+      required: true,
+      alias: 'pattern.id',
     },
   },
   /*
@@ -43,13 +45,13 @@ const LoopTimeSlotSchema = new Schema({
       enum: [null, WEEKLY, MONTHLY],
     },
     nextHop: {
-      _id: { type: Schema.ObjectId, alias: 'recurrence.nextHop.id' },
+      _id: { type: Types.ObjectId, alias: 'recurrence.nextHop.id' },
       start: Date,
       end: Date,
       createdAt: Date,
     },
     previousHop: {
-      _id: { type: Schema.ObjectId, alias: 'recurrence.previousHop.id' },
+      _id: { type: Types.ObjectId, alias: 'recurrence.previousHop.id' },
       start: Date,
       end: Date,
       createdAt: Date,
@@ -57,9 +59,19 @@ const LoopTimeSlotSchema = new Schema({
   },
 }, { timestamps: true });
 
-LoopTimeSlotSchema.pre('validate', function preValidate(next) {
+LoopTimeSlotSchema.pre('validate', async function preValidate(next) {
   if (this.recurrence && this.recurrence.enabled && !this.recurrence.frequency) {
     throw new HttpError(422, 'Frequency is required when recurrence is enabled.');
+  }
+
+  if (!this.pattern) {
+    throw new HttpError(422, 'Pattern must be provided');
+  }
+
+  const loopPattern = await model(LOOP_PATTERN_MODEL_NAME).findById(this.pattern.id);
+
+  if (!loopPattern) {
+    throw new HttpError(404, 'Pattern not found');
   }
   next();
 });

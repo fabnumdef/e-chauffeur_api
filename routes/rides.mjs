@@ -28,7 +28,8 @@ import {
   CAN_EDIT_OWNED_RIDE,
   CAN_DELETE_SELF_RIDE,
 } from '../models/rights';
-import { getPrefetchedRide, prefetchMiddleware } from '../helpers/prefetch-document';
+import { getPrefetchedDocument, prefetchMiddleware } from '../helpers/prefetch-document';
+import { RIDE_MODEL_NAME } from '../models/helpers/constants';
 
 const { DateTime } = Luxon;
 
@@ -96,7 +97,7 @@ const router = generateCRUD(Ride, {
     async main(ctx) {
       let { request: { body } } = ctx;
       const { params: { id } } = ctx;
-      const ride = getPrefetchedRide(ctx, id);
+      const ride = getPrefetchedDocument(ctx, id, RIDE_MODEL_NAME);
 
       if (!ctx.may(CAN_EDIT_RIDE)) {
         if (ride.status !== DRAFTED) {
@@ -147,7 +148,7 @@ const router = generateCRUD(Ride, {
     right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
       const { params: { id } } = ctx;
-      const ride = getPrefetchedRide(ctx, id);
+      const ride = getPrefetchedDocument(ctx, id, RIDE_MODEL_NAME);
 
       if (!ride) {
         ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
@@ -272,7 +273,7 @@ router.post(
     if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE && action !== CANCEL_REQUESTED_CUSTOMER) {
       ctx.throw_and_log(403, `You're not authorized to mutate to "${action}"`);
     }
-    const ride = getPrefetchedRide(ctx, id);
+    const ride = getPrefetchedDocument(ctx, id, RIDE_MODEL_NAME);
     if (!ride) {
       ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
     }

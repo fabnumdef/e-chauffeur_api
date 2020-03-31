@@ -3,8 +3,16 @@ import { RIDE_MODEL_NAME, LOOP_MODEL_NAME } from '../models/helpers/constants';
 const PREFETCH_RIDE_KEY = Symbol('prefetched-ride');
 const PREFETCH_LOOP_KEY = Symbol('prefetched-loop');
 
-export const getPrefetchedRide = (ctx, id) => ctx.state[PREFETCH_RIDE_KEY][id];
-export const getPrefetchedLoop = (ctx, id) => ctx.state[PREFETCH_LOOP_KEY][id];
+export const getPrefetchedDocument = (ctx, id, modelName) => {
+  switch (modelName) {
+    case RIDE_MODEL_NAME:
+      return ctx.state[PREFETCH_RIDE_KEY][id];
+    case LOOP_MODEL_NAME:
+      return ctx.state[PREFETCH_LOOP_KEY][id];
+    default:
+      return null;
+  }
+};
 
 export const prefetchMiddleware = (Model) => async (ctx, next) => {
   const { modelName } = Model;

@@ -1,5 +1,5 @@
 import generateCRUD from '../../helpers/abstract-route';
-import Loop from '../../models/loop/loop';
+import Loop from '../../models/loop';
 /*
 * Rides rights are equal to loop rights
 * */
@@ -8,22 +8,21 @@ import {
   CAN_EDIT_RIDE,
   CAN_GET_RIDE,
   CAN_LIST_RIDE, CAN_LIST_SELF_RIDE,
-  CAN_REQUEST_RIDE,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE,
-  CAN_DELETE_SELF_RIDE,
 } from '../../models/rights';
 import { DRAFTED } from '../../models/status';
 
 import contentNegociation from '../../middlewares/content-negociation';
 import maskOutput from '../../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../../middlewares/query-helper';
-import { getPrefetchedLoop, prefetchMiddleware } from '../../helpers/prefetch-document';
+import { getPrefetchedDocument, prefetchMiddleware } from '../../helpers/prefetch-document';
+import { LOOP_MODEL_NAME } from '../../models/helpers/constants';
 
 const router = generateCRUD(Loop, {
   create: {
-    right: [CAN_CREATE_RIDE, CAN_REQUEST_RIDE],
+    right: [CAN_CREATE_RIDE],
   },
   list: {
     right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
@@ -64,8 +63,7 @@ const router = generateCRUD(Loop, {
     async main(ctx) {
       const { body } = ctx.request;
       const { id } = ctx.params;
-      const loop = getPrefetchedLoop(ctx, id);
-
+      const loop = getPrefetchedDocument(ctx, id, LOOP_MODEL_NAME);
       if (!ctx.may(CAN_EDIT_RIDE)) {
         if (loop.status !== DRAFTED) {
           ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
@@ -84,7 +82,6 @@ const router = generateCRUD(Loop, {
       // @todo handle socket events
     },
   },
-  delete: { right: CAN_DELETE_SELF_RIDE },
 });
 
 /*
