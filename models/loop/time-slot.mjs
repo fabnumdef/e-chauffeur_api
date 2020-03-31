@@ -68,6 +68,8 @@ LoopTimeSlotSchema.statics.filtersWithin = filtersWithin;
 LoopTimeSlotSchema.statics.findWithin = findWithin;
 LoopTimeSlotSchema.statics.countDocumentsWithin = countDocumentsWithin;
 
-// @todo handle recurrency
+/*
+* @todo -- Handle recurrency
+* */
 
 export default model(LOOP_TIME_SLOTS_MODEL_NAME, LoopTimeSlotSchema, LOOP_TIME_SLOT_COLLECTION_NAME);

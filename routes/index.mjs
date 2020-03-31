@@ -16,6 +16,9 @@ import timeSlots from './time-slots';
 import config from '../services/config';
 import ratings from './ratings';
 import stats from './stats';
+import loops from './loops/loops';
+import loopPatterns from './loops/patterns';
+import loopTimeSlots from './loops/time-slots';
 
 const router = new Router();
 
@@ -55,5 +58,11 @@ router.use('/users', users.routes());
 router.use('/users', users.allowedMethods());
 router.use('/stats', stats.routes());
 router.use('/stats', stats.allowedMethods());
+router.use('/loops', loops.routes());
+router.use('/loops', loops.allowedMethods());
+router.use('/loop-patterns', loopPatterns.routes());
+router.use('/loop-patterns', loopPatterns.allowedMethods());
+router.use('/loop-time-slots', loopTimeSlots.routes());
+router.use('/loop-time-slots', loopTimeSlots.allowedMethods());
 
 export default router;
