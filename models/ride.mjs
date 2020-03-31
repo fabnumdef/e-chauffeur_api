@@ -21,6 +21,7 @@ import {
   RIDE_MODEL_NAME,
   USER_MODEL_NAME,
 } from './helpers/constants';
+import { compareTokens, getClientURL } from './helpers/custom-methods';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
@@ -251,7 +252,6 @@ RideSchema.statics.formatFilters = function formatFilters(rawFilters, queryFilte
   delete filter.start;
   delete filter.end;
 
-
   if (filter.current) {
     let status;
     if (filter.current === 'false') {
@@ -365,13 +365,9 @@ RideSchema.methods.sendSMS = async function sendUserSMS(body) {
   return null;
 };
 
-RideSchema.methods.compareTokens = function compareTokens(token) {
-  return this.token && token && this.token === token;
-};
+RideSchema.methods.compareTokens = compareTokens;
 
-RideSchema.methods.getRideClientURL = function getRideClientURL() {
-  return `${config.get('user_website_url')}/${this.id}?token=${this.token}`;
-};
+RideSchema.methods.getClientURL = getClientURL;
 
 RideSchema.methods.getSatisfactionQuestionnaireURL = function getSatisfactionQuestionnaireURL() {
   return `${config.get('user_website_url')}/rating?rideId=${this.id}`;

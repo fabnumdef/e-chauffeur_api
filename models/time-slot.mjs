@@ -7,6 +7,7 @@ import {
   TIME_SLOT_MODEL_NAME,
   MONTHLY, WEEKLY,
 } from './helpers/constants';
+import { countDocumentsWithin, filtersWithin, findWithin } from './helpers/custom-methods';
 
 const { DateTime } = Luxon;
 const { Schema } = mongoose;
@@ -69,35 +70,9 @@ TimeSlotSchema.pre('validate', async function preValidate(next) {
 });
 
 TimeSlotSchema.statics.getDashedName = () => TIME_SLOT_DASHED_NAME;
-
-TimeSlotSchema.statics.filtersWithin = function filtersWithin(after, before, f = {}) {
-  const filters = f;
-  filters.$or = [
-    {
-      start: {
-        $lt: before,
-      },
-      end: {
-        $gt: after,
-      },
-    },
-  ];
-  return filters;
-};
-
-TimeSlotSchema.statics.findWithin = function findWithin(after, before, filters = {}, ...rest) {
-  return this.find(
-    this.filtersWithin(after, before, filters),
-    ...rest,
-  );
-};
-
-TimeSlotSchema.statics.countDocumentsWithin = function countDocumentsWithin(after, before, filters = {}, ...rest) {
-  return this.countDocuments(
-    this.filtersWithin(after, before, filters),
-    ...rest,
-  );
-};
+TimeSlotSchema.statics.filtersWithin = filtersWithin;
+TimeSlotSchema.statics.findWithin = findWithin;
+TimeSlotSchema.statics.countDocumentsWithin = countDocumentsWithin;
 
 TimeSlotSchema.methods.createNextHop = async function createNextHop() {
   if (!this.recurrence.enabled || (this.recurrence.nextHop || {})._id) {
