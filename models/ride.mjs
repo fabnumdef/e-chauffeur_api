@@ -206,29 +206,31 @@ RideSchema.pre('validate', async function beforeSave() {
       this.departure = pois.find(({ _id }) => _id === this.departure._id);
     })(mongoose.model(POI_MODEL_NAME)),
     (async (CarModel) => {
-      if (!this.car.model || !this.car.model.label) {
-        const err = new Error();
-        err.status = 422;
-        err.message = 'Car model must be provided';
-        throw err;
+      if (this.status && this.status !== DRAFTED) {
+        if (!this.car.model || !this.car.model.label) {
+          const err = new Error();
+          err.status = 422;
+          err.message = 'Car model must be provided';
+          throw err;
+        }
+        const carModel = await CarModel.findOne({ label: this.car.model.label });
+        if (!carModel) {
+          const err = new Error();
+          err.status = 404;
+          err.message = 'Car model not found';
+          throw err;
+        }
+        if (!carModel.capacity) {
+          carModel.capacity = 3;
+        }
+        if (this.passengersCount > carModel.capacity || this.passengersCount > 3) {
+          const err = new Error();
+          err.status = 422;
+          err.message = 'Passenger count is higher than car capacity';
+          throw err;
+        }
+        this.car.model = carModel;
       }
-      const carModel = await CarModel.findOne({ label: this.car.model.label });
-      if (!carModel) {
-        const err = new Error();
-        err.status = 404;
-        err.message = 'Car model not found';
-        throw err;
-      }
-      if (!carModel.capacity) {
-        carModel.capacity = 3;
-      }
-      if (this.passengersCount > carModel.capacity || this.passengersCount > 3) {
-        const err = new Error();
-        err.status = 422;
-        err.message = 'Passenger count is higher than car capacity';
-        throw err;
-      }
-      this.car.model = carModel;
     })(mongoose.model(CAR_MODEL_MODEL_NAME)),
   ]);
 });
