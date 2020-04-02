@@ -10,7 +10,7 @@ import {
   CAMPUS_MODEL_NAME,
   TIME_SLOT_MODEL_NAME,
   CAR_MODEL_NAME,
-  CAMPUS_COLLECTION_NAME,
+  CAMPUS_COLLECTION_NAME, SHUTTLE_MODEL_NAME,
 } from './helpers/constants';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
@@ -144,11 +144,21 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
 
 CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
   const TimeSlot = mongoose.model(TIME_SLOT_MODEL_NAME);
+  const Shuttle = mongoose.model(SHUTTLE_MODEL_NAME);
+
   const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus }, drivers: { $ne: null } });
+  const shuttles = await Shuttle.findWithin({ campus: { _id: campus }, driver: { $exists: true } }, {
+    start: date.start,
+    end: date.end,
+  });
   const users = await CampusSchema.statics.findDrivers(campus, pagination);
 
   return users.map((u) => {
-    const availabilities = slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id)));
+    const availabilities = [
+      ...slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id))),
+      ...shuttles.filter((shuttle) => shuttle.driver._id.equals(u._id)),
+    ];
+
     const user = u.toObject({ virtuals: true });
     user.availabilities = availabilities.map((s) => s.toObject({ virtuals: true }));
     return user;

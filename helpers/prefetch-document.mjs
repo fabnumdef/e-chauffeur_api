@@ -1,14 +1,14 @@
-import { RIDE_MODEL_NAME, LOOP_MODEL_NAME } from '../models/helpers/constants';
+import { RIDE_MODEL_NAME, SHUTTLE_MODEL_NAME } from '../models/helpers/constants';
 
 const PREFETCH_RIDE_KEY = Symbol('prefetched-ride');
-const PREFETCH_LOOP_KEY = Symbol('prefetched-loop');
+const PREFETCH_SHUTTLE_KEY = Symbol('prefetched-shuttle');
 
 export const getPrefetchedDocument = (ctx, id, modelName) => {
   switch (modelName) {
     case RIDE_MODEL_NAME:
       return ctx.state[PREFETCH_RIDE_KEY][id];
-    case LOOP_MODEL_NAME:
-      return ctx.state[PREFETCH_LOOP_KEY][id];
+    case SHUTTLE_MODEL_NAME:
+      return ctx.state[PREFETCH_SHUTTLE_KEY][id];
     default:
       return null;
   }
@@ -21,8 +21,8 @@ export const prefetchMiddleware = (Model) => async (ctx, next) => {
 
   if (modelName === RIDE_MODEL_NAME) {
     key = PREFETCH_RIDE_KEY;
-  } else if (modelName === LOOP_MODEL_NAME) {
-    key = PREFETCH_LOOP_KEY;
+  } else if (modelName === SHUTTLE_MODEL_NAME) {
+    key = PREFETCH_SHUTTLE_KEY;
   } else {
     ctx.throw_and_log(422, 'Model not provided');
   }

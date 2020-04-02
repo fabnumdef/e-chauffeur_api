@@ -11,9 +11,8 @@ export const RATING_MODEL_NAME = 'Rating';
 export const RIDE_MODEL_NAME = 'Ride';
 export const TIME_SLOT_MODEL_NAME = 'TimeSlot';
 export const USER_MODEL_NAME = 'User';
-export const LOOP_MODEL_NAME = 'Loop';
-export const LOOP_PATTERN_MODEL_NAME = 'LoopPattern';
-export const LOOP_TIME_SLOTS_MODEL_NAME = 'LoopTimeSlot';
+export const SHUTTLE_MODEL_NAME = 'Shuttle';
+export const PATTERN_MODEL_NAME = 'Pattern';
 
 export const CAMPUS_COLLECTION_NAME = 'campuses';
 export const CAR_COLLECTION_NAME = 'cars';
@@ -28,10 +27,8 @@ export const RATING_COLLECTION_NAME = 'ratings';
 export const RIDE_COLLECTION_NAME = 'rides';
 export const TIME_SLOT_COLLECTION_NAME = 'time-slots';
 export const USER_COLLECTION_NAME = 'users';
-export const LOOP_COLLECTION_NAME = 'loops';
-export const LOOP_PATTERN_COLLECTION_NAME = 'loop-patterns';
-export const LOOP_TIME_SLOT_COLLECTION_NAME = 'loop-time-slots';
-
+export const SHUTTLE_COLLECTION_NAME = 'shuttles';
+export const PATTERN_COLLECTION_NAME = 'patterns';
 
 export const CAR_MODEL_DASHED_NAME = 'car-model';
 export const PHONE_MODEL_DASHED_NAME = 'phone-model';
