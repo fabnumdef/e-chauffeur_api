@@ -16,10 +16,8 @@ export default async (ctx, next) => {
       });
     } else {
       ctx.log.error(err.message, err);
-      // eslint-disable-next-line no-console
-      console.error(err);
       ctx.status = err.status || 500;
-      ctx.body = err.message;
+      ctx.body = ctx.translate(err.message);
     }
   }
 };

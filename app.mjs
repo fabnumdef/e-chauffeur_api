@@ -1,5 +1,6 @@
 import url from 'url';
 import Koa from 'koa';
+import locales from 'koa-locales';
 import Prometheus from 'prom-client';
 import bodyParser from 'koa-body';
 import helmet from 'koa-helmet';
@@ -22,6 +23,9 @@ process.on('SIGTERM', () => {
 });
 
 const app = new Koa();
+locales(app, {
+  functionName: 'translate',
+});
 if (config.get('prometheus_exporter')) {
   app.use(metricsMiddleware);
 }
