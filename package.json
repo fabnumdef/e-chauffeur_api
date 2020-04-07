@@ -5,7 +5,7 @@
   "scripts": {
     "test": "mocha --exit --es-module-specifier-resolution=node --recursive \"tests/**/*.mjs\"",
     "serve": "node --experimental-modules --es-module-specifier-resolution=node server.mjs",
-    "nodemon": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs",
+    "dev": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs | pino-pretty",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "generate-vapid": "node generate-vapid-key.js",
     "precommit": "npm run lint",
@@ -77,6 +77,7 @@
     "eslint-plugin-import": "^2.20.1",
     "mocha": "^7.0.1",
     "nodemon": "^2.0.2",
+    "pino-pretty": "^4.0.0",
     "supertest": "^4.0.2"
   },
   "peerDependencies": {
