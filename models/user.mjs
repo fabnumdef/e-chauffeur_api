@@ -31,6 +31,7 @@ import {
 import * as rolesImport from './role';
 import { CAMPUS_MODEL_NAME, USER_COLLECTION_NAME, USER_MODEL_NAME } from './helpers/constants';
 
+const { ValidationError, ValidatorError } = mongoose.Error;
 const { DateTime } = Luxon;
 const { normalizeEmail } = validator;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
@@ -164,7 +165,14 @@ UserSchema.pre('save', function preSave(next) {
   }
 
   if (!PASSWORD_TEST.test(this.password)) {
-    throw new Error('Password should match security criteria');
+    const validationError = new ValidationError(this);
+    const path = 'password';
+    validationError.addError('password', new ValidatorError({
+      path,
+      message: 'password_security_criteria',
+      type: 'password_security_criteria',
+    }));
+    throw validationError;
   }
 
   bcrypt

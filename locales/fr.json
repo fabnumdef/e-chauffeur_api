@@ -9,12 +9,15 @@
       "ValidationError": "Erreur lors de la validation du modèle `{model}`, vérifiez les données."
     },
     "models": {
-      "Campus": "Base"
+      "Campus": "Base",
+      "User": "Utilisateur"
     },
     "validators": {
-      "required": "La donnée `{field}` est requise."
+      "required": "La donnée `{field}` est requise.",
+      "password_security_criteria": "Le champ `{field}` ne valide pas les critères de sécurité (8 caractères minimum)"
     },
     "paths": {
+      "password": "Mot de passe",
       "name": "Nom",
       "location.coordinates": "Coordonnées"
     }
