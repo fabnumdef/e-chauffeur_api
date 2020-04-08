@@ -1,0 +1,22 @@
+{
+  "feedback": {
+    "bad_validation": "Erreur lors de la validation",
+    "missing_type": "Le type de retour est requis.",
+    "missing_message": "Le message est requis."
+  },
+  "mongoose": {
+    "errors": {
+      "ValidationError": "Erreur lors de la validation du modèle `{model}`, vérifiez les données."
+    },
+    "models": {
+      "Campus": "Base"
+    },
+    "validators": {
+      "required": "La donnée `{field}` est requise."
+    },
+    "paths": {
+      "name": "Nom",
+      "location.coordinates": "Coordonnées"
+    }
+  }
+}
