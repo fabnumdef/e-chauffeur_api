@@ -6,7 +6,7 @@ import { CATEGORY_COLLECTION_NAME, CATEGORY_MODEL_NAME } from './helpers/constan
 const { Schema } = mongoose;
 
 const CategorySchema = new Schema({
-  _id: String,
+  _id: {type: String, required: true },
   label: { type: String, required: true },
 });
 

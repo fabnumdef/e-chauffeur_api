@@ -10,7 +10,8 @@
     },
     "models": {
       "Campus": "Base",
-      "User": "Utilisateur"
+      "User": "Utilisateur",
+      "Category": "Catégorie"
     },
     "validators": {
       "required": "La donnée `{field}` est requise.",
@@ -19,7 +20,9 @@
     "paths": {
       "password": "Mot de passe",
       "name": "Nom",
-      "location.coordinates": "Coordonnées"
+      "location.coordinates": "Coordonnées",
+      "label": "Label",
+      "id": "Identificateur"
     }
   }
 }
