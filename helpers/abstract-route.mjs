@@ -27,7 +27,7 @@ export function addBatchToRouter(Model, {
 }
 
 export function addCreateToRouter(Model, {
-  url = '/', right, rights = [], main, successCode = 200,
+  url = '/', right, rights = [], main, successCode = 200, middlewares = [],
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -40,6 +40,7 @@ export function addCreateToRouter(Model, {
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    ...middlewares,
     main || (async (ctx) => {
       const { request: { body } } = ctx;
 

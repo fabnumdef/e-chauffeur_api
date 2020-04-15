@@ -17,14 +17,22 @@ import { DRAFTED } from '../models/status';
 
 import maskOutput from '../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import ioEmitMiddleware from '../middlewares/io-emit';
 import { getPrefetchedDocument, prefetchMiddleware } from '../helpers/prefetch-document';
 import { SHUTTLE_MODEL_NAME } from '../models/helpers/constants';
 
 // @todo write tests for these routes
+const SHUTTLE_UPDATE_EVENT = 'shuttleUpdate';
 
 const router = generateCRUD(Shuttle, {
   create: {
     right: [CAN_CREATE_RIDE],
+    middlewares: [
+      maskOutput,
+      ioEmitMiddleware(SHUTTLE_UPDATE_EVENT, [
+        'shuttle', 'campus',
+      ]),
+    ],
   },
   list: {
     right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
@@ -60,6 +68,9 @@ const router = generateCRUD(Shuttle, {
   update: {
     preMiddlewares: [prefetchMiddleware(Shuttle)],
     right: [CAN_EDIT_RIDE, CAN_EDIT_OWNED_RIDE],
+    middlewares: [ioEmitMiddleware(SHUTTLE_UPDATE_EVENT, [
+      'shuttle', 'campus', 'driver',
+    ])],
     async main(ctx) {
       const { body } = ctx.request;
       const { id } = ctx.params;
