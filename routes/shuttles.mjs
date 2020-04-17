@@ -1,7 +1,7 @@
 import generateCRUD from '../helpers/abstract-route';
 import Shuttle from '../models/shuttle';
 /*
-* Rides rights are equal to shuttle rights
+* Rides rights are almost equal to shuttles rights
 * */
 import {
   CAN_CREATE_RIDE,
@@ -13,8 +13,6 @@ import {
   CAN_EDIT_OWNED_RIDE,
   CAN_DELETE_SHUTTLE,
 } from '../models/rights';
-import { DRAFTED } from '../models/status';
-
 import maskOutput from '../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import ioEmitMiddleware from '../middlewares/io-emit';
@@ -45,8 +43,6 @@ const router = generateCRUD(Shuttle, {
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Shuttle, { max: 1000 });
-      // @todo static methods to code in Shuttle model
-
       const total = await Shuttle.countDocumentsWithin(ctx.filters, ctx.query.filters);
       const data = await Shuttle.findWithin(ctx.filters, ctx.query.filters).skip(offset).limit(limit);
       ctx.setRangePagination(Shuttle, {
@@ -76,21 +72,14 @@ const router = generateCRUD(Shuttle, {
       const { id } = ctx.params;
       const shuttle = getPrefetchedDocument(ctx, id, SHUTTLE_MODEL_NAME);
       if (!ctx.may(CAN_EDIT_RIDE)) {
-        if (shuttle.status !== DRAFTED) {
-          ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
-        }
-        delete body.id;
+        ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
       }
 
       delete body.status;
 
       shuttle.set(body);
-      await shuttle.save();
-
-      ctx.body = shuttle;
+      ctx.body = await shuttle.save();
       ctx.log.info(`${Shuttle.modelName} "${id}" has been modified`);
-
-      // @todo handle socket events
     },
   },
   delete: {
@@ -101,7 +90,6 @@ const router = generateCRUD(Shuttle, {
 /*
 * @todo specific shuttle routes :
 *   - GET position
-*   - MUTATE status
 * */
 
 export default router;

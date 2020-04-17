@@ -1,6 +1,3 @@
-/*
-* Loop pattern to define by campus
-* */
 import mongoose from 'mongoose';
 import {
   PATTERN_MODEL_NAME,
@@ -34,19 +31,11 @@ const PatternSchema = new Schema({
         type: String,
         enum: ['Point'],
       },
-      coordinates: {
-        type: [Number],
-      },
+      coordinates: [Number],
     },
   }],
-  reachDuration: {
-    type: Number,
-    required: true,
-  },
+  reachDuration: Number,
   comments: String,
 }, { timestamps: true });
-
-// @todo add pre validation hook
-// @todo add aggregations
 
 export default model(PATTERN_MODEL_NAME, PatternSchema, PATTERN_COLLECTION_NAME);

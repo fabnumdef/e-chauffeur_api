@@ -1,6 +1,6 @@
 import { cleanObject } from './mask-output';
 
-function ioEmit(ctx, data, eventName = '', rooms = []) {
+export function ioEmit(ctx, data, eventName = '', rooms = []) {
   let { app: { io } } = ctx;
   rooms.forEach((room) => {
     io = io.in(room);

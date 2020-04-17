@@ -24,7 +24,7 @@ export const prefetchMiddleware = (Model) => async (ctx, next) => {
   } else if (modelName === SHUTTLE_MODEL_NAME) {
     key = PREFETCH_SHUTTLE_KEY;
   } else {
-    ctx.throw_and_log(422, 'Model not provided');
+    ctx.throw_and_log(400, 'Model not provided');
   }
 
   ctx.state[key] = ctx.state[key] || {};

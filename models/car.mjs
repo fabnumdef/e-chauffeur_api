@@ -3,6 +3,8 @@ import Luxon from 'luxon';
 import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
 import { CAR_COLLECTION_NAME, CAR_MODEL_NAME } from './helpers/constants';
+import CarModel from './car-model';
+import HttpError from '../helpers/http-error';
 
 const { Interval } = Luxon;
 const { Schema } = mongoose;
@@ -13,6 +15,7 @@ const CarSchema = new Schema({
   model: {
     _id: { type: String, required: true },
     label: { type: String, required: true },
+    capacity: { type: Number, required: true },
   },
   campus: {
     _id: { type: String, required: true },
@@ -22,6 +25,22 @@ const CarSchema = new Schema({
 
 CarSchema.plugin(createdAtPlugin);
 CarSchema.plugin(addCSVContentPlugin);
+
+
+CarSchema.pre('validate', async function beforeSave() {
+  if (this.model && this.model._id) {
+    const model = await CarModel.findById(this.model._id);
+    if (!model) {
+      throw new HttpError(404, 'Car model not found');
+    }
+
+    this.model = {
+      _id: model._id,
+      label: model.label,
+      capacity: model.capacity,
+    };
+  }
+});
 
 CarSchema.virtual('campus.id')
   .get(function get() {

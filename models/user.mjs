@@ -101,6 +101,10 @@ const UserSchema = new Schema({
       default: false,
     },
   },
+  heavyLicence: {
+    type: Boolean,
+    default: false,
+  },
   gprd: {
     type: Date,
     validate: {

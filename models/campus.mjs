@@ -10,7 +10,7 @@ import {
   CAMPUS_MODEL_NAME,
   TIME_SLOT_MODEL_NAME,
   CAR_MODEL_NAME,
-  CAMPUS_COLLECTION_NAME, SHUTTLE_MODEL_NAME,
+  CAMPUS_COLLECTION_NAME,
 } from './helpers/constants';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
@@ -95,9 +95,15 @@ const campusFilter = (campus) => ({
   'roles.campuses._id': campus,
 });
 
-const driverFilter = () => ({
-  'roles.role': 'ROLE_DRIVER',
-});
+const driverFilter = (onlyHeavyLicence = false) => {
+  const filter = { 'roles.role': 'ROLE_DRIVER' };
+
+  if (onlyHeavyLicence) {
+    filter.heavyLicence = true;
+  }
+
+  return filter;
+};
 
 CampusSchema.pre('validate', function preValidate(next) {
   if (this.location.coordinates.length !== 2) {
@@ -128,8 +134,8 @@ CampusSchema.statics.findUsers = async function findUsers(campus, pagination, fi
   return User.find(f);
 };
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
-  return CampusSchema.statics.findUsers(campus, pagination, driverFilter());
+CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination, onlyHeavyLicences = false) {
+  return CampusSchema.statics.findUsers(campus, pagination, driverFilter(onlyHeavyLicences));
 };
 
 CampusSchema.statics.findUser = async function findUser(campus, id, filters = {}) {
@@ -142,21 +148,22 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
   return CampusSchema.statics.findUser(campus, id, driverFilter());
 };
 
-CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
+CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, options, pagination) {
   const TimeSlot = mongoose.model(TIME_SLOT_MODEL_NAME);
-  const Shuttle = mongoose.model(SHUTTLE_MODEL_NAME);
 
-  const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus }, drivers: { $ne: null } });
-  const shuttles = await Shuttle.findWithin({ campus: { _id: campus }, driver: { $exists: true } }, {
-    start: date.start,
-    end: date.end,
+  const slots = await TimeSlot.findWithin(options.start, options.end, {
+    campus: { _id: campus }, drivers: { $ne: null },
   });
-  const users = await CampusSchema.statics.findDrivers(campus, pagination);
+
+  const driverQuery = [campus, pagination];
+  if (options.onlyHeavyLicences === 'true') {
+    driverQuery.push(true);
+  }
+  const users = await CampusSchema.statics.findDrivers(...driverQuery);
 
   return users.map((u) => {
     const availabilities = [
       ...slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id))),
-      ...shuttles.filter((shuttle) => shuttle.driver._id.equals(u._id)),
     ];
 
     const user = u.toObject({ virtuals: true });

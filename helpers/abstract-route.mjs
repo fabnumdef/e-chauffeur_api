@@ -134,7 +134,7 @@ export function addGetToRouter(Model, {
 }
 
 export function addDeleteToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [],
 } = {}) {
   this.del(
     url,
@@ -142,6 +142,7 @@ export function addDeleteToRouter(Model, {
       .concat(rights)
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
+    ...middlewares,
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];

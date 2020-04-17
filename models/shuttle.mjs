@@ -1,18 +1,19 @@
-/*
-* Equivalent to ride level
-* */
 import mongoose from 'mongoose';
 import nanoid from 'nanoid';
-import stateMachinePlugin from '@rentspree/mongoose-state-machine';
 import {
   SHUTTLE_COLLECTION_NAME, SHUTTLE_MODEL_NAME,
   GEO_TRACKING_MODEL_NAME, WEEKLY, MONTHLY,
 } from './helpers/constants';
-import stateMachine, { CREATED } from './status';
+import { CREATED } from './status';
 import cleanObjectPlugin from './helpers/object-cleaner';
-import { sendSMS } from '../services/twilio';
-import { compareTokens, getClientURL } from './helpers/custom-methods';
 import config from '../services/config';
+import HttpError from '../helpers/http-error';
+import User from './user';
+import Pattern from './pattern';
+import Campus from './campus';
+import Car from './car';
+import { compareTokens, getClientURL } from './helpers/custom-methods';
+import { sendSMS } from '../services/twilio';
 
 const { Schema, model, Types } = mongoose;
 
@@ -52,8 +53,10 @@ const ShuttleSchema = new Schema({
   pattern: {
     _id: {
       type: Types.ObjectId,
-      required: true,
       alias: 'pattern.id',
+    },
+    label: {
+      type: String,
     },
     stops: [{
       _id: { type: String, required: true, alias: 'id' },
@@ -63,9 +66,7 @@ const ShuttleSchema = new Schema({
           type: String,
           enum: ['Point'],
         },
-        coordinates: {
-          type: [Number],
-        },
+        coordinates: [Number],
       },
     }],
   },
@@ -80,23 +81,18 @@ const ShuttleSchema = new Schema({
       type: String,
       required: true,
     },
-    poi: {
-      _id: {
-        type: String,
-        alias: 'poi.id',
-      },
-      stopDuration: Number,
-    },
     passengers: [{
       _id: {
         type: Types.ObjectId,
-        // required: true,
         alias: 'id',
       },
       email: {
         type: String,
         required: true,
       },
+      firstname: String,
+      lastname: String,
+      phone: String,
     }],
   }],
   driver: {
@@ -139,9 +135,103 @@ const ShuttleSchema = new Schema({
 }, { timestamps: true });
 
 ShuttleSchema.plugin(cleanObjectPlugin, SHUTTLE_MODEL_NAME);
-ShuttleSchema.plugin(stateMachinePlugin.default, { stateMachine }); // @todo validate state machine for shuttle
 
-// @todo add pre validation hook
+ShuttleSchema.pre('validate', async function beforeSave() {
+  if (this.end && this.start >= this.end) {
+    throw new HttpError(400, 'End date should be after start date');
+  }
+
+  const campus = await Campus.findById(this.campus.id);
+  if (!campus) {
+    throw new HttpError(404, 'Campus not found');
+  }
+
+  if (this.pattern && this.pattern.id) {
+    const pattern = await Pattern.findById(this.pattern.id);
+    if (!pattern) {
+      throw new HttpError(404, 'Pattern not found');
+    }
+    this.pattern = {
+      id: pattern.id,
+      label: pattern.label,
+      stops: [...pattern.stops],
+    };
+  }
+
+  if (this.stops && this.stops.length > 0) {
+    if (!this.pattern) {
+      throw new HttpError(400, 'Stops are based on pattern');
+    }
+
+    this.stops = await Promise.all(this.stops.map(async (stop, index) => {
+      if (!stop.id || !stop.label) {
+        throw new HttpError(400, 'Stop must provide id and label');
+      }
+      if (stop.id !== this.pattern.stops[index].id || stop.label !== this.pattern.stops[index].label) {
+        throw new HttpError(404, 'Id or label not found');
+      }
+
+      const validatedStop = {
+        id: stop.id,
+        label: stop.label,
+      };
+      if (stop.passengers && stop.passengers.length > 0) {
+        if (!this.car || !this.car.model || !this.car.model.capacity) {
+          throw new HttpError(400, 'Car capacity must be provided');
+        }
+        if (stop.passengers.length > this.car.model.capacity) {
+          throw new HttpError(400, 'Passengers number higher than car capacity');
+        }
+        validatedStop.passengers = await Promise.all(stop.passengers.map(async (p) => {
+          const passenger = await User.findOne({ email: p.email });
+          if (passenger) {
+            return {
+              id: passenger.id,
+              email: passenger.email,
+              firstname: passenger.firstname,
+              lastname: passenger.lastname,
+              phone: passenger.phone || p.phone,
+            };
+          }
+          return {
+            email: p.email,
+            phone: p.phone,
+          };
+        }));
+      }
+      return validatedStop;
+    }));
+  }
+
+  if (this.driver && this.driver.id) {
+    const driver = await User.findById(this.driver.id);
+    if (!driver) {
+      throw new HttpError(404, 'Driver not found');
+    }
+    if (!driver.heavyLicence) {
+      throw new HttpError(400, 'Wrong licence');
+    }
+
+    this.driver = {
+      id: driver.id,
+      firstname: driver.firstname,
+      lastname: driver.lastname,
+    };
+  }
+
+  if (this.car && this.car.id) {
+    const car = await Car.findById(this.car.id);
+    if (!car) {
+      throw new HttpError(404, 'Car not found');
+    }
+
+    this.car = {
+      id: car.id,
+      label: car.label,
+      model: { ...car.model },
+    };
+  }
+});
 
 ShuttleSchema.statics.castId = (v) => {
   try {
