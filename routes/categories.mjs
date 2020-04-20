@@ -26,14 +26,7 @@ const router = generateCRUD(Category, {
       async (ctx, next) => {
         const searchParams = ctx.filters;
         if (ctx.query && ctx.query.search) {
-          searchParams.$or = [
-            {
-              _id: new RegExp(ctx.query.search, 'i'),
-            },
-            {
-              label: new RegExp(ctx.query.search, 'i'),
-            },
-          ];
+          searchParams.$text = { $search: ctx.query.search };
         }
         ctx.filters = searchParams;
         await next();
@@ -51,7 +44,7 @@ const router = generateCRUD(Category, {
   },
   batch: {
     right: CAN_CREATE_CATEGORY,
-    refs: ['_id', 'label'],
+    refs: ['_id'],
     middlewares: [
       csvToJson,
     ],

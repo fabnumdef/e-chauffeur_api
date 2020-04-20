@@ -10,6 +10,11 @@ const CategorySchema = new Schema({
   label: { type: String, required: true },
 });
 
+CategorySchema.index({
+  _id: 'text',
+  label: 'text',
+});
+
 CategorySchema.plugin(createdAtPlugin);
 CategorySchema.plugin(addCSVContentPlugin);
 
