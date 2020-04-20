@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import lmapKeys from 'lodash.mapkeys';
 import lmapValues from 'lodash.mapvalues';
+import APIError from '../helpers/api-error';
 
 const { ValidationError } = mongoose.Error;
 function normalizeErrors(errors, transformMessage) {
@@ -44,6 +45,12 @@ export default async (ctx, next) => {
             { field: ctx.translate(`mongoose.paths.${path}`) },
           ),
         ),
+      };
+    } else if (err instanceof APIError) {
+      ctx.status = err.status;
+      ctx.body = {
+        message: ctx.translate(err.message),
+        errors: err.errors.map(({ message, ...params }) => ctx.translate(message, params)),
       };
     } else {
       ctx.log.error(err.message, err);

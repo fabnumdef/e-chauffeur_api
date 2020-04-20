@@ -1,3 +1,5 @@
+import APIError from '../../helpers/api-error';
+
 const validateDatas = async ({
   model: Model, refs, datas,
 }) => {
@@ -5,6 +7,7 @@ const validateDatas = async ({
     const model = new Model(data);
     return model.validate((err) => {
       if (err) {
+        // @todo: Maybe it will conflict new error formating.
         // eslint-disable-next-line no-param-reassign
         err.message = `${err.message} Data : ${refs[0]} = ${data[refs[0]]}`;
         throw err;
@@ -38,31 +41,14 @@ const checkDuplications = async ({
     throw err;
   }
 
-  const documents = await Model.find().lean();
-  // check potential duplications in db
-  const dbDuplications = datas.reduce((acc, data) => ([
-    ...acc,
-    ...refs.reduce((a, r) => {
-      const counter = documents.reduce((count, document) => (data[r] === document[r] ? count + 1 : count), 0);
-      const nestedProperties = r.split('.');
-      let currentData;
-      if (nestedProperties.length > 1) {
-        currentData = nestedProperties.reduce((d, property) => (!d ? data[property] : d[property]), null);
-      } else {
-        currentData = data[r];
-      }
-      if (counter > 0 && !a.find((item) => item === `${r} : ${currentData}`)) {
-        a.push(`${r} : ${currentData}`);
-      }
-      return a;
-    }, []),
-  ]), []);
-
-  if (dbDuplications.length > 0) {
-    const err = new Error();
-    err.status = 422;
-    err.message = `Duplications with database : ${dbDuplications}`;
-    throw err;
+  const dbDuplicatedDocuments = await Model.find({
+    $or: refs.map((ref) => ({ [ref]: { $in: datas.map((d) => d[ref]) } })),
+  }).lean();
+  if (dbDuplicatedDocuments.length > 0) {
+    throw (new APIError(422, 'import.db_duplications'))
+      .addErrors(
+        dbDuplicatedDocuments.map((doc) => ['import.error_on_document_id', { id: doc._id }]),
+      );
   }
 };
 

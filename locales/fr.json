@@ -24,5 +24,9 @@
       "label": "Label",
       "id": "Identificateur"
     }
+  },
+  "import": {
+    "db_duplications": "Duplicata de données, aucune donnée n'a été enregistrée",
+    "error_on_document_id": "Conflit avec la donnée {id}"
   }
 }
