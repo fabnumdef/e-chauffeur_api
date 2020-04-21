@@ -11,6 +11,7 @@
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules --es-module-specifier-resolution=node tests/generate-state-schema.js",
     "import-fixtures": "node --experimental-modules --es-module-specifier-resolution=node fixtures",
+    "mongoose:sync-indexes": "node --experimental-modules --es-module-specifier-resolution=node sync-indexes.mjs",
     "cron:time-slots-copy": "node --experimental-modules --es-module-specifier-resolution=node crons/time-slots-copy.js"
   },
   "author": "Gaël",
