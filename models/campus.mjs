@@ -17,7 +17,7 @@ const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { Schema } = mongoose;
 
 const CampusSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   categories: [{
     _id: { type: String, required: true, alias: 'id' },
