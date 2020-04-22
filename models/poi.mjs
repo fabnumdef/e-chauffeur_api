@@ -80,6 +80,8 @@ PoiSchema.statics.findWithin = function findWithin(...params) {
 PoiSchema.index({
   _id: 'text',
   label: 'text',
+  'campus._id': 'text',
+  'campus.name': 'text',
 });
 
 export default mongoose.model(POI_MODEL_NAME, PoiSchema, POI_COLLECTION_NAME);
