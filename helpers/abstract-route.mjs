@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
+import initFilters from '../middlewares/init-filters';
 
 export function addBatchToRouter(Model, {
   url = '/batch', right, rights = [], middlewares = [], main, refs = [],
@@ -76,6 +77,7 @@ export function addListToRouter(Model, {
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    initFilters,
     ...Object.keys(filters).map((k) => addFilter(k, filters[k])),
     ...middlewares,
     main || (async (ctx) => {

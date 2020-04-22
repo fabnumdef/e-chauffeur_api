@@ -48,9 +48,7 @@ const CampusSchema = new Schema({
   },
   defaultRideDuration: {
     type: Number,
-    validate(v) {
-      return [15, 20, 30, 60].indexOf(v) > -1;
-    },
+    enum: [15, 20, 30, 60],
     default: 30,
   },
   defaultReservationScope: {
@@ -64,6 +62,11 @@ const CampusSchema = new Schema({
     },
     coordinates: {
       type: [Number],
+      required: true,
+      validate(v) {
+        return v.length === 2;
+      },
+      message: () => 'invalid_coordinates',
     },
   },
   phone: {
@@ -77,9 +80,7 @@ const CampusSchema = new Schema({
       validator(v) {
         return !v || timezoneValidator(v);
       },
-      message({ value }) {
-        return `"${value}" seems to don't be a valid timezone`;
-      },
+      message: () => 'invalid_timezone',
     },
   },
 });
@@ -89,6 +90,9 @@ CampusSchema.plugin(createdAtPlugin);
 CampusSchema.index({
   _id: 'text',
   name: 'text',
+  'phone.everybody': 'text',
+  'categories._id': 'text',
+  'categories.label': 'text',
 });
 
 const campusFilter = (campus) => ({
@@ -97,16 +101,6 @@ const campusFilter = (campus) => ({
 
 const driverFilter = () => ({
   'roles.role': 'ROLE_DRIVER',
-});
-
-CampusSchema.pre('validate', function preValidate(next) {
-  if (this.location.coordinates.length !== 2) {
-    const err = new Error();
-    err.status = 422;
-    err.message = 'location is required to save campus';
-    throw err;
-  }
-  next();
 });
 
 CampusSchema.statics.countUsers = async function countUsers(campus, filters = {}) {

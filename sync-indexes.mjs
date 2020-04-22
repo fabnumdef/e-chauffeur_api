@@ -22,7 +22,7 @@ const DIRNAME = typeof __dirname !== 'undefined' ? __dirname
     .map(async (fileName) => {
       const { default: Model } = await import(path.join(DIRNAME, 'models', fileName));
       await Model.syncIndexes();
-      console.log(`Indexes of "${Model.modelName}" has been updated`);
+      process.stdout.write(`Indexes of "${Model.modelName}" has been updated \n`);
     }));
   await mongoose.connection.close();
 })();

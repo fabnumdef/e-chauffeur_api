@@ -10,6 +10,7 @@ import {
 import { csvToJson } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import searchQuery from '../middlewares/search-query';
 
 const router = generateCRUD(Category, {
   create: {
@@ -23,14 +24,7 @@ const router = generateCRUD(Category, {
     middlewares: [
       contentNegociation,
       maskOutput,
-      async (ctx, next) => {
-        const searchParams = ctx.filters;
-        if (ctx.query && ctx.query.search) {
-          searchParams.$text = { $search: ctx.query.search };
-        }
-        ctx.filters = searchParams;
-        await next();
-      },
+      searchQuery,
     ],
   },
   get: {

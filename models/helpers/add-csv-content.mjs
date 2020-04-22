@@ -17,7 +17,7 @@ const validateDatas = async ({
 };
 
 const checkDuplications = async ({
-  model: Model, refs = [], datas,
+  model: Model, refs = ['_id'], datas,
 }) => {
   // check duplications in batch
   const batchDuplications = refs.reduce((acc, r) => {
