@@ -57,7 +57,7 @@ const router = generateCRUD(Poi, {
   },
   batch: {
     right: CAN_CREATE_POI_LOCAL,
-    label: ['label'],
+    refs: ['_id'],
     middlewares: [
       csvToJson,
       validateCampus,
