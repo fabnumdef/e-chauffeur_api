@@ -12,7 +12,7 @@ export default (eventName, roomTypes) => async (ctx, next) => {
   await next();
   const { body } = ctx;
   const rooms = roomTypes.reduce((acc, type) => {
-    if (type === 'ride' || type === 'shuttle') {
+    if (['ride', 'shuttle'].includes(type)) {
       acc.push(`${type}/${body.id}`);
     } else if (body[type] && body[type].id) {
       acc.push(`${type}/${body[type].id}`);

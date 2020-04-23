@@ -29,7 +29,7 @@ app.use(errorHandler);
 app.use(helmet());
 app.use(jwt({ secret: config.get('token:secret'), passthrough: true }));
 app.use(injectUserMayMiddleware);
-app.use(pino());
+app.use(pino({ level: 'fatal' }));
 app.use(throwAndLogMiddleware);
 qsParser(app);
 app.use(rangePaginationMiddleware);

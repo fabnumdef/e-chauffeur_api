@@ -1,7 +1,7 @@
 import nanoid from 'nanoid';
 import { generateRegulatorJWTHeader, generateSuperAdminJWTHeader } from '../request';
 import { testCreate } from '../helpers/crud/create';
-import Pattern, { generateDummyPattern } from '../models/pattern';
+import ShuttleFactory, { generateDummyShuttleFactory } from '../models/shuttle-factory';
 import { testList } from '../helpers/crud/list';
 import { testDelete } from '../helpers/crud/delete';
 import { testGet } from '../helpers/crud/get';
@@ -10,7 +10,7 @@ import { createDummyCampus, generateDummyCampus } from '../models/campus';
 
 const dummyCampus = generateDummyCampus();
 const config = {
-  route: '/patterns',
+  route: '/shuttle-factories',
   queryParams: {
     filters: {
       campus: dummyCampus._id,
@@ -20,37 +20,37 @@ const config = {
     const toDropLater = [];
     const campus = await createDummyCampus(dummyCampus);
     toDropLater.push(campus);
-    const pattern = generateDummyPattern({
+    const shuttleFactory = generateDummyShuttleFactory({
       label: nanoid(),
       campus: { id: dummyCampus._id },
     });
 
-    return [pattern, toDropLater];
+    return [shuttleFactory, toDropLater];
   },
   cannotCall: [generateRegulatorJWTHeader.bind(null, generateDummyCampus())],
   canCall: [generateRegulatorJWTHeader.bind(null, dummyCampus), generateSuperAdminJWTHeader],
 };
 
-describe('Test the patterns route', () => {
-  it(...testCreate(Pattern, {
+describe('Test the shuttle factories route', () => {
+  it(...testCreate(ShuttleFactory, {
     ...config,
   }));
 
-  it(...testList(Pattern, {
+  it(...testList(ShuttleFactory, {
     ...config,
   }));
 
-  it(...testDelete(Pattern, {
-    ...config,
-    route: ({ id }) => `${config.route}/${id}`,
-  }));
-
-  it(...testGet(Pattern, {
+  it(...testDelete(ShuttleFactory, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
   }));
 
-  it(...testUpdate(Pattern, {
+  it(...testGet(ShuttleFactory, {
+    ...config,
+    route: ({ id }) => `${config.route}/${id}`,
+  }));
+
+  it(...testUpdate(ShuttleFactory, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
   }));

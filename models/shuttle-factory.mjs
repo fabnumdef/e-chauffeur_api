@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 import {
-  PATTERN_MODEL_NAME,
-  PATTERN_COLLECTION_NAME,
+  SHUTTLE_FACTORY_MODEL_NAME,
+  SHUTTLE_FACTORY_COLLECTION_NAME,
+  SHUTTLE_FACTORY_DASHED_NAME,
 } from './helpers/constants';
 
 const { Schema, model, Types } = mongoose;
 
-const PatternSchema = new Schema({
+const ShuttleFactorySchema = new Schema({
   _id: {
     type: Types.ObjectId,
     default: () => Types.ObjectId(),
@@ -14,6 +15,7 @@ const PatternSchema = new Schema({
   },
   label: {
     type: String,
+    unique: true,
     required: true,
   },
   category: {
@@ -38,4 +40,6 @@ const PatternSchema = new Schema({
   comments: String,
 }, { timestamps: true });
 
-export default model(PATTERN_MODEL_NAME, PatternSchema, PATTERN_COLLECTION_NAME);
+ShuttleFactorySchema.statics.getDashedName = () => SHUTTLE_FACTORY_DASHED_NAME;
+
+export default model(SHUTTLE_FACTORY_MODEL_NAME, ShuttleFactorySchema, SHUTTLE_FACTORY_COLLECTION_NAME);
