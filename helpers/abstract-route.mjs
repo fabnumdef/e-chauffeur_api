@@ -46,7 +46,14 @@ export function addCreateToRouter(Model, {
 
       if (!autoGenId) {
         if (await Model.findById(body.id)) {
-          ctx.throw_and_log(409, `${Model.modelName} "${body.id}" already exists`);
+          ctx.log.error(`${Model.modelName} "${body.id}" already exists`);
+          ctx.throw(
+            409,
+            ctx.translate(
+              'mongoose.errors.AlreadyExists',
+              { model: ctx.translate(`mongoose.models.${Model.modelName}`), id: body.id },
+            ),
+          );
         }
 
         Object.assign(body, { _id: body.id });

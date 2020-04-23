@@ -6,12 +6,14 @@
   },
   "mongoose": {
     "errors": {
-      "ValidationError": "Erreur lors de la validation du modèle `{model}`, vérifiez les données."
+      "ValidationError": "Erreur lors de la validation du modèle `{model}`, vérifiez les données.",
+      "AlreadyExists": "La donnée \"{id}\" ({model}) existe déjà."
     },
     "models": {
       "Campus": "Base",
       "User": "Utilisateur",
-      "Category": "Catégorie"
+      "Category": "Catégorie",
+      "CarModel": "Modèle de véhicule"
     },
     "validators": {
       "required": "La donnée `{field}` est requise.",
