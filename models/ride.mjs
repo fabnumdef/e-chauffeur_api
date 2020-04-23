@@ -8,7 +8,7 @@ import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from '.
 import stateMachine, {
   DRAFTED,
   DELIVERED,
-  CANCELABLE,
+  CANCELABLE, CREATED,
 } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
@@ -143,7 +143,7 @@ RideSchema.pre('validate', async function beforeSave() {
     throw new Error('End date should be higher than start date');
   }
 
-  if (this.status && this.status !== DRAFTED && !this.car._id) {
+  if (this.status && this.status !== DRAFTED && this.status !== CREATED && !this.car._id) {
     const err = new Error();
     err.status = 422;
     err.message = 'Car must be provided';
