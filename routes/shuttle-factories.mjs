@@ -1,5 +1,5 @@
 import generateCRUD from '../helpers/abstract-route';
-import Pattern from '../models/pattern';
+import ShuttleFactory from '../models/shuttle-factory';
 import {
   CAN_CREATE_PATTERN,
   CAN_LIST_PATTERN,
@@ -10,7 +10,7 @@ import {
 import maskOutput from '../middlewares/mask-output';
 
 // @todo write tests for these routes
-const router = generateCRUD(Pattern, {
+const router = generateCRUD(ShuttleFactory, {
   create: { right: CAN_CREATE_PATTERN },
   list: {
     right: CAN_LIST_PATTERN,

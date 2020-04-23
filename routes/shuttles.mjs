@@ -16,10 +16,8 @@ import {
 import maskOutput from '../middlewares/mask-output';
 import { ensureThatFiltersExists } from '../middlewares/query-helper';
 import ioEmitMiddleware from '../middlewares/io-emit';
-import { getPrefetchedDocument, prefetchMiddleware } from '../helpers/prefetch-document';
-import { SHUTTLE_MODEL_NAME } from '../models/helpers/constants';
+import { prefetchMiddleware } from '../helpers/prefetch-document';
 
-// @todo write tests for these routes
 const SHUTTLE_UPDATE_EVENT = 'shuttleUpdate';
 
 const router = generateCRUD(Shuttle, {
@@ -70,7 +68,7 @@ const router = generateCRUD(Shuttle, {
     async main(ctx) {
       const { body } = ctx.request;
       const { id } = ctx.params;
-      const shuttle = getPrefetchedDocument(ctx, id, SHUTTLE_MODEL_NAME);
+      const shuttle = ctx.getPrefetchedDocument(id, Shuttle);
       if (!ctx.may(CAN_EDIT_RIDE)) {
         ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
       }
@@ -86,10 +84,5 @@ const router = generateCRUD(Shuttle, {
     right: CAN_DELETE_SHUTTLE,
   },
 });
-
-/*
-* @todo specific shuttle routes :
-*   - GET position
-* */
 
 export default router;

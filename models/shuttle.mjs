@@ -1,15 +1,13 @@
 import mongoose from 'mongoose';
-import nanoid from 'nanoid';
 import {
-  SHUTTLE_COLLECTION_NAME, SHUTTLE_MODEL_NAME,
-  GEO_TRACKING_MODEL_NAME, WEEKLY, MONTHLY,
+  SHUTTLE_COLLECTION_NAME, SHUTTLE_MODEL_NAME, WEEKLY, MONTHLY,
 } from './helpers/constants';
 import { CREATED } from './status';
 import cleanObjectPlugin from './helpers/object-cleaner';
 import config from '../services/config';
 import HttpError from '../helpers/http-error';
 import User from './user';
-import Pattern from './pattern';
+import ShuttleFactory from './shuttle-factory';
 import Campus from './campus';
 import Car from './car';
 import { compareTokens, getClientURL } from './helpers/custom-methods';
@@ -26,10 +24,6 @@ const ShuttleSchema = new Schema({
   label: {
     type: String,
     required: true,
-  },
-  token: {
-    type: String,
-    default: () => nanoid(12),
   },
   status: { type: String, default: CREATED },
   // @todo set stateMachine
@@ -50,10 +44,10 @@ const ShuttleSchema = new Schema({
       alias: 'campus.id',
     },
   },
-  pattern: {
+  shuttleFactory: {
     _id: {
       type: Types.ObjectId,
-      alias: 'pattern.id',
+      alias: 'shuttleFactory.id',
     },
     label: {
       type: String,
@@ -70,30 +64,38 @@ const ShuttleSchema = new Schema({
       },
     }],
   },
-  comments: String,
-  stops: [{
+  passengers: [{
     _id: {
-      type: String,
-      required: true,
+      type: Types.ObjectId,
       alias: 'id',
     },
-    label: {
+    email: {
       type: String,
       required: true,
     },
-    passengers: [{
+    firstname: String,
+    lastname: String,
+    phone: String,
+    departure: {
       _id: {
-        type: Types.ObjectId,
-        alias: 'id',
-      },
-      email: {
         type: String,
         required: true,
+        alias: 'departure.id',
       },
-      firstname: String,
-      lastname: String,
-      phone: String,
-    }],
+      label: {
+        type: String,
+      },
+    },
+    arrival: {
+      _id: {
+        type: String,
+        required: true,
+        alias: 'arrival.id',
+      },
+      label: {
+        type: String,
+      },
+    },
   }],
   driver: {
     _id: {
@@ -112,6 +114,7 @@ const ShuttleSchema = new Schema({
       capacity: { type: Number },
     },
   },
+  comments: String,
   recurrence: {
     enabled: Boolean,
     withData: Boolean,
@@ -141,38 +144,34 @@ ShuttleSchema.pre('validate', async function beforeSave() {
     throw new HttpError(400, 'End date should be after start date');
   }
 
-  const campus = await Campus.findById(this.campus.id);
+  const campus = await Campus.findById(this.campus._id);
   if (!campus) {
     throw new HttpError(404, 'Campus not found');
   }
 
-  if (this.pattern && this.pattern.id) {
-    const pattern = await Pattern.findById(this.pattern.id);
-    if (!pattern) {
+  if (this.shuttleFactory && this.shuttleFactory._id) {
+    const shuttleFactory = await ShuttleFactory.findById(this.shuttleFactory._id);
+    if (!shuttleFactory) {
       throw new HttpError(404, 'Pattern not found');
     }
-    this.pattern = {
-      id: pattern.id,
-      label: pattern.label,
-      stops: [...pattern.stops],
-    };
+    this.shuttleFactory = shuttleFactory;
   }
 
   if (this.stops && this.stops.length > 0) {
-    if (!this.pattern) {
-      throw new HttpError(400, 'Stops are based on pattern');
+    if (!this.shuttleFactory) {
+      throw new HttpError(400, 'Stops are based on shuttleFactory');
     }
 
     this.stops = await Promise.all(this.stops.map(async (stop, index) => {
-      if (!stop.id || !stop.label) {
+      if (!stop._id || !stop.label) {
         throw new HttpError(400, 'Stop must provide id and label');
       }
-      if (stop.id !== this.pattern.stops[index].id || stop.label !== this.pattern.stops[index].label) {
+      if (stop._id !== this.shuttleFactory.stops[index]._id || stop.label !== this.shuttleFactory.stops[index].label) {
         throw new HttpError(404, 'Id or label not found');
       }
 
       const validatedStop = {
-        id: stop.id,
+        _id: stop._id,
         label: stop.label,
       };
       if (stop.passengers && stop.passengers.length > 0) {
@@ -186,60 +185,38 @@ ShuttleSchema.pre('validate', async function beforeSave() {
           const passenger = await User.findOne({ email: p.email });
           if (passenger) {
             return {
-              id: passenger.id,
-              email: passenger.email,
-              firstname: passenger.firstname,
-              lastname: passenger.lastname,
+              ...passenger,
               phone: passenger.phone || p.phone,
             };
           }
-          return {
-            email: p.email,
-            phone: p.phone,
-          };
+          return p;
         }));
       }
       return validatedStop;
     }));
   }
 
-  if (this.driver && this.driver.id) {
-    const driver = await User.findById(this.driver.id);
+  if (this.driver && this.driver._id) {
+    const driver = await User.findById(this.driver._id);
     if (!driver) {
       throw new HttpError(404, 'Driver not found');
     }
-    if (!driver.heavyLicence) {
+    if (!driver.licences.includes('D')) {
       throw new HttpError(400, 'Wrong licence');
     }
 
-    this.driver = {
-      id: driver.id,
-      firstname: driver.firstname,
-      lastname: driver.lastname,
-    };
+    this.driver = driver;
   }
 
-  if (this.car && this.car.id) {
-    const car = await Car.findById(this.car.id);
+  if (this.car && this.car._id) {
+    const car = await Car.findById(this.car._id);
     if (!car) {
       throw new HttpError(404, 'Car not found');
     }
 
-    this.car = {
-      id: car.id,
-      label: car.label,
-      model: { ...car.model },
-    };
+    this.car = car;
   }
 });
-
-ShuttleSchema.statics.castId = (v) => {
-  try {
-    return new Types.ObjectId(v);
-  } catch (e) {
-    return new Types.ObjectId(Buffer.from(v, 'base64').toString('hex'));
-  }
-};
 
 ShuttleSchema.statics.generateFilters = function generateFilters(rawFilters, queryFilter, ...rest) {
   const filter = {
@@ -305,26 +282,6 @@ ShuttleSchema.statics.findWithin = function findWithin(...params) {
 
 ShuttleSchema.statics.countDocumentsWithin = function countDocumentsWithin(...params) {
   return this.countDocuments(this.generateFilters(...params));
-};
-
-ShuttleSchema.methods.findDriverPosition = async function findDriverPosition() {
-  const GeoTracking = mongoose.model(GEO_TRACKING_MODEL_NAME);
-  const [position = null] = await GeoTracking.aggregate([
-    {
-      $match: { 'driver._id': this.driver._id },
-    },
-    { $unwind: '$positions' },
-    {
-      $project: {
-        driver: '$driver._id',
-        position: '$positions.location',
-        date: '$positions._id',
-      },
-    },
-    { $sort: { date: -1 } },
-    { $limit: 1 },
-  ]).allowDiskUse(true);
-  return position;
 };
 
 ShuttleSchema.methods.sendSMS = async function sendUserSMS(body) {

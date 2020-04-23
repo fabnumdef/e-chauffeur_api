@@ -101,10 +101,11 @@ const UserSchema = new Schema({
       default: false,
     },
   },
-  heavyLicence: {
-    type: Boolean,
-    default: false,
-  },
+  licences: [{
+    type: String,
+    enum: ['B', 'C', 'D'],
+    default: 'B',
+  }],
   gprd: {
     type: Date,
     validate: {

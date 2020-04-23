@@ -3,12 +3,13 @@ import { RIDE_MODEL_NAME, SHUTTLE_MODEL_NAME } from '../models/helpers/constants
 const PREFETCH_RIDE_KEY = Symbol('prefetched-ride');
 const PREFETCH_SHUTTLE_KEY = Symbol('prefetched-shuttle');
 
-export const getPrefetchedDocument = (ctx, id, modelName) => {
+export const getPrefetchedDocument = function getPrefetchedDocument(id, Model) {
+  const { modelName } = Model;
   switch (modelName) {
     case RIDE_MODEL_NAME:
-      return ctx.state[PREFETCH_RIDE_KEY][id];
+      return this.state[PREFETCH_RIDE_KEY][id];
     case SHUTTLE_MODEL_NAME:
-      return ctx.state[PREFETCH_SHUTTLE_KEY][id];
+      return this.state[PREFETCH_SHUTTLE_KEY][id];
     default:
       return null;
   }
@@ -18,6 +19,8 @@ export const prefetchMiddleware = (Model) => async (ctx, next) => {
   const { modelName } = Model;
   const { id } = ctx.params;
   let key;
+
+  ctx.getPrefetchedDocument = getPrefetchedDocument;
 
   if (modelName === RIDE_MODEL_NAME) {
     key = PREFETCH_RIDE_KEY;

@@ -36,14 +36,13 @@ router.get(
 
     if ((ctx.query && ctx.query.filters)
       && (ctx.query.filters.start && ctx.query.filters.end)) {
-      const options = {
-        start: new Date(ctx.query.filters.start),
-        end: new Date(ctx.query.filters.end),
-        onlyHeavyLicences: ctx.query.filters.onlyHeavyLicences,
-      };
       data = await Campus.findDriversInDateInterval(ctx.params.campus_id,
-        options,
-        { offset, limit });
+        {
+          start: new Date(ctx.query.filters.start),
+          end: new Date(ctx.query.filters.end),
+        },
+        { offset, limit },
+        { onlyHeavyLicences: ctx.query.filters.onlyHeavyLicences });
     } else {
       data = await Campus.findDrivers(ctx.params.campus_id, { offset, limit });
     }
