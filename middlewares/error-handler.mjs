@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import lmapKeys from 'lodash.mapkeys';
 import lmapValues from 'lodash.mapvalues';
 import APIError from '../helpers/api-error';
+import TranslatableMessage from '../helpers/translatable-message';
 
 const { ValidationError } = mongoose.Error;
 function normalizeErrors(errors, transformMessage) {
@@ -40,9 +41,14 @@ export default async (ctx, next) => {
         ),
         errors: normalizeErrors(
           err.errors,
-          ({ kind, path }) => ctx.translate(
-            `mongoose.validators.${kind}`,
-            { field: ctx.translate(`mongoose.paths.${path}`) },
+          ({ kind, path, message }) => ctx.translate(
+            ...(
+              message instanceof TranslatableMessage
+                ? message.toTranslationParameters()
+                : [`mongoose.validators.${kind}`,
+                  { field: ctx.translate(`mongoose.paths.${path}`) }]
+            )
+            ,
           ),
         ),
       };

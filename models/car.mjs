@@ -8,7 +8,7 @@ const { Interval } = Luxon;
 const { Schema } = mongoose;
 
 const CarSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   label: { type: String, required: true },
   model: {
     _id: { type: String, required: true },

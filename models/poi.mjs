@@ -6,7 +6,7 @@ import { POI_COLLECTION_NAME, POI_MODEL_NAME } from './helpers/constants';
 const { Schema } = mongoose;
 
 const PoiSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   label: String,
   location: {
     type: {

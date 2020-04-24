@@ -7,7 +7,8 @@
   "mongoose": {
     "errors": {
       "ValidationError": "Erreur lors de la validation du modèle `{model}`, vérifiez les données.",
-      "AlreadyExists": "La donnée \"{id}\" ({model}) existe déjà."
+      "AlreadyExists": "La donnée \"{id}\" ({model}) existe déjà.",
+      "EmailNotWhiteListed": "Le courriel \"{email}\" n'est pas autorisé à s'inscrire, il doit finir par \"{whitelistedDomains}\""
     },
     "models": {
       "Campus": "Base",
@@ -16,11 +17,14 @@
       "CarModel": "Modèle de véhicule"
     },
     "validators": {
+      "regexp": "La donnée `{field}` est invalide.",
       "required": "La donnée `{field}` est requise.",
       "password_security_criteria": "Le champ `{field}` ne valide pas les critères de sécurité (8 caractères minimum)"
     },
     "paths": {
+      "email": "Adresse électronique",
       "password": "Mot de passe",
+      "firstname": "Prénom",
       "name": "Nom",
       "location.coordinates": "Coordonnées",
       "label": "Label",
