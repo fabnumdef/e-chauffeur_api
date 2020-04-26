@@ -42,6 +42,10 @@ CarSchema.virtual('model.id')
 CarSchema.index({
   _id: 'text',
   label: 'text',
+  'campus._id': 'text',
+  'campus.name': 'text',
+  'model._id': 'text',
+  'model.label': 'text',
 });
 
 CarSchema.methods.getAvailabilities = function isAvailable(start, end, events) {

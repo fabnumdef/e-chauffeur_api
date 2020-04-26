@@ -14,7 +14,10 @@
       "Campus": "Base",
       "User": "Utilisateur",
       "Category": "Catégorie",
-      "CarModel": "Modèle de véhicule"
+      "CarModel": "Modèle de véhicule",
+      "PhoneModel": "Modèle de téléphone",
+      "Car": "Véhicule",
+      "Phone": "Téléphone"
     },
     "validators": {
       "regexp": "La donnée `{field}` est invalide.",
@@ -28,7 +31,8 @@
       "name": "Nom",
       "location.coordinates": "Coordonnées",
       "label": "Label",
-      "id": "Identificateur"
+      "id": "Identificateur",
+      "model._id": "Modèle"
     }
   },
   "import": {

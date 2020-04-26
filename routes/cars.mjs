@@ -6,6 +6,7 @@ import {
 import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import searchQuery from '../middlewares/search-query';
 
 const router = generateCRUD(Car, {
   create: {
@@ -19,6 +20,7 @@ const router = generateCRUD(Car, {
     middlewares: [
       contentNegociation,
       maskOutput,
+      searchQuery,
     ],
   },
   get: {
