@@ -122,8 +122,8 @@ CampusSchema.statics.findUsers = async function findUsers(campus, pagination, fi
   return User.find(f);
 };
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
-  return CampusSchema.statics.findUsers(campus, pagination, driverFilter());
+CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination, filters = {}) {
+  return CampusSchema.statics.findUsers(campus, pagination, Object.assign(driverFilter(), filters));
 };
 
 CampusSchema.statics.findUser = async function findUser(campus, id, filters = {}) {
@@ -136,10 +136,15 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
   return CampusSchema.statics.findUser(campus, id, driverFilter());
 };
 
-CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
+CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(
+  campus,
+  date,
+  pagination,
+  filters,
+) {
   const TimeSlot = mongoose.model(TIME_SLOT_MODEL_NAME);
   const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus }, drivers: { $ne: null } });
-  const users = await CampusSchema.statics.findDrivers(campus, pagination);
+  const users = await CampusSchema.statics.findDrivers(campus, pagination, filters);
 
   return users.map((u) => {
     const availabilities = slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id)));
