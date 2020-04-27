@@ -26,6 +26,10 @@ const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
 
+function isValidated(status) {
+  return ![DRAFTED, CREATED].includes(status);
+}
+
 const RideSchema = new Schema({
   token: {
     type: String,
@@ -143,7 +147,7 @@ RideSchema.pre('validate', async function beforeSave() {
     throw new Error('End date should be higher than start date');
   }
 
-  if (this.status && this.status !== DRAFTED && this.status !== CREATED && !this.car._id) {
+  if (isValidated(this.status) && !this.car._id) {
     const err = new Error();
     err.status = 422;
     err.message = 'Car must be provided';
@@ -208,7 +212,7 @@ RideSchema.pre('validate', async function beforeSave() {
     })(mongoose.model(POI_MODEL_NAME)),
   ]);
 
-  if (this.status && this.status !== DRAFTED) {
+  if (isValidated(this.status)) {
     const carCapacity = this.car.model.capacity || 3;
     if (this.passengersCount > carCapacity) {
       const err = new Error();
