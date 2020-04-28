@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include ".helm-chart.fullname" . }}
+  labels:
+{{ include ".helm-chart.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ include ".helm-chart.chart" . }}"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: {{ include ".helm-chart.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["run", "mongoose:sync-indexes"]
+          env:
+            - name: MONGODB
+              value: "{{ .Values.env.MONGODB }}"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

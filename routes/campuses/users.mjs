@@ -14,6 +14,8 @@ import User from '../../models/user';
 import config from '../../services/config';
 import { csvToJson } from '../../middlewares/csv-to-json';
 import contentNegociation from '../../middlewares/content-negociation';
+import searchQuery from '../../middlewares/search-query';
+import initFilters from '../../middlewares/init-filters';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -24,12 +26,14 @@ const addDomainInError = (e) => [
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_USER),
+  initFilters,
   contentNegociation,
   maskOutput,
+  searchQuery,
   async (ctx) => {
     const { offset, limit } = ctx.parseRangePagination(User, { max: 30 });
-    const total = await Campus.countUsers(ctx.params.campus_id);
-    const data = await Campus.findUsers(ctx.params.campus_id, { offset, limit });
+    const total = await Campus.countUsers(ctx.params.campus_id, ctx.filters);
+    const data = await Campus.findUsers(ctx.params.campus_id, { offset, limit }, ctx.filters);
     ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },

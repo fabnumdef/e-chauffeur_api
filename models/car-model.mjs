@@ -10,9 +10,10 @@ import {
 const { Schema } = mongoose;
 
 const CarModelSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   label: {
     type: String,
+    required: true,
   },
   capacity: {
     type: Number,
@@ -27,6 +28,7 @@ CarModelSchema.plugin(addCSVContentPlugin);
 CarModelSchema.index({
   _id: 'text',
   label: 'text',
+  capacity: 'text',
 });
 
 CarModelSchema.statics.getDashedName = () => CAR_MODEL_DASHED_NAME;

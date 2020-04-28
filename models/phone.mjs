@@ -40,5 +40,14 @@ const PhoneSchema = new Schema({
 
 PhoneSchema.plugin(createdAtPlugin);
 PhoneSchema.plugin(addCSVContentPlugin);
-
+PhoneSchema.index({
+  _id: 'text',
+  number: 'text',
+  state: 'text',
+  imei: 'text',
+  'campus._id': 'text',
+  'campus.name': 'text',
+  'model._id': 'text',
+  'model.label': 'text',
+});
 export default mongoose.model(PHONE_MODEL_NAME, PhoneSchema, PHONE_COLLECTION_NAME);

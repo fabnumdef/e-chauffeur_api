@@ -15,6 +15,7 @@ import {
 } from '../models/rights';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import searchQuery from '../middlewares/search-query';
 import { emitDriverConnection } from '../middlewares/drivers-socket-status';
 
 const BASIC_OUTPUT_MASK = '_id,id,name,location(coordinates),phone(everybody),defaultReservationScope';
@@ -27,14 +28,7 @@ const router = generateCRUD(Campus, {
     middlewares: [
       contentNegociation,
       maskOutput,
-      async (ctx, next) => {
-        const searchParams = {};
-        if (ctx.query && ctx.query.search) {
-          searchParams.$text = { $search: ctx.query.search };
-        }
-        ctx.filters = searchParams;
-        await next();
-      },
+      searchQuery,
       async (ctx, next) => {
         await next();
         if (!ctx.may(CAN_LIST_CAMPUS)) {

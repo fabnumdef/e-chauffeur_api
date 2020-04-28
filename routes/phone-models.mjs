@@ -11,6 +11,7 @@ import {
 } from '../models/rights';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import searchQuery from '../middlewares/search-query';
 
 const router = generateCRUD(PhoneModel, {
   create: {
@@ -20,6 +21,7 @@ const router = generateCRUD(PhoneModel, {
     middlewares: [
       contentNegociation,
       maskOutput,
+      searchQuery,
     ],
     right: CAN_LIST_PHONE_MODEL,
   },

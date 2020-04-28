@@ -16,7 +16,8 @@ import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-sta
 import config from '../../services/config';
 import contentNegociation from '../../middlewares/content-negociation';
 import { ROLE_DRIVER_NAME } from '../../models/role';
-
+import searchQuery from '../../middlewares/search-query';
+import initFilters from '../../middlewares/init-filters';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -27,9 +28,12 @@ const addDomainInError = (e) => [
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_DRIVER),
+  initFilters,
   contentNegociation,
   maskOutput,
+  searchQuery,
   async (ctx) => {
+    // @todo: fix & refactor this
     let data;
     const { offset, limit } = ctx.parseRangePagination(User, { max: 1000 });
     const total = await Campus.countDrivers(ctx.params.campus_id);
@@ -40,11 +44,13 @@ router.get(
       const end = new Date(ctx.query.filters.end);
       data = await Campus.findDriversInDateInterval(ctx.params.campus_id,
         { start, end },
-        { offset, limit });
+        { offset, limit },
+        ctx.filters);
     } else {
-      data = await Campus.findDrivers(ctx.params.campus_id, { offset, limit });
+      data = await Campus.findDrivers(ctx.params.campus_id, { offset, limit }, ctx.filters);
     }
 
+    // @todo: Inaccurate count
     ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },

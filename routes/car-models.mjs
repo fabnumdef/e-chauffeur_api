@@ -10,6 +10,7 @@ import {
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 import { csvToJson } from '../middlewares/csv-to-json';
+import searchQuery from '../middlewares/search-query';
 
 const router = generateCRUD(CarModel, {
   create: {
@@ -19,6 +20,7 @@ const router = generateCRUD(CarModel, {
     middlewares: [
       contentNegociation,
       maskOutput,
+      searchQuery,
     ],
     right: CAN_LIST_CAR_MODEL,
   },

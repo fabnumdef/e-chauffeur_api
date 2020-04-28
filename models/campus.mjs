@@ -17,7 +17,7 @@ const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { Schema } = mongoose;
 
 const CampusSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   categories: [{
     _id: { type: String, required: true, alias: 'id' },
@@ -48,9 +48,7 @@ const CampusSchema = new Schema({
   },
   defaultRideDuration: {
     type: Number,
-    validate(v) {
-      return [15, 20, 30, 60].indexOf(v) > -1;
-    },
+    enum: [15, 20, 30, 60],
     default: 30,
   },
   defaultReservationScope: {
@@ -64,6 +62,11 @@ const CampusSchema = new Schema({
     },
     coordinates: {
       type: [Number],
+      required: true,
+      validate(v) {
+        return v.length === 2;
+      },
+      message: () => 'invalid_coordinates',
     },
   },
   phone: {
@@ -77,9 +80,7 @@ const CampusSchema = new Schema({
       validator(v) {
         return !v || timezoneValidator(v);
       },
-      message({ value }) {
-        return `"${value}" seems to don't be a valid timezone`;
-      },
+      message: () => 'invalid_timezone',
     },
   },
 });
@@ -89,6 +90,9 @@ CampusSchema.plugin(createdAtPlugin);
 CampusSchema.index({
   _id: 'text',
   name: 'text',
+  'phone.everybody': 'text',
+  'categories._id': 'text',
+  'categories.label': 'text',
 });
 
 const campusFilter = (campus) => ({
@@ -97,16 +101,6 @@ const campusFilter = (campus) => ({
 
 const driverFilter = () => ({
   'roles.role': 'ROLE_DRIVER',
-});
-
-CampusSchema.pre('validate', function preValidate(next) {
-  if (this.location.coordinates.length !== 2) {
-    const err = new Error();
-    err.status = 422;
-    err.message = 'location is required to save campus';
-    throw err;
-  }
-  next();
 });
 
 CampusSchema.statics.countUsers = async function countUsers(campus, filters = {}) {
@@ -128,8 +122,8 @@ CampusSchema.statics.findUsers = async function findUsers(campus, pagination, fi
   return User.find(f);
 };
 
-CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination) {
-  return CampusSchema.statics.findUsers(campus, pagination, driverFilter());
+CampusSchema.statics.findDrivers = async function findDrivers(campus, pagination, filters = {}) {
+  return CampusSchema.statics.findUsers(campus, pagination, Object.assign(driverFilter(), filters));
 };
 
 CampusSchema.statics.findUser = async function findUser(campus, id, filters = {}) {
@@ -142,10 +136,15 @@ CampusSchema.statics.findDriver = async function findDriver(campus, id) {
   return CampusSchema.statics.findUser(campus, id, driverFilter());
 };
 
-CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(campus, date, pagination) {
+CampusSchema.statics.findDriversInDateInterval = async function findDriversInDateInterval(
+  campus,
+  date,
+  pagination,
+  filters,
+) {
   const TimeSlot = mongoose.model(TIME_SLOT_MODEL_NAME);
   const slots = await TimeSlot.findWithin(date.start, date.end, { campus: { _id: campus }, drivers: { $ne: null } });
-  const users = await CampusSchema.statics.findDrivers(campus, pagination);
+  const users = await CampusSchema.statics.findDrivers(campus, pagination, filters);
 
   return users.map((u) => {
     const availabilities = slots.filter((s) => s.drivers.find((d) => d._id.equals(u._id)));

@@ -6,7 +6,7 @@ import { POI_COLLECTION_NAME, POI_MODEL_NAME } from './helpers/constants';
 const { Schema } = mongoose;
 
 const PoiSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   label: String,
   location: {
     type: {
@@ -80,6 +80,8 @@ PoiSchema.statics.findWithin = function findWithin(...params) {
 PoiSchema.index({
   _id: 'text',
   label: 'text',
+  'campus._id': 'text',
+  'campus.name': 'text',
 });
 
 export default mongoose.model(POI_MODEL_NAME, PoiSchema, POI_COLLECTION_NAME);

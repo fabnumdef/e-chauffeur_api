@@ -30,7 +30,9 @@ import {
 } from './rights';
 import * as rolesImport from './role';
 import { CAMPUS_MODEL_NAME, USER_COLLECTION_NAME, USER_MODEL_NAME } from './helpers/constants';
+import TranslatableMessage from '../helpers/translatable-message';
 
+const { ValidationError, ValidatorError } = mongoose.Error;
 const { DateTime } = Luxon;
 const { normalizeEmail } = validator;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
@@ -64,6 +66,9 @@ const UserSchema = new Schema({
     maxlength: 256,
     validate: {
       async validator(v) {
+        if (!v) {
+          return false;
+        }
         if (![]
           .concat(config.get('whitelist_domains'))
           .reduce((acc, cur) => acc || v.endsWith(cur), false)) {
@@ -73,11 +78,21 @@ const UserSchema = new Schema({
         if (domain === 'localhost') {
           return true;
         }
-        const addresses = await resolveDNS(domain, 'MX');
-        return addresses && addresses.length > 0;
+        try {
+          const addresses = await resolveDNS(domain, 'MX');
+          return addresses && addresses.length > 0;
+        } catch (e) {
+          return false;
+        }
       },
-      message({ value }) {
-        return `"${value}" should ends with ${config.get('whitelist_domains').join(', ')}`;
+      message(props) {
+        // We've to override the props object to hack mongoose
+        // eslint-disable-next-line no-param-reassign
+        props.type = 'email_whitelist_domains';
+        return new TranslatableMessage(
+          'mongoose.errors.EmailNotWhiteListed',
+          { email: props.value, whitelistedDomains: config.get('whitelist_domains').join(', ') },
+        );
       },
     },
     index: { unique: true },
@@ -86,7 +101,9 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  firstname: String,
+  firstname: {
+    type: String,
+  },
   lastname: String,
   password: {
     type: String,
@@ -138,6 +155,14 @@ UserSchema.plugin(createdAtPlugin);
 UserSchema.plugin(cleanObjectPlugin, USER_MODEL_NAME);
 UserSchema.plugin(addCSVContentPlugin);
 
+UserSchema.index({
+  _id: 'text',
+  firstname: 'text',
+  lastname: 'text',
+  email: 'text',
+  'phone.canonical': 'text',
+});
+
 UserSchema.pre('validate', function preValidate() {
   if (this.isModified('email')) {
     this.email = normalizeEmail(this.email);
@@ -164,7 +189,14 @@ UserSchema.pre('save', function preSave(next) {
   }
 
   if (!PASSWORD_TEST.test(this.password)) {
-    throw new Error('Password should match security criteria');
+    const validationError = new ValidationError(this);
+    const path = 'password';
+    validationError.addError('password', new ValidatorError({
+      path,
+      message: 'password_security_criteria',
+      type: 'password_security_criteria',
+    }));
+    throw validationError;
   }
 
   bcrypt

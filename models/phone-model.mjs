@@ -6,7 +6,7 @@ import { PHONE_MODEL_DASHED_NAME, PHONE_MODEL_COLLECTION_NAME, PHONE_MODEL_MODEL
 const { Schema } = mongoose;
 
 const PhoneModelSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   label: String,
 });
 

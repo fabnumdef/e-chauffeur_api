@@ -12,16 +12,12 @@ import {
   CAN_REMOVE_USER, CAN_REMOVE_SELF_USER,
   CAN_EDIT_USER_WITHOUT_UPPER_RIGHTS,
 } from '../models/rights';
-import config from '../services/config';
 import { csvToJson } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import searchQuery from '../middlewares/search-query';
 
 const X_SEND_TOKEN = 'x-send-token';
-const addDomainInError = (e) => [
-  400,
-  e.errors ? { whitelistDomains: config.get('whitelist_domains'), errors: e.errors } : e,
-];
 const router = generateCRUD(User, {
   create: {
     right: [CAN_CREATE_USER, CAN_SEND_CREATION_TOKEN],
@@ -41,52 +37,52 @@ const router = generateCRUD(User, {
       }
 
       const emailO = { email: body.email };
-      const userExists = await User.findByEmail(body.email);
+      let userExists;
+      try {
+        userExists = await User.findByEmail(body.email);
+      } catch (e) {
+        // Do nothing, user will stay undefined
+      }
       if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false') && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
           const { token } = await userExists.generateResetToken(emailO);
-          try {
-            await userExists.save();
-          } catch (e) {
-            ctx.throw_and_log(...addDomainInError(e));
-          }
+          await userExists.save();
           await userExists.sendResetPasswordMail(token);
           ctx.log.info(`Password reset requested by ${body.email}.`);
         } else {
           const user = new User(emailO);
           const { token } = await user.generateResetToken(emailO);
-          try {
-            await user.save();
-          } catch (e) {
-            ctx.throw_and_log(...addDomainInError(e));
-          }
+          await user.save();
           await user.sendRegistrationTokenMail(token);
           ctx.log.info(`User creation requested by ${body.email}.`);
         }
         ctx.status = 204;
       } else if (ctx.may(CAN_CREATE_USER)) {
         if (userExists) {
-          ctx.throw_and_log(409, `User email ${body.email} already existing.`);
+          ctx.log.error(`${User.modelName} "${body.email}" already exists`);
+          ctx.throw(
+            409,
+            ctx.translate(
+              'mongoose.errors.AlreadyExists',
+              { model: ctx.translate(`mongoose.models.${User.modelName}`), id: body.email },
+            ),
+          );
         }
-        try {
-          if (body.roles) {
-            const bodyWithoutRole = { ...body };
-            delete bodyWithoutRole.roles;
-            const user = new User(bodyWithoutRole);
-            ctx.assert(
-              user.checkRolesRightsIter(body.roles || [])
-                .reduce(
-                  (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), !(cur.length > 0)) && acc,
-                  true,
-                ),
-              403,
-              'You\'re not authorized to create this user',
-            );
-          }
-          ctx.body = await User.create(body);
-        } catch (e) {
-          ctx.throw_and_log(...addDomainInError(e));
+        if (body.roles) {
+          const bodyWithoutRole = { ...body };
+          delete bodyWithoutRole.roles;
+          const user = new User(bodyWithoutRole);
+          ctx.assert(
+            user.checkRolesRightsIter(body.roles || [])
+              .reduce(
+                (acc, cur) => cur.reduce((a, c) => a || ctx.may(...[].concat(c)), !(cur.length > 0)) && acc,
+                true,
+              ),
+            403,
+            'You\'re not authorized to create this user',
+          );
         }
+        ctx.body = await User.create(body);
         ctx.log.info(`${User.modelName} "${body.id}" has been created`);
       } else {
         ctx.status = 403;
@@ -106,21 +102,7 @@ const router = generateCRUD(User, {
     middlewares: [
       contentNegociation,
       maskOutput,
-      async (ctx, next) => {
-        const searchParams = {};
-        if (ctx.query && ctx.query.search) {
-          searchParams.$or = [
-            {
-              _id: new RegExp(ctx.query.search, 'i'),
-            },
-            {
-              name: new RegExp(ctx.query.search, 'i'),
-            },
-          ];
-        }
-        ctx.filters = searchParams;
-        await next();
-      },
+      searchQuery,
     ],
     lean: false,
   },
@@ -213,20 +195,12 @@ const router = generateCRUD(User, {
         const toSend = ctx.headers[X_SEND_TOKEN].split(',');
         if (toSend.includes('email') && !user.email_confirmed) {
           const { token } = await user.generateResetToken({ email: user.email });
-          try {
-            await user.save();
-          } catch (e) {
-            ctx.throw_and_log(...addDomainInError(e));
-          }
+          await user.save();
           await user.sendVerificationMail(token);
         }
         if (toSend.includes('phone') && !user.phone.confirmed) {
           const { token } = await user.generateResetToken({ phone: user.phone.canonical });
-          try {
-            await user.save();
-          } catch (e) {
-            ctx.throw_and_log(...addDomainInError(e));
-          }
+          await user.save();
           await user.sendVerificationSMS(token);
         }
       }
