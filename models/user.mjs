@@ -103,7 +103,6 @@ const UserSchema = new Schema({
   },
   firstname: {
     type: String,
-    required: true,
   },
   lastname: String,
   password: {
