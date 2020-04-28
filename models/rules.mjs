@@ -45,20 +45,16 @@ export const roleEditingRule = ruleGenerator((
 ) => campusId && !!campuses.find((c) => c._id === campusId));
 
 export const tokenRideRule = ruleGenerator((_, ctx) => {
-  // eslint-disable-next-line no-unused-vars,prefer-const
-  let [, modelName] = ctx.url.split('/');
+  const [, modelName] = ctx.url.split('/');
   const Model = mongoose.model(modelName);
-  // modelName = modelName[0].toUpperCase() + modelName.slice(1, -1);
   const ride = getPrefetchedDocument.call(ctx, ctx.params.id, Model);
   return ride.token === ctx.query.token;
 });
 
 export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
   const { user } = ctx.state;
-  // eslint-disable-next-line no-unused-vars,prefer-const
-  let [, modelName] = ctx.url.split('/');
+  const [, modelName] = ctx.url.split('/');
   const Model = mongoose.model(modelName);
-  // modelName = modelName[0].toUpperCase() + modelName.slice(1, -1);
   const ride = entity || getPrefetchedDocument.call(ctx, ctx.params.id, Model);
   return ride.owner && ride.owner.id && ride.owner.id.toString() === user.id;
 });

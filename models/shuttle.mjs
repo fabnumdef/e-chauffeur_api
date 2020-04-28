@@ -15,6 +15,7 @@ import { compareTokens, getClientURL } from './helpers/custom-methods';
 import { sendSMS } from '../services/twilio';
 
 const { Schema, model, Types } = mongoose;
+
 const log = pino();
 
 const ShuttleSchema = new Schema({
@@ -294,7 +295,6 @@ ShuttleSchema.methods.sendSMS = async function sendUserSMS(body) {
       }
     } catch (e) {
       // Silent error
-      // eslint-disable-next-line no-console
       log.error(e);
     }
     return null;

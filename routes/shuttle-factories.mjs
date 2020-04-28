@@ -9,7 +9,6 @@ import {
 } from '../models/rights';
 import maskOutput from '../middlewares/mask-output';
 
-// @todo write tests for these routes
 const router = generateCRUD(ShuttleFactory, {
   create: { right: CAN_CREATE_PATTERN },
   list: {
