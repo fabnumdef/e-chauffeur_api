@@ -41,7 +41,7 @@ const router = generateCRUD(User, {
       try {
         userExists = await User.findByEmail(body.email);
       } catch (e) {
-        // Do nothing, use will stay undefined
+        // Do nothing, user will stay undefined
       }
       if ((ctx.headers[X_SEND_TOKEN] && ctx.headers[X_SEND_TOKEN] !== 'false') && ctx.may(CAN_SEND_CREATION_TOKEN)) {
         if (userExists) {
