@@ -10,7 +10,7 @@ const { Interval } = Luxon;
 const { Schema } = mongoose;
 
 const CarSchema = new Schema({
-  _id: String,
+  _id: { type: String, required: true },
   label: { type: String, required: true },
   model: {
     _id: { type: String, required: true },
@@ -61,6 +61,10 @@ CarSchema.virtual('model.id')
 CarSchema.index({
   _id: 'text',
   label: 'text',
+  'campus._id': 'text',
+  'campus.name': 'text',
+  'model._id': 'text',
+  'model.label': 'text',
 });
 
 CarSchema.methods.getAvailabilities = function isAvailable(start, end, events) {

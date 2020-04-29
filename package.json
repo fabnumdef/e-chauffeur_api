@@ -5,12 +5,13 @@
   "scripts": {
     "test": "mocha --exit --es-module-specifier-resolution=node --recursive \"tests/**/*.mjs\"",
     "serve": "node --experimental-modules --es-module-specifier-resolution=node server.mjs",
-    "nodemon": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs",
+    "dev": "nodemon --experimental-modules --es-module-specifier-resolution=node --inspect server.mjs | pino-pretty",
     "lint": "eslint --ext .js,.mjs --ignore-path .gitignore .",
     "generate-vapid": "node generate-vapid-key.js",
     "precommit": "npm run lint",
     "generate-state-schema": "node --experimental-modules --es-module-specifier-resolution=node tests/generate-state-schema.js",
     "import-fixtures": "node --experimental-modules --es-module-specifier-resolution=node fixtures",
+    "mongoose:sync-indexes": "node --experimental-modules --es-module-specifier-resolution=node sync-indexes.mjs",
     "cron:time-slots-copy": "node --experimental-modules --es-module-specifier-resolution=node crons/time-slots-copy.js"
   },
   "author": "Gaël",
@@ -34,6 +35,7 @@
     "koa-body": "^4.1.1",
     "koa-helmet": "^5.2.0",
     "koa-jwt": "^3.6.0",
+    "koa-locales": "^1.12.0",
     "koa-pino-logger": "^2.1.3",
     "koa-qs": "^2.0.0",
     "lodash.camelcase": "^4.3.0",
@@ -45,6 +47,7 @@
     "lodash.isfunction": "^3.0.9",
     "lodash.isplainobject": "^4.0.6",
     "lodash.mapkeys": "^4.6.0",
+    "lodash.mapvalues": "^4.6.0",
     "lodash.omit": "^4.5.0",
     "lodash.omitby": "^4.6.0",
     "lodash.orderby": "^4.6.0",
@@ -78,6 +81,7 @@
     "eslint-plugin-import": "^2.20.1",
     "mocha": "^7.0.1",
     "nodemon": "^2.0.2",
+    "pino-pretty": "^4.0.0",
     "supertest": "^4.0.2"
   },
   "peerDependencies": {

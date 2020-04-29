@@ -8,15 +8,14 @@ import { CAN_ACCESS_OWN_DATA_ON_RIDE, CAN_ACCESS_PERSONAL_DATA_ON_RIDE } from '.
 import stateMachine, {
   DRAFTED,
   DELIVERED,
-  CANCELABLE,
+  CANCELABLE, CREATED,
 } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
 import createdAtPlugin from './helpers/created-at';
 import cleanObjectPlugin from './helpers/object-cleaner';
 import {
-  CAMPUS_MODEL_NAME, CAR_MODEL_MODEL_NAME,
-  CAR_MODEL_NAME, GEO_TRACKING_MODEL_NAME,
+  CAMPUS_MODEL_NAME, CAR_MODEL_MODEL_NAME, CAR_MODEL_NAME, GEO_TRACKING_MODEL_NAME,
   POI_MODEL_NAME, RIDE_COLLECTION_NAME,
   RIDE_MODEL_NAME,
   USER_MODEL_NAME,
@@ -27,6 +26,10 @@ const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
+
+function isValidated(status) {
+  return ![DRAFTED, CREATED].includes(status);
+}
 
 const RideSchema = new Schema({
   token: {
@@ -67,7 +70,7 @@ const RideSchema = new Schema({
     },
   },
   departure: {
-    _id: { type: String, required: true, alias: 'departure.id' },
+    _id: { type: String, alias: 'departure.id' },
     label: String,
     location: {
       type: {
@@ -80,7 +83,7 @@ const RideSchema = new Schema({
     },
   },
   arrival: {
-    _id: { type: String, required: true, alias: 'arrival.id' },
+    _id: { type: String, alias: 'arrival.id' },
     label: String,
     location: {
       type: {
@@ -145,7 +148,7 @@ RideSchema.pre('validate', async function beforeSave() {
     throw new Error('End date should be higher than start date');
   }
 
-  if (this.status && this.status !== DRAFTED && !this.car._id) {
+  if (isValidated(this.status) && !this.car._id) {
     const err = new Error();
     err.status = 422;
     err.message = 'Car must be provided';
@@ -198,40 +201,27 @@ RideSchema.pre('validate', async function beforeSave() {
         this.phone = phone;
       }
     })(mongoose.model(USER_MODEL_NAME)),
-    (async (Car) => {
-      this.car = await Car.findById(this.car._id).lean();
-    })(mongoose.model(CAR_MODEL_NAME)),
+    (async (Car, CarModel) => {
+      const carId = this.car._id;
+      this.car = await Car.findById(carId).lean();
+      this.car.model = await CarModel.findById(this.car.model._id).lean();
+    })(mongoose.model(CAR_MODEL_NAME), mongoose.model(CAR_MODEL_MODEL_NAME)),
     (async (Poi) => {
       const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
       this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
       this.departure = pois.find(({ _id }) => _id === this.departure._id);
     })(mongoose.model(POI_MODEL_NAME)),
-    (async (CarModel) => {
-      if (!this.car.model || !this.car.model.label) {
-        const err = new Error();
-        err.status = 422;
-        err.message = 'Car model must be provided';
-        throw err;
-      }
-      const carModel = await CarModel.findOne({ label: this.car.model.label });
-      if (!carModel) {
-        const err = new Error();
-        err.status = 404;
-        err.message = 'Car model not found';
-        throw err;
-      }
-      if (!carModel.capacity) {
-        carModel.capacity = 3;
-      }
-      if (this.passengersCount > carModel.capacity || this.passengersCount > 3) {
-        const err = new Error();
-        err.status = 422;
-        err.message = 'Passenger count is higher than car capacity';
-        throw err;
-      }
-      this.car.model = carModel;
-    })(mongoose.model(CAR_MODEL_MODEL_NAME)),
   ]);
+
+  if (isValidated(this.status)) {
+    const carCapacity = this.car.model.capacity || 3;
+    if (this.passengersCount > carCapacity) {
+      const err = new Error();
+      err.status = 422;
+      err.message = 'Passenger count is higher than car capacity';
+      throw err;
+    }
+  }
 });
 
 RideSchema.statics.castId = (v) => {

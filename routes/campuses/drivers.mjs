@@ -16,7 +16,9 @@ import { emitDriversSocketConnected } from '../../middlewares/drivers-socket-sta
 import config from '../../services/config';
 import contentNegociation from '../../middlewares/content-negociation';
 import { ROLE_DRIVER_NAME } from '../../models/role';
-
+import searchQuery from '../../middlewares/search-query';
+import initFilters from '../../middlewares/init-filters';
+import addFilter from '../../middlewares/add-filter';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -27,26 +29,31 @@ const addDomainInError = (e) => [
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_DRIVER),
+  initFilters,
+  addFilter('licences', 'licences'),
   contentNegociation,
   maskOutput,
+  searchQuery,
   async (ctx) => {
+    // @todo: fix & refactor this
     let data;
     const { offset, limit } = ctx.parseRangePagination(User, { max: 1000 });
     const total = await Campus.countDrivers(ctx.params.campus_id);
 
     if ((ctx.query && ctx.query.filters)
       && (ctx.query.filters.start && ctx.query.filters.end)) {
+      const start = new Date(ctx.query.filters.start);
+      const end = new Date(ctx.query.filters.end);
+
       data = await Campus.findDriversInDateInterval(ctx.params.campus_id,
-        {
-          start: new Date(ctx.query.filters.start),
-          end: new Date(ctx.query.filters.end),
-        },
+        { start, end },
         { offset, limit },
-        { onlyHeavyLicences: ctx.query.filters.onlyHeavyLicences });
+        ctx.filters);
     } else {
-      data = await Campus.findDrivers(ctx.params.campus_id, { offset, limit });
+      data = await Campus.findDrivers(ctx.params.campus_id, { offset, limit }, ctx.filters);
     }
 
+    // @todo: Inaccurate count
     ctx.setRangePagination(User, { total, offset, count: data.length });
     ctx.body = data;
   },

@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
+import initFilters from '../middlewares/init-filters';
 
 export function addBatchToRouter(Model, {
   url = '/batch', right, rights = [], middlewares = [], main, refs = [],
@@ -46,7 +47,14 @@ export function addCreateToRouter(Model, {
 
       if (!autoGenId) {
         if (await Model.findById(body.id)) {
-          ctx.throw_and_log(409, `${Model.modelName} "${body.id}" already exists`);
+          ctx.log.error(`${Model.modelName} "${body.id}" already exists`);
+          ctx.throw(
+            409,
+            ctx.translate(
+              'mongoose.errors.AlreadyExists',
+              { model: ctx.translate(`mongoose.models.${Model.modelName}`), id: body.id },
+            ),
+          );
         }
 
         Object.assign(body, { _id: body.id });
@@ -76,6 +84,7 @@ export function addListToRouter(Model, {
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    initFilters,
     ...Object.keys(filters).map((k) => addFilter(k, filters[k])),
     ...middlewares,
     main || (async (ctx) => {

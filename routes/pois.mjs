@@ -10,6 +10,7 @@ import {
 import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
+import searchQuery from '../middlewares/search-query';
 
 const router = generateCRUD(Poi, {
   create: {
@@ -33,6 +34,7 @@ const router = generateCRUD(Poi, {
     middlewares: [
       contentNegociation,
       maskOutput,
+      searchQuery,
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(Poi, { max: 1000 });
@@ -57,7 +59,7 @@ const router = generateCRUD(Poi, {
   },
   batch: {
     right: CAN_CREATE_POI_LOCAL,
-    label: ['label'],
+    refs: ['_id'],
     middlewares: [
       csvToJson,
       validateCampus,

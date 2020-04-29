@@ -57,8 +57,10 @@ const router = generateCRUD(Ride, {
         body.owner = user;
       }
 
-      if (body.departure.id === body.arrival.id) {
-        ctx.throw_and_log(422, 'Departure and arrival should be different');
+      if (body.departure && body.arrival) {
+        if (body.departure.id === body.arrival.id) {
+          ctx.throw_and_log(422, 'Departure and arrival should be different');
+        }
       }
 
       const ride = await Ride.create(body);

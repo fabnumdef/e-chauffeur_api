@@ -19,9 +19,24 @@ router.post(
     const base = _get(ctx.state.user, 'roles[0].campuses[0].name', 'NC');
 
     const to = config.get('mail:feedback_mail');
-    if (!message || !type) {
-      ctx.throw_and_log(400, 'Feedback message and type should be set');
-    }
+    ctx.assert(message, 400, {
+      message: 'feedback.bad_validation',
+      errors: {
+        message: {
+          message: 'feedback.missing_message',
+          kind: 'required',
+        },
+      },
+    });
+    ctx.assert(type, 400, {
+      message: 'feedback.bad_validation',
+      errors: {
+        type: {
+          message: 'feedback.missing_type',
+          kind: 'required',
+        },
+      },
+    });
 
     const subject = `[Feedback][${type}][Base: ${base}] sent by ${name}`;
 
@@ -38,8 +53,7 @@ router.post(
         email,
       },
     });
-
-    ctx.body = { message: 'Feedback sent' };
+    ctx.status = 204;
   },
 );
 
