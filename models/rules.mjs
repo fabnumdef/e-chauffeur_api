@@ -1,12 +1,13 @@
 import lGet from 'lodash.get';
 import lXor from 'lodash.xor';
 import nanoid from 'nanoid';
+import mongoose from 'mongoose';
 // It's not really a cycle import, we're not importing the same part of the tree
 // eslint-disable-next-line import/no-cycle
 import { CAN_LIST_ALL_CAMPUSES } from './rights';
 // eslint-disable-next-line import/no-cycle
 import * as roles from './role';
-import { getPrefetchedRide } from '../helpers/prefetch-ride';
+import { getPrefetchedDocument } from '../helpers/prefetch-document';
 
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
 /**
@@ -44,13 +45,19 @@ export const roleEditingRule = ruleGenerator((
 ) => campusId && !!campuses.find((c) => c._id === campusId));
 
 export const tokenRideRule = ruleGenerator((_, ctx) => {
-  const ride = getPrefetchedRide(ctx, ctx.params.id);
+  let [, modelName] = ctx.url.split('/');
+  modelName = modelName.charAt(0).toUpperCase() + modelName.slice(1, -1);
+  const Model = mongoose.model(modelName);
+  const ride = getPrefetchedDocument.call(ctx, ctx.params.id, Model);
   return ride.token === ctx.query.token;
 });
 
 export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
   const { user } = ctx.state;
-  const ride = entity || getPrefetchedRide(ctx, ctx.params.id);
+  let [, modelName] = ctx.url.split('/');
+  modelName = modelName.charAt(0).toUpperCase() + modelName.slice(1, -1);
+  const Model = mongoose.model(modelName);
+  const ride = entity || getPrefetchedDocument.call(ctx, ctx.params.id, Model);
   return ride.owner && ride.owner.id && ride.owner.id.toString() === user.id;
 });
 

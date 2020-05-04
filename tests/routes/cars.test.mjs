@@ -3,7 +3,7 @@ import { createDummyCampus, generateDummyCampus } from '../models/campus';
 import { createDummyCarModel } from '../models/car-model';
 import Car, { generateDummyCar } from '../models/car';
 import {
-  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate, testBatch,
+  testCreate, testCreateUnicity, testDelete, testList, testGet, testUpdate,
 } from '../helpers/crud';
 
 const dummyCampus = generateDummyCampus();
@@ -21,10 +21,10 @@ const config = {
     const campus = await createDummyCampus(dummyCampus);
     toDropLater.push(campus);
 
-    const carModel = await createDummyCarModel();
-    toDropLater.push(carModel);
+    const model = await createDummyCarModel();
+    toDropLater.push(model);
 
-    const dummyCar = await generateDummyCar({ campus, model: carModel });
+    const dummyCar = await generateDummyCar({ campus, model });
 
     return [dummyCar, toDropLater];
   },
@@ -63,12 +63,5 @@ describe('Test the car API endpoint', () => {
   it(...testUpdate(Car, {
     ...config,
     route: ({ id }) => `${config.route}/${id}`,
-  }));
-
-  it(...testBatch(Car, {
-    ...config,
-    route: `${config.route}/batch`,
-    queryParams: {},
-    canCall: [generateSuperAdminJWTHeader],
   }));
 });

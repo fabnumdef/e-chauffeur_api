@@ -22,7 +22,6 @@ export const testCreate = (Model, {
         .query({ ...queryParams, mask: 'id' })
         .set(...roleGenerator())
         .send(cleanObject(dummyObject));
-
       const object = await Model
         .findById(id);
       if (object) {

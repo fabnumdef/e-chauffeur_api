@@ -28,7 +28,7 @@ export function addBatchToRouter(Model, {
 }
 
 export function addCreateToRouter(Model, {
-  url = '/', right, rights = [], main, successCode = 200,
+  url = '/', right, rights = [], main, successCode = 200, middlewares = [],
 } = {}) {
   if (!right) {
     throw new Error('Right should be defined');
@@ -41,6 +41,7 @@ export function addCreateToRouter(Model, {
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
     maskOutput,
+    ...middlewares,
     main || (async (ctx) => {
       const { request: { body } } = ctx;
 
@@ -58,7 +59,6 @@ export function addCreateToRouter(Model, {
 
         Object.assign(body, { _id: body.id });
       }
-
       const document = await Model.create(body);
       ctx.status = successCode;
 
@@ -143,7 +143,7 @@ export function addGetToRouter(Model, {
 }
 
 export function addDeleteToRouter(Model, {
-  paramId = 'id', url = `/:${paramId}`, right, rights = [], main,
+  paramId = 'id', url = `/:${paramId}`, right, rights = [], main, middlewares = [],
 } = {}) {
   this.del(
     url,
@@ -151,6 +151,7 @@ export function addDeleteToRouter(Model, {
       .concat(rights)
       .filter((r) => !!r)
       .map((r) => resolveRights(...[].concat(r))),
+    ...middlewares,
     main || (async (ctx) => {
       const { params } = ctx;
       const id = params[paramId];

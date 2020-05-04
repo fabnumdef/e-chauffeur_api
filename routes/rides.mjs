@@ -28,7 +28,7 @@ import {
   CAN_EDIT_OWNED_RIDE,
   CAN_DELETE_SELF_RIDE,
 } from '../models/rights';
-import { getPrefetchedRide, prefetchRideMiddleware } from '../helpers/prefetch-ride';
+import { prefetchMiddleware } from '../helpers/prefetch-document';
 
 const { DateTime } = Luxon;
 
@@ -57,8 +57,10 @@ const router = generateCRUD(Ride, {
         body.owner = user;
       }
 
-      if (body.departure.id === body.arrival.id) {
-        ctx.throw_and_log(422, 'Departure and arrival should be different');
+      if (body.departure && body.arrival) {
+        if (body.departure.id === body.arrival.id) {
+          ctx.throw_and_log(422, 'Departure and arrival should be different');
+        }
       }
 
       const ride = await Ride.create(body);
@@ -90,38 +92,42 @@ const router = generateCRUD(Ride, {
   },
   update: {
     preMiddlewares: [
-      prefetchRideMiddleware(),
+      prefetchMiddleware(Ride),
     ],
     right: [CAN_EDIT_RIDE, CAN_EDIT_OWNED_RIDE],
     async main(ctx) {
       let { request: { body } } = ctx;
-
       const { params: { id } } = ctx;
-      const ride = await Ride.findById(id);
+      const ride = ctx.getPrefetchedDocument(id, Ride);
+
       if (!ctx.may(CAN_EDIT_RIDE)) {
         if (ride.status !== DRAFTED) {
           ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
         }
         body = mask(body, REQUEST_PRE_MASK);
       }
+
       let previousDriverId;
       if (ride.driver && ride.driver.id) {
         previousDriverId = ride.driver.id.toString();
-        if (body.driver.id !== previousDriverId) {
-          previousDriverId = true;
-        }
       }
+
       delete body.status;
+
       ride.set(body);
       await ride.save();
+
       ctx.body = ride;
+
       if (!ctx.may(CAN_EDIT_RIDE)) {
         ctx.body = mask(ctx.body, REQUEST_POST_MASK);
       }
+
       ctx.log.info(
         { body },
         `${Ride.modelName} "${id}" has been modified`,
       );
+
       const rooms = [
         `ride/${ride.id}`,
         `campus/${ride.campus.id}`,
@@ -137,13 +143,13 @@ const router = generateCRUD(Ride, {
   },
   get: {
     preMiddlewares: [
-      prefetchRideMiddleware(),
+      prefetchMiddleware(Ride),
     ],
     lean: false,
     right: [CAN_GET_RIDE, CAN_GET_OWNED_RIDE, CAN_GET_RIDE_WITH_TOKEN],
     async main(ctx) {
       const { params: { id } } = ctx;
-      const ride = getPrefetchedRide(ctx, id);
+      const ride = ctx.getPrefetchedDocument(id, Ride);
 
       if (!ride) {
         ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
@@ -259,7 +265,7 @@ router.get(
 
 router.post(
   '/:id/:action',
-  prefetchRideMiddleware(),
+  prefetchMiddleware(Ride),
   resolveRights(CAN_EDIT_RIDE_STATUS, CAN_EDIT_OWNED_RIDE_STATUS),
   maskOutput,
   async (ctx) => {
@@ -268,7 +274,7 @@ router.post(
     if (!ctx.may(CAN_EDIT_RIDE_STATUS) && action !== CREATE && action !== CANCEL_REQUESTED_CUSTOMER) {
       ctx.throw_and_log(403, `You're not authorized to mutate to "${action}"`);
     }
-    const ride = getPrefetchedRide(ctx, id);
+    const ride = ctx.getPrefetchedDocument(id, Ride);
     if (!ride) {
       ctx.throw_and_log(404, `${Ride.modelName} "${id}" not found`);
     }

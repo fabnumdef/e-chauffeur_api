@@ -133,6 +133,13 @@ export const ROLE_REGULATOR = new RoleList(
   rights.CAN_LIST_TIME_SLOT,
   rights.CAN_EDIT_TIME_SLOT,
   rights.CAN_REMOVE_TIME_SLOT,
+
+  rights.CAN_CREATE_PATTERN,
+  rights.CAN_LIST_PATTERN,
+  rights.CAN_GET_PATTERN,
+  rights.CAN_UPDATE_PATTERN,
+  rights.CAN_DELETE_PATTERN,
+  rights.CAN_DELETE_SHUTTLE,
 );
 roles.ROLE_REGULATOR = ROLE_REGULATOR;
 

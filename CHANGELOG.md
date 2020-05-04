@@ -5,6 +5,8 @@
 * Added capacity to car model model
 * Added capacity check in ride pre validate hook
 * Changed logger from Winston to Pino
+* Added shuttle routes and model
+* Added shuttle factory routes and model
 ### Fix
 ## Version 1.4.6c
 ### Fix

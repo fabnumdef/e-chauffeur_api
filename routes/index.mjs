@@ -16,6 +16,8 @@ import timeSlots from './time-slots';
 import config from '../services/config';
 import ratings from './ratings';
 import stats from './stats';
+import shuttles from './shuttles';
+import shuttleFactory from './shuttle-factories';
 
 const router = new Router();
 
@@ -55,5 +57,9 @@ router.use('/users', users.routes());
 router.use('/users', users.allowedMethods());
 router.use('/stats', stats.routes());
 router.use('/stats', stats.allowedMethods());
+router.use('/shuttles', shuttles.routes());
+router.use('/shuttles', shuttles.allowedMethods());
+router.use('/shuttle-factories', shuttleFactory.routes());
+router.use('/shuttle-factories', shuttleFactory.allowedMethods());
 
 export default router;

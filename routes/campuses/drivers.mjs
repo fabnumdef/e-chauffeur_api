@@ -18,6 +18,7 @@ import contentNegociation from '../../middlewares/content-negociation';
 import { ROLE_DRIVER_NAME } from '../../models/role';
 import searchQuery from '../../middlewares/search-query';
 import initFilters from '../../middlewares/init-filters';
+import addFilter from '../../middlewares/add-filter';
 
 const router = new Router();
 const addDomainInError = (e) => [
@@ -29,6 +30,7 @@ router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_DRIVER),
   initFilters,
+  addFilter('licences', 'licences'),
   contentNegociation,
   maskOutput,
   searchQuery,
@@ -42,6 +44,7 @@ router.get(
       && (ctx.query.filters.start && ctx.query.filters.end)) {
       const start = new Date(ctx.query.filters.start);
       const end = new Date(ctx.query.filters.end);
+
       data = await Campus.findDriversInDateInterval(ctx.params.campus_id,
         { start, end },
         { offset, limit },
