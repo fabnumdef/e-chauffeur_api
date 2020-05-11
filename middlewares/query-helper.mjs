@@ -15,7 +15,8 @@ export const filtersToObject = (...filtersToParse) => async (ctx, next) => {
 };
 
 export const filtersFromParams = (filterKey, paramsKey) => async (ctx, next) => {
-  ctx.assert(ctx.params, 400, 'No query string found');
-  ctx.filters[filterKey] = ctx.params[paramsKey];
+  if (ctx.params[paramsKey]) {
+    ctx.filters[filterKey] = ctx.params[paramsKey];
+  }
   await next();
 };

@@ -50,6 +50,7 @@ router.use('/pois', pois.allowedMethods());
 router.use('/pois', pois.routes());
 router.use('/ratings', ratings.allowedMethods());
 router.use('/ratings', ratings.routes());
+/** @deprecated */
 router.use('/rides', rides.allowedMethods());
 router.use('/rides', rides.routes());
 router.use('/shuttle-factories', shuttleFactory.allowedMethods());
