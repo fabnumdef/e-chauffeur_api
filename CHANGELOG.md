@@ -7,6 +7,7 @@
 * Changed logger from Winston to Pino
 * Added shuttle routes and model
 * Added shuttle factory routes and model
+* Move rides & time slots into /campuses route
 ### Fix
 ## Version 1.4.6c
 ### Fix
