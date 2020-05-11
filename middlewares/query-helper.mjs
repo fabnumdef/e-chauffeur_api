@@ -13,3 +13,9 @@ export const filtersToObject = (...filtersToParse) => async (ctx, next) => {
   filtersToParse.forEach((key) => { if (filters[key]) ctx.filters[key] = JSON.parse(filters[key]); });
   await next();
 };
+
+export const filtersFromParams = (filterKey, paramsKey) => async (ctx, next) => {
+  ctx.assert(ctx.params, 400, 'No query string found');
+  ctx.filters[filterKey] = ctx.params[paramsKey];
+  await next();
+};
