@@ -2,18 +2,18 @@ import {
   generateDriverJWTHeader,
   generateSuperAdminJWTHeader as originalGenerateSuperAdminJWTHeader,
   generateRegulatorJWTHeader as originalGenerateRegulatorJWTHeader,
-} from '../request';
-import TimeSlot, { generateDummyTimeSlot } from '../models/time-slot';
-import { generateDummyCampus } from '../models/campus';
+} from '../../request';
+import TimeSlot, { generateDummyTimeSlot } from '../../models/time-slot';
+import { generateDummyCampus } from '../../models/campus';
 import {
   testCreate, testDelete, testList, testUpdate,
-} from '../helpers/crud';
+} from '../../helpers/crud';
 
 const campus = generateDummyCampus();
 const generateSuperAdminJWTHeader = originalGenerateSuperAdminJWTHeader.bind(null, campus);
 const generateRegulatorJWTHeader = originalGenerateRegulatorJWTHeader.bind(null, campus);
 const config = {
-  route: '/time-slots',
+  route: `/campuses/${campus._id}/time-slots`,
   queryParams: {
     filters: {
       campus: campus._id,
