@@ -21,6 +21,7 @@ import {
   USER_MODEL_NAME,
 } from './helpers/constants';
 import { compareTokens, getClientURL } from './helpers/custom-methods';
+import HttpError from '../helpers/http-error';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
@@ -95,6 +96,8 @@ const RideSchema = new Schema({
       },
     },
   },
+  wishedDeparture: String,
+  wishedArrival: String,
   driver: {
     _id: { type: Schema.ObjectId, alias: 'driver.id' },
     firstname: String,
@@ -132,6 +135,10 @@ const RideSchema = new Schema({
     type: Number,
     default: 1,
   },
+  passengersList: [{
+    firstname: String,
+    lastname: String,
+  }],
   phone: String,
   luggage: {
     type: Boolean,
@@ -153,6 +160,13 @@ RideSchema.pre('validate', async function beforeSave() {
     err.status = 422;
     err.message = 'Car must be provided';
     throw err;
+  }
+
+
+  if (this.departure.id && this.arrival.id) {
+    if (this.departure.id === this.arrival.id) {
+      throw new HttpError(400, 'Departure and arrival should be different');
+    }
   }
 
   try {

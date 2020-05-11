@@ -7,7 +7,7 @@ import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
   CAN_GET_RIDE,
-  CAN_LIST_RIDE, CAN_LIST_SELF_RIDE,
+  CAN_LIST_SHUTTLES,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE,
@@ -31,7 +31,7 @@ const router = generateCRUD(Shuttle, {
     ],
   },
   list: {
-    right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
+    right: [CAN_LIST_SHUTTLES],
     filters: {
       campus: 'campus._id',
     },

@@ -39,8 +39,10 @@ function ioEmit(ctx, data, eventName = '', rooms = []) {
   });
   io.emit(eventName, data);
 }
-const REQUEST_PRE_MASK = 'start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments,status';
-const REQUEST_POST_MASK = 'id,start,campus/id,departure/id,arrival/id,luggage,passengersCount,userComments,status';
+const REQUEST_PRE_MASK = 'start,campus/id,departure,arrival,label,luggage,'
+  + 'passengersCount,passengersList,userComments,status,wishedDeparture,wishedArrival';
+const REQUEST_POST_MASK = 'id,start,campus/id,departure,arrival,luggage,'
+  + 'passengersCount,passengersList,userComments,status,wishedDeparture,wishedArrival';
 const router = generateCRUD(Ride, {
   create: {
     right: [CAN_CREATE_RIDE, CAN_REQUEST_RIDE],
@@ -55,12 +57,6 @@ const router = generateCRUD(Ride, {
       if (isRequest) {
         delete body.status;
         body.owner = user;
-      }
-
-      if (body.departure && body.arrival) {
-        if (body.departure.id === body.arrival.id) {
-          ctx.throw_and_log(422, 'Departure and arrival should be different');
-        }
       }
 
       const ride = await Ride.create(body);
