@@ -6,7 +6,7 @@ stages:
 
 include:
   - template: Dependency-Scanning.gitlab-ci.yml
-  - template: License-Management.gitlab-ci.yml
+  - template: License-Scanning.gitlab-ci.yml
 
 variables:
   DS_DISABLE_DIND: "true"
@@ -81,7 +81,7 @@ gemnasium-dependency_scanning:
     changes:
       - package-lock.json
 
-license_management:
+license_scanning:
   only:
     changes:
       - package-lock.json
