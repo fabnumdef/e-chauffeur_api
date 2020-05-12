@@ -13,3 +13,10 @@ export const filtersToObject = (...filtersToParse) => async (ctx, next) => {
   filtersToParse.forEach((key) => { if (filters[key]) ctx.filters[key] = JSON.parse(filters[key]); });
   await next();
 };
+
+export const filtersFromParams = (filterKey, paramsKey) => async (ctx, next) => {
+  if (ctx.params[paramsKey]) {
+    ctx.filters[filterKey] = ctx.params[paramsKey];
+  }
+  await next();
+};

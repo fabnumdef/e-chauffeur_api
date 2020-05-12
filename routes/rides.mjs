@@ -12,7 +12,7 @@ import resolveRights from '../middlewares/check-rights';
 import generateCRUD from '../helpers/abstract-route';
 import Ride from '../models/ride';
 import NotificationDevice from '../models/notification-device';
-import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import { ensureThatFiltersExists, filtersFromParams } from '../middlewares/query-helper';
 import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
@@ -165,6 +165,7 @@ const router = generateCRUD(Ride, {
     middlewares: [
       contentNegociation,
       maskOutput,
+      filtersFromParams('campus._id', 'campus_id'),
       async (ctx, next) => {
         await next();
         if (ctx.query.csv) {

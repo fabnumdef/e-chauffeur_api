@@ -1,12 +1,12 @@
-import generateCRUD from '../helpers/abstract-route';
-import TimeSlot from '../models/time-slot';
+import generateCRUD from '../../helpers/abstract-route';
+import TimeSlot from '../../models/time-slot';
 import {
   CAN_CREATE_TIME_SLOT,
   CAN_EDIT_TIME_SLOT,
   CAN_LIST_TIME_SLOT,
   CAN_REMOVE_TIME_SLOT,
-} from '../models/rights';
-import { ensureThatFiltersExists, filtersToObject } from '../middlewares/query-helper';
+} from '../../models/rights';
+import { ensureThatFiltersExists, filtersFromParams, filtersToObject } from '../../middlewares/query-helper';
 
 const router = generateCRUD(TimeSlot, {
   create: {
@@ -14,12 +14,10 @@ const router = generateCRUD(TimeSlot, {
   },
   list: {
     right: CAN_LIST_TIME_SLOT,
-    filters: {
-      campus: 'campus._id',
-    },
     middlewares: [
       ensureThatFiltersExists('after', 'before'),
       filtersToObject('drivers', 'cars'),
+      filtersFromParams('campus._id', 'campus_id'),
     ],
     async main(ctx) {
       const { offset, limit } = ctx.parseRangePagination(TimeSlot, { max: 100 });
@@ -38,15 +36,9 @@ const router = generateCRUD(TimeSlot, {
   },
   delete: {
     right: CAN_REMOVE_TIME_SLOT,
-    filters: {
-      campus: 'campus._id',
-    },
   },
   update: {
     right: CAN_EDIT_TIME_SLOT,
-    filters: {
-      campus: 'campus._id',
-    },
   },
 });
 

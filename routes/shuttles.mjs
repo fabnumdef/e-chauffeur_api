@@ -40,6 +40,7 @@ const router = generateCRUD(Shuttle, {
       ensureThatFiltersExists('start', 'end'),
     ],
     async main(ctx) {
+      console.log(ctx.request.query);
       const { offset, limit } = ctx.parseRangePagination(Shuttle, { max: 1000 });
       const total = await Shuttle.countDocumentsWithin(ctx.filters, ctx.query.filters);
       const data = await Shuttle.findWithin(ctx.filters, ctx.query.filters).skip(offset).limit(limit);
