@@ -9,6 +9,15 @@ import { CAN_LIST_ALL_CAMPUSES } from './rights';
 import * as roles from './role';
 import { getPrefetchedDocument } from '../helpers/prefetch-document';
 
+function getModelNameFromURL(url) {
+  const splitUrl = url.split(/[?/]/);
+  let modelName = 'Ride';
+  if (splitUrl.includes('shuttles')) {
+    modelName = 'Shuttle';
+  }
+  return modelName;
+}
+
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
 /**
  * @return {symbol}
@@ -45,18 +54,14 @@ export const roleEditingRule = ruleGenerator((
 ) => campusId && !!campuses.find((c) => c._id === campusId));
 
 export const tokenRideRule = ruleGenerator((_, ctx) => {
-  let [, modelName] = ctx.url.split('/');
-  modelName = modelName.charAt(0).toUpperCase() + modelName.slice(1, -1);
-  const Model = mongoose.model(modelName);
+  const Model = mongoose.model(getModelNameFromURL(ctx.url));
   const ride = getPrefetchedDocument.call(ctx, ctx.params.id, Model);
   return ride.token === ctx.query.token;
 });
 
 export const ownedRideRule = ruleGenerator((_, ctx, entity) => {
   const { user } = ctx.state;
-  let [, modelName] = ctx.url.split('/');
-  modelName = modelName.charAt(0).toUpperCase() + modelName.slice(1, -1);
-  const Model = mongoose.model(modelName);
+  const Model = mongoose.model(getModelNameFromURL(ctx.url));
   const ride = entity || getPrefetchedDocument.call(ctx, ctx.params.id, Model);
   return ride.owner && ride.owner.id && ride.owner.id.toString() === user.id;
 });

@@ -120,7 +120,7 @@ const UserSchema = new Schema({
   },
   licences: [{
     type: String,
-    enum: ['B', 'C', 'D'],
+    enum: ['B', 'C', 'D', 'E'],
     default: 'B',
   }],
   gprd: {
