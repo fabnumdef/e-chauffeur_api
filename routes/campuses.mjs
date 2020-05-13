@@ -4,6 +4,8 @@ import Campus from '../models/campus';
 import carsRoutes from './campuses/cars';
 import driversPositionsRoutes from './campuses/drivers-positions';
 import driversRoutes from './campuses/drivers';
+import shuttleFactoriesRoutes from './shuttle-factories';
+import shuttlesRoutes from './shuttles';
 import ridesRoutes from './rides';
 import statsRoutes from './campuses/stats';
 import timeSlots from './campuses/time-slots';
@@ -69,10 +71,15 @@ router.use('/:campus_id/drivers-positions', driversPositionsRoutes.allowedMethod
 router.use('/:campus_id/drivers-positions', driversPositionsRoutes.routes());
 router.use('/:campus_id/rides', ridesRoutes.allowedMethods());
 router.use('/:campus_id/rides', ridesRoutes.routes());
+router.use('/:campus_id/shuttle-factories', shuttleFactoriesRoutes.allowedMethods());
+router.use('/:campus_id/shuttle-factories', shuttleFactoriesRoutes.routes());
+router.use('/:campus_id/shuttles', shuttlesRoutes.allowedMethods());
+router.use('/:campus_id/shuttles', shuttlesRoutes.routes());
 router.use('/:campus_id/stats', statsRoutes.allowedMethods());
 router.use('/:campus_id/stats', statsRoutes.routes());
 router.use('/:campus_id/time-slots', timeSlots.allowedMethods());
 router.use('/:campus_id/time-slots', timeSlots.routes());
 router.use('/:campus_id/users', usersRoutes.allowedMethods());
 router.use('/:campus_id/users', usersRoutes.routes());
+
 export default router;

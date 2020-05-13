@@ -7,14 +7,13 @@ import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
   CAN_GET_RIDE,
-  CAN_LIST_RIDE, CAN_LIST_SELF_RIDE,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE,
-  CAN_DELETE_SHUTTLE,
+  CAN_DELETE_SHUTTLE, CAN_LIST_SHUTTLE,
 } from '../models/rights';
 import maskOutput from '../middlewares/mask-output';
-import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import { ensureThatFiltersExists, filtersFromParams } from '../middlewares/query-helper';
 import ioEmitMiddleware from '../middlewares/io-emit';
 import { prefetchMiddleware } from '../helpers/prefetch-document';
 
@@ -31,12 +30,10 @@ const router = generateCRUD(Shuttle, {
     ],
   },
   list: {
-    right: [CAN_LIST_RIDE, CAN_LIST_SELF_RIDE],
-    filters: {
-      campus: 'campus._id',
-    },
+    right: [CAN_LIST_SHUTTLE],
     middlewares: [
       maskOutput,
+      filtersFromParams('campus._id', 'campus_id'),
       ensureThatFiltersExists('start', 'end'),
     ],
     async main(ctx) {
