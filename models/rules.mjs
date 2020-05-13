@@ -10,12 +10,7 @@ import * as roles from './role';
 import { getPrefetchedDocument } from '../helpers/prefetch-document';
 
 function getModelNameFromURL(url) {
-  const splitUrl = url.split(/[?/]/);
-  let modelName = 'Ride';
-  if (splitUrl.includes('shuttles')) {
-    modelName = 'Shuttle';
-  }
-  return modelName;
+  return url.includes('shuttles') ? 'Shuttle' : 'Ride';
 }
 
 const ruleGenerator = (rule = () => true) => (id) => ({ id: Symbol(id || nanoid()), rule });
