@@ -8,13 +8,17 @@ import {
   CAN_DELETE_SHUTTLE_FACTORIES,
 } from '../models/rights';
 import maskOutput from '../middlewares/mask-output';
+import { filtersFromParams } from '../middlewares/query-helper';
 
 const router = generateCRUD(ShuttleFactory, {
   create: { right: CAN_CREATE_SHUTTLE_FACTORIES },
   list: {
+    // @todo check rights for user app here
     right: CAN_LIST_SHUTTLE_FACTORIES,
-    filters: { campus: 'campus._id' },
-    middlewares: [maskOutput],
+    middlewares: [
+      maskOutput,
+      filtersFromParams('campus._id', 'campus_id'),
+    ],
   },
   get: {
     right: CAN_GET_SHUTTLE_FACTORIES,

@@ -7,14 +7,13 @@ import {
   CAN_CREATE_RIDE,
   CAN_EDIT_RIDE,
   CAN_GET_RIDE,
-  CAN_LIST_SHUTTLES,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
   CAN_EDIT_OWNED_RIDE,
-  CAN_DELETE_SHUTTLE,
+  CAN_DELETE_SHUTTLE, CAN_LIST_SHUTTLE,
 } from '../models/rights';
 import maskOutput from '../middlewares/mask-output';
-import { ensureThatFiltersExists } from '../middlewares/query-helper';
+import { ensureThatFiltersExists, filtersFromParams } from '../middlewares/query-helper';
 import ioEmitMiddleware from '../middlewares/io-emit';
 import { prefetchMiddleware } from '../helpers/prefetch-document';
 
@@ -31,16 +30,13 @@ const router = generateCRUD(Shuttle, {
     ],
   },
   list: {
-    right: [CAN_LIST_SHUTTLES],
-    filters: {
-      campus: 'campus._id',
-    },
+    right: [CAN_LIST_SHUTTLE],
     middlewares: [
       maskOutput,
+      filtersFromParams('campus._id', 'campus_id'),
       ensureThatFiltersExists('start', 'end'),
     ],
     async main(ctx) {
-      console.log(ctx.request.query);
       const { offset, limit } = ctx.parseRangePagination(Shuttle, { max: 1000 });
       const total = await Shuttle.countDocumentsWithin(ctx.filters, ctx.query.filters);
       const data = await Shuttle.findWithin(ctx.filters, ctx.query.filters).skip(offset).limit(limit);
