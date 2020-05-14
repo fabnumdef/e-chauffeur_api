@@ -23,14 +23,14 @@ import {
 import { compareTokens, getClientURL } from './helpers/custom-methods';
 import HttpError from '../helpers/http-error';
 
+function isValidated(status) {
+  return ![DRAFTED, CREATED].includes(status);
+}
+
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
-
-function isValidated(status) {
-  return ![DRAFTED, CREATED].includes(status);
-}
 
 const RideSchema = new Schema({
   token: {
