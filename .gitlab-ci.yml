@@ -71,21 +71,6 @@ variables:
   before_script:
     - npm install
 
-retire-js-dependency_scanning:
-  only:
-    changes:
-      - package-lock.json
-
-gemnasium-dependency_scanning:
-  only:
-    changes:
-      - package-lock.json
-
-license_scanning:
-  only:
-    changes:
-      - package-lock.json
-
 lint:
   stage: lint
   extends: .node
