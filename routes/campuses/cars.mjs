@@ -8,6 +8,7 @@ import { CAN_LIST_CAMPUS_CAR } from '../../models/rights';
 
 const router = new Router();
 
+/** @deprecated */
 router.get(
   '/',
   resolveRights(CAN_LIST_CAMPUS_CAR),
