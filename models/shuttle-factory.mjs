@@ -4,6 +4,8 @@ import {
   SHUTTLE_FACTORY_COLLECTION_NAME,
   SHUTTLE_FACTORY_DASHED_NAME,
 } from './helpers/constants';
+import Poi from './poi';
+import HttpError from '../helpers/http-error';
 
 const { Schema, model, Types } = mongoose;
 
@@ -35,10 +37,33 @@ const ShuttleFactorySchema = new Schema({
       },
       coordinates: [Number],
     },
+    reachDuration: {
+      type: Number,
+      default: 0,
+    },
   }],
-  reachDuration: Number,
   comments: String,
 }, { timestamps: true });
+
+ShuttleFactorySchema.pre('validate', async function validate() {
+  if (this.stops.length > 0) {
+    this.stops = await Promise.all(this.stops.map(async (stop, index) => {
+      const isInDatabase = await Poi.findById(stop.id).lean();
+      if (!isInDatabase) {
+        throw new HttpError(404, 'Poi not found');
+      }
+      const updatedStop = isInDatabase;
+      if (index === 0) {
+        updatedStop.reachDuration = 0;
+      } else if (stop.reachDuration === 0) {
+        throw new HttpError(400, 'Reach duration should be provided');
+      } else {
+        updatedStop.reachDuration = stop.reachDuration;
+      }
+      return updatedStop;
+    }));
+  }
+});
 
 ShuttleFactorySchema.statics.getDashedName = () => SHUTTLE_FACTORY_DASHED_NAME;
 
