@@ -4,7 +4,7 @@ import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
 import { CAR_COLLECTION_NAME, CAR_MODEL_NAME } from './helpers/constants';
 import CarModel from './car-model';
-import HttpError from '../helpers/http-error';
+import APIError from '../helpers/api-error';
 
 const { Interval } = Luxon;
 const { Schema } = mongoose;
@@ -31,7 +31,7 @@ CarSchema.pre('validate', async function beforeSave() {
   if (this.model && this.model._id) {
     const model = await CarModel.findById(this.model._id);
     if (!model) {
-      throw new HttpError(404, 'Car model not found');
+      throw new APIError(404, 'Car model not found');
     }
 
     this.model = {

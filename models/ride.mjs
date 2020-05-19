@@ -21,7 +21,7 @@ import {
   USER_MODEL_NAME,
 } from './helpers/constants';
 import { compareTokens, getClientURL } from './helpers/custom-methods';
-import HttpError from '../helpers/http-error';
+import APIError from '../helpers/api-error';
 
 function isValidated(status) {
   return ![DRAFTED, CREATED].includes(status);
@@ -156,16 +156,13 @@ RideSchema.pre('validate', async function beforeSave() {
   }
 
   if (isValidated(this.status) && !this.car._id) {
-    const err = new Error();
-    err.status = 422;
-    err.message = 'Car must be provided';
-    throw err;
+    throw new APIError(400, 'Car must be provided');
   }
 
 
   if (this.departure.id && this.arrival.id) {
     if (this.departure.id === this.arrival.id) {
-      throw new HttpError(400, 'Departure and arrival should be different');
+      throw new APIError(400, 'Departure and arrival should be different');
     }
   }
 
@@ -230,10 +227,7 @@ RideSchema.pre('validate', async function beforeSave() {
   if (isValidated(this.status)) {
     const carCapacity = this.car.model.capacity || 3;
     if (this.passengersCount > carCapacity) {
-      const err = new Error();
-      err.status = 422;
-      err.message = 'Passenger count is higher than car capacity';
-      throw err;
+      throw new APIError(400, 'Passenger count is higher than car capacity');
     }
   }
 });

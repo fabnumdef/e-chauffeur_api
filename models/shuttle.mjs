@@ -6,7 +6,7 @@ import {
 import { CREATED } from './status';
 import cleanObjectPlugin from './helpers/object-cleaner';
 import config from '../services/config';
-import HttpError from '../helpers/http-error';
+import APIError from '../helpers/api-error';
 import User from './user';
 import ShuttleFactory from './shuttle-factory';
 import Campus from './campus';
@@ -149,17 +149,17 @@ ShuttleSchema.pre('validate', async function beforeSave() {
 
   const campus = await Campus.findById(this.campus._id);
   if (!campus) {
-    throw new HttpError(404, 'Campus not found');
+    throw new APIError(404, 'Campus not found');
   }
 
   const shuttleFactory = await ShuttleFactory.findById(this.shuttleFactory._id).lean();
   if (!shuttleFactory) {
-    throw new HttpError(404, 'Pattern not found');
+    throw new APIError(404, 'Pattern not found');
   }
 
   this.shuttleFactory.stops = await Promise.all(this.shuttleFactory.stops.map(async (stop, index) => {
     if (stop._id !== shuttleFactory.stops[index]._id || stop.label !== shuttleFactory.stops[index].label) {
-      throw new HttpError(404, 'Id or label not found');
+      throw new APIError(404, 'Id or label not found');
     }
 
     const validatedStop = {
@@ -172,10 +172,10 @@ ShuttleSchema.pre('validate', async function beforeSave() {
 
     if (stop.passengers && stop.passengers.length > 0) {
       if (!this.car || !this.car.model || !this.car.model.capacity) {
-        throw new HttpError(400, 'Car capacity must be provided');
+        throw new APIError(400, 'Car capacity must be provided');
       }
       if (stop.passengers.length > this.car.model.capacity) {
-        throw new HttpError(400, 'Passengers number higher than car capacity');
+        throw new APIError(400, 'Passengers number higher than car capacity');
       }
       validatedStop.passengers = await Promise.all(stop.passengers.map(async (p) => {
         const passenger = await User.findOne({ email: p.email });
@@ -194,10 +194,10 @@ ShuttleSchema.pre('validate', async function beforeSave() {
   if (this.driver && this.driver._id) {
     const driver = await User.findById(this.driver._id);
     if (!driver) {
-      throw new HttpError(404, 'Driver not found');
+      throw new APIError(404, 'Driver not found');
     }
     if (!driver.licences.includes('D')) {
-      throw new HttpError(400, 'Wrong licence');
+      throw new APIError(400, 'Wrong licence');
     }
 
     this.driver = driver;
@@ -206,7 +206,7 @@ ShuttleSchema.pre('validate', async function beforeSave() {
   if (this.car && this.car._id) {
     const car = await Car.findById(this.car._id);
     if (!car) {
-      throw new HttpError(404, 'Car not found');
+      throw new APIError(404, 'Car not found');
     }
 
     this.car = car;

@@ -5,7 +5,7 @@ import {
   SHUTTLE_FACTORY_DASHED_NAME,
 } from './helpers/constants';
 import Poi from './poi';
-import HttpError from '../helpers/http-error';
+import APIError from '../helpers/api-error';
 
 const { Schema, model, Types } = mongoose;
 
@@ -50,13 +50,13 @@ ShuttleFactorySchema.pre('validate', async function validate() {
     this.stops = await Promise.all(this.stops.map(async (stop, index) => {
       const isInDatabase = await Poi.findById(stop.id).lean();
       if (!isInDatabase) {
-        throw new HttpError(404, 'Poi not found');
+        throw new APIError(404, 'Poi not found');
       }
       const updatedStop = isInDatabase;
       if (index === 0) {
         updatedStop.reachDuration = 0;
       } else if (stop.reachDuration === 0) {
-        throw new HttpError(400, 'Reach duration should be provided');
+        throw new APIError(400, 'Reach duration should be provided');
       } else {
         updatedStop.reachDuration = stop.reachDuration;
       }

@@ -35,17 +35,14 @@ const checkDuplications = async ({
   }, []);
 
   if (batchDuplications.length > 0) {
-    const err = new Error();
-    err.status = 422;
-    err.message = `Duplications in the batch : ${batchDuplications}`;
-    throw err;
+    throw new APIError(400, `Duplications in the batch : ${batchDuplications}`);
   }
 
   const dbDuplicatedDocuments = await Model.find({
     $or: refs.map((ref) => ({ [ref]: { $in: datas.map((d) => d[ref]) } })),
   }).lean();
   if (dbDuplicatedDocuments.length > 0) {
-    throw (new APIError(422, 'import.db_duplications'))
+    throw (new APIError(400, 'import.db_duplications'))
       .addErrors(
         dbDuplicatedDocuments.map((doc) => ['import.error_on_document_id', { id: doc._id }]),
       );
