@@ -101,6 +101,11 @@ const ShuttleSchema = new Schema({
         type: String,
       },
     },
+    status: {
+      type: String,
+      enum: ['drafted', 'confirmed', 'cancelled'],
+      default: 'drafted',
+    },
   }],
   driver: {
     _id: {

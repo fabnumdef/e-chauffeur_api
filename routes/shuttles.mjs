@@ -5,12 +5,10 @@ import Shuttle from '../models/shuttle';
 * */
 import {
   CAN_CREATE_RIDE,
-  CAN_EDIT_RIDE,
   CAN_GET_RIDE,
   CAN_GET_OWNED_RIDE,
   CAN_GET_RIDE_WITH_TOKEN,
-  CAN_EDIT_OWNED_RIDE,
-  CAN_DELETE_SHUTTLE, CAN_LIST_SHUTTLE,
+  CAN_DELETE_SHUTTLE, CAN_LIST_SHUTTLE, CAN_EDIT_SHUTTLE,
 } from '../models/rights';
 import maskOutput from '../middlewares/mask-output';
 import { ensureThatFiltersExists, filtersFromParams } from '../middlewares/query-helper';
@@ -58,7 +56,7 @@ const router = generateCRUD(Shuttle, {
   },
   update: {
     preMiddlewares: [prefetchMiddleware(Shuttle)],
-    right: [CAN_EDIT_RIDE, CAN_EDIT_OWNED_RIDE],
+    right: [CAN_EDIT_SHUTTLE],
     middlewares: [ioEmitMiddleware(SHUTTLE_UPDATE_EVENT, [
       'shuttle', 'campus', 'driver',
     ])],
@@ -66,9 +64,6 @@ const router = generateCRUD(Shuttle, {
       const { body } = ctx.request;
       const { id } = ctx.params;
       const shuttle = ctx.getPrefetchedDocument(id, Shuttle);
-      if (!ctx.may(CAN_EDIT_RIDE)) {
-        ctx.throw_and_log(400, 'You\'re only authorized to edit a draft');
-      }
 
       delete body.status;
 
