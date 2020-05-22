@@ -13,6 +13,7 @@ import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 import searchQuery from '../middlewares/search-query';
+import { filtersFromParams } from '../middlewares/query-helper';
 
 const router = generateCRUD(Phone, {
   create: {
@@ -20,13 +21,11 @@ const router = generateCRUD(Phone, {
   },
   list: {
     right: CAN_LIST_PHONE_LOCAL,
-    filters: {
-      campus: 'campus._id',
-    },
     middlewares: [
       contentNegociation,
       maskOutput,
       searchQuery,
+      filtersFromParams('campus._id', 'campus_id'),
     ],
   },
   get: {

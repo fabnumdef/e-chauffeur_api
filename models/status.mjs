@@ -102,8 +102,8 @@ export default {
             if (hasOwner) {
               await this.sendSMS(
                 'Bonjour, '
-              + `malheureusement, votre course de ${show('departure.label')} à ${show('arrival.label')} le `
-              + `${start} ne semble pas être légitime, et a été refusée. `
+              + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
+              + `${start} a été refusée. `
               + `En cas d'ugence, appelez le ${show('campus.phone.everybody')}.`,
               );
             }
@@ -111,7 +111,7 @@ export default {
           case STARTED:
             await this.sendSMS(
               `Votre chauffeur est en route (${show('car.model.label')} / ${show('car.id')}). `
-              + `Suivez son arrivée : ${this.getRideClientURL()}`,
+              + `Suivez son arrivée : ${this.getClientURL()}`,
             );
             break;
           case WAITING:

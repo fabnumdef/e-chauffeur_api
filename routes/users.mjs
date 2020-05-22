@@ -16,6 +16,7 @@ import { csvToJson } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 import searchQuery from '../middlewares/search-query';
+import { filtersFromParams } from '../middlewares/query-helper';
 
 const X_SEND_TOKEN = 'x-send-token';
 const router = generateCRUD(User, {
@@ -103,6 +104,7 @@ const router = generateCRUD(User, {
       contentNegociation,
       maskOutput,
       searchQuery,
+      filtersFromParams('campus._id', 'campus_id'),
     ],
     lean: false,
   },
