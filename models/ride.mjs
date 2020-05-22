@@ -9,6 +9,7 @@ import stateMachine, {
   DRAFTED,
   DELIVERED,
   CANCELABLE, CREATED,
+  CANCELED_STATUSES,
 } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
@@ -29,6 +30,10 @@ const { Schema, Types } = mongoose;
 
 function isValidated(status) {
   return ![DRAFTED, CREATED].includes(status);
+}
+
+function isCancelled(status) {
+  return CANCELED_STATUSES.includes(status);
 }
 
 const RideSchema = new Schema({
@@ -119,9 +124,8 @@ const RideSchema = new Schema({
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
     },
-    defaultReservationScope: {
-      type: Number,
-    },
+    defaultReservationScope: Number,
+    defaultRideDuration: Number,
   },
   comments: String,
   userComments: {
@@ -148,7 +152,7 @@ RideSchema.pre('validate', async function beforeSave() {
     throw new Error('End date should be higher than start date');
   }
 
-  if (isValidated(this.status) && !this.car._id) {
+  if (isValidated(this.status) && !isCancelled(this.status) && !this.car._id) {
     const err = new Error();
     err.status = 422;
     err.message = 'Car must be provided';
@@ -161,9 +165,7 @@ RideSchema.pre('validate', async function beforeSave() {
   } catch (e) {
     // Silent error
   }
-  if (this.status === DRAFTED) {
-    this.end = DateTime.fromJSDate(this.start).plus(Duration.fromObject({ hours: 1 })).toJSDate();
-  }
+
   if (typeof this.driver === 'undefined' || !this.driver._id) {
     this.driver = null;
   }
@@ -173,6 +175,12 @@ RideSchema.pre('validate', async function beforeSave() {
       const campusId = this.campus._id;
       this.campus = await Campus.findById(campusId);
       if (this.campus) {
+        if (this.status === DRAFTED) {
+          this.end = DateTime
+            .fromJSDate(this.start)
+            .plus(Duration.fromObject({ minutes: this.campus.defaultRideDuration || 30 }))
+            .toJSDate();
+        }
         const currentReservationScope = DateTime.local()
           .plus({ seconds: this.campus.defaultReservationScope })
           .toJSDate();
@@ -213,7 +221,7 @@ RideSchema.pre('validate', async function beforeSave() {
     })(mongoose.model(POI_MODEL_NAME)),
   ]);
 
-  if (isValidated(this.status)) {
+  if (this.car) {
     const carCapacity = this.car.model.capacity || 3;
     if (this.passengersCount > carCapacity) {
       const err = new Error();
