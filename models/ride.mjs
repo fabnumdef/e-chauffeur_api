@@ -124,9 +124,8 @@ const RideSchema = new Schema({
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
     },
-    defaultReservationScope: {
-      type: Number,
-    },
+    defaultReservationScope: Number,
+    defaultRideDuration: Number,
   },
   comments: String,
   userComments: {
@@ -174,13 +173,12 @@ RideSchema.pre('validate', async function beforeSave() {
   await Promise.all([
     (async (Campus) => {
       const campusId = this.campus._id;
-      const campus = await Campus.findById(campusId);
-      this.campus = campus;
+      this.campus = await Campus.findById(campusId);
       if (this.campus) {
         if (this.status === DRAFTED) {
           this.end = DateTime
             .fromJSDate(this.start)
-            .plus(Duration.fromObject({ minutes: campus.defaultRideDuration || 30 }))
+            .plus(Duration.fromObject({ minutes: this.campus.defaultRideDuration || 30 }))
             .toJSDate();
         }
         const currentReservationScope = DateTime.local()

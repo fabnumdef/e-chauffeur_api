@@ -102,7 +102,7 @@ export default {
             if (hasOwner) {
               await this.sendSMS(
                 'Bonjour, '
-              + `votre course de ${show('departure.label')} à ${show('arrival.label')} le `
+              + `malheureusement, votre course de ${show('departure.label')} à ${show('arrival.label')} le `
               + `${start} a été refusée. `
               + `En cas d'ugence, appelez le ${show('campus.phone.everybody')}.`,
               );
