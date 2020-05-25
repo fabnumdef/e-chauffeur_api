@@ -22,6 +22,7 @@ import {
   USER_MODEL_NAME,
 } from './helpers/constants';
 import { compareTokens, getClientURL } from './helpers/custom-methods';
+import APIError from '../helpers/api-error';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
@@ -77,6 +78,7 @@ const RideSchema = new Schema({
   departure: {
     _id: { type: String, alias: 'departure.id' },
     label: String,
+    address: String,
     location: {
       type: {
         type: String,
@@ -90,6 +92,7 @@ const RideSchema = new Schema({
   arrival: {
     _id: { type: String, alias: 'arrival.id' },
     label: String,
+    address: String,
     location: {
       type: {
         type: String,
@@ -136,6 +139,9 @@ const RideSchema = new Schema({
     type: Number,
     default: 1,
   },
+  passengersList: [{
+    name: String,
+  }],
   phone: String,
   luggage: {
     type: Boolean,
@@ -149,14 +155,17 @@ RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
   if (this.start >= this.end) {
-    throw new Error('End date should be higher than start date');
+    throw new APIError(400, 'End date should be higher than start date');
   }
 
   if (isValidated(this.status) && !isCancelled(this.status) && !this.car._id) {
-    const err = new Error();
-    err.status = 422;
-    err.message = 'Car must be provided';
-    throw err;
+    throw new APIError(400, 'Car must be provided');
+  }
+
+  if (this.departure.id && this.arrival.id) {
+    if (this.departure.id === this.arrival.id) {
+      throw new APIError(400, 'Departure and arrival should be different');
+    }
   }
 
   try {
@@ -185,16 +194,10 @@ RideSchema.pre('validate', async function beforeSave() {
           .plus({ seconds: this.campus.defaultReservationScope })
           .toJSDate();
         if (currentReservationScope < this.start) {
-          const err = new Error();
-          err.status = 403;
-          err.message = 'Ride date should be in campus reservation scope';
-          throw err;
+          throw new APIError(403, 'Ride date should be in campus reservation scope');
         }
       } else {
-        const err = new Error();
-        err.status = 404;
-        err.message = 'Campus not found';
-        throw err;
+        throw new APIError(404, 'Campus not found');
       }
     })(mongoose.model(CAMPUS_MODEL_NAME)),
     (async (User) => {
@@ -215,19 +218,19 @@ RideSchema.pre('validate', async function beforeSave() {
       this.car.model = await CarModel.findById(this.car.model._id).lean();
     })(mongoose.model(CAR_MODEL_NAME), mongoose.model(CAR_MODEL_MODEL_NAME)),
     (async (Poi) => {
-      const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
-      this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
-      this.departure = pois.find(({ _id }) => _id === this.departure._id);
+      if (!this.departure.address && !this.arrival.address) {
+        const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
+        this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
+        this.departure = pois.find(({ _id }) => _id === this.departure._id);
+      }
     })(mongoose.model(POI_MODEL_NAME)),
   ]);
 
-  if (this.car) {
+
+  if (this.car && this.status !== DRAFTED) {
     const carCapacity = this.car.model.capacity || 3;
     if (this.passengersCount > carCapacity) {
-      const err = new Error();
-      err.status = 422;
-      err.message = 'Passenger count is higher than car capacity';
-      throw err;
+      throw new APIError(400, 'Passenger count is higher than car capacity');
     }
   }
 });

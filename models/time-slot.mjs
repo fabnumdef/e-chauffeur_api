@@ -8,6 +8,7 @@ import {
   MONTHLY, WEEKLY,
 } from './helpers/constants';
 import { countDocumentsWithin, filtersWithin, findWithin } from './helpers/custom-methods';
+import APIError from '../helpers/api-error';
 
 const { DateTime } = Luxon;
 const { Schema } = mongoose;
@@ -64,7 +65,7 @@ TimeSlotSchema.plugin(createdAtPlugin);
 
 TimeSlotSchema.pre('validate', async function preValidate(next) {
   if (this.recurrence && this.recurrence.enabled && !this.recurrence.frequency) {
-    throw new Error('Frequency is required when recurrence is enabled.');
+    throw new APIError(400, 'Frequency is required when recurrence is enabled.');
   }
   next();
 });

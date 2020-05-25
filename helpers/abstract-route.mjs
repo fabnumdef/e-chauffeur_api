@@ -3,12 +3,13 @@ import maskOutput from '../middlewares/mask-output';
 import resolveRights from '../middlewares/check-rights';
 import addFilter from '../middlewares/add-filter';
 import initFilters from '../middlewares/init-filters';
+import APIError from './api-error';
 
 export function addBatchToRouter(Model, {
   url = '/batch', right, rights = [], middlewares = [], main, refs = [],
 } = {}) {
   if (!right) {
-    throw new Error('Right should be defined');
+    throw new APIError(403, 'Right should be defined');
   }
   this.post(
     url,
@@ -31,7 +32,7 @@ export function addCreateToRouter(Model, {
   url = '/', right, rights = [], main, successCode = 200, middlewares = [],
 } = {}) {
   if (!right) {
-    throw new Error('Right should be defined');
+    throw new APIError(403, 'Right should be defined');
   }
   const autoGenId = !Model.schema.obj._id;
   this.post(
@@ -74,7 +75,7 @@ export function addListToRouter(Model, {
   url = '/', right, rights = [], main, filters = {}, middlewares = [], lean = true,
 } = {}) {
   if (!right) {
-    throw new Error('Right should be defined');
+    throw new APIError(403, 'Right should be defined');
   }
 
   this.get(

@@ -10,7 +10,7 @@ export default async (ctx, next) => {
       ctx.throw_and_log(429, `Too many request for ${ref} with ip : ${ip}`);
     }
   } else {
-    ctx.throw_and_log(422);
+    ctx.throw_and_log(400);
   }
 
   await next();

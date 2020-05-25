@@ -26,7 +26,7 @@ export const csvToJson = async (ctx, next) => {
   const { query: { delimiter = ';', ignoreEmpty = true }, files } = ctx.request;
   const { length, 0: file } = Object.keys(files).map((key) => files[key]);
   if (length > 1) {
-    ctx.throw_and_log(422, 'Please send one file at a time');
+    ctx.throw_and_log(400, 'Please send one file at a time');
   }
 
   ctx.file = await csv2Json({ delimiter, ignoreEmpty }).fromFile(file.path);

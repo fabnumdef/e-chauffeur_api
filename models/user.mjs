@@ -31,6 +31,7 @@ import {
 import * as rolesImport from './role';
 import { CAMPUS_MODEL_NAME, USER_COLLECTION_NAME, USER_MODEL_NAME } from './helpers/constants';
 import TranslatableMessage from '../helpers/translatable-message';
+import APIError from '../helpers/api-error';
 
 const { ValidationError, ValidatorError } = mongoose.Error;
 const { DateTime } = Luxon;
@@ -255,7 +256,7 @@ UserSchema.methods.emitJWT = function emitJWT(isRenewable = true) {
 
 UserSchema.methods.comparePassword = function comparePassword(password) {
   if (!this.password) {
-    throw new Error('No password set');
+    throw new APIError(400, 'No password set');
   }
   return bcrypt.compare(password, this.password);
 };
@@ -417,7 +418,7 @@ UserSchema.statics.findByEmail = function findByEmail(email) {
 
 UserSchema.methods.sendVerificationSMS = async function sendVerifSMS(token) {
   if (!this.phone || !this.phone.canonical) {
-    throw new Error('Phone undefined');
+    throw new APIError(400, 'Phone undefined');
   }
   await sendVerificationSMS(this.phone.canonical, { data: { token } });
 };

@@ -13,6 +13,7 @@ import { filtersFromParams } from '../middlewares/query-helper';
 const router = generateCRUD(ShuttleFactory, {
   create: { right: CAN_CREATE_SHUTTLE_FACTORIES },
   list: {
+    // @todo check rights for user app here
     right: CAN_LIST_SHUTTLE_FACTORIES,
     middlewares: [
       maskOutput,
