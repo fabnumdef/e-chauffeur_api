@@ -9,6 +9,7 @@ import stateMachine, {
   DRAFTED,
   DELIVERED,
   CANCELABLE, CREATED,
+  CANCELED_STATUSES,
 } from './status';
 import config from '../services/config';
 import { sendSMS } from '../services/twilio';
@@ -23,14 +24,18 @@ import {
 import { compareTokens, getClientURL } from './helpers/custom-methods';
 import APIError from '../helpers/api-error';
 
-function isValidated(status) {
-  return ![DRAFTED, CREATED].includes(status);
-}
-
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { DateTime, Duration } = Luxon;
 const { PhoneNumberFormat, PhoneNumberUtil } = gliphone;
 const { Schema, Types } = mongoose;
+
+function isValidated(status) {
+  return ![DRAFTED, CREATED].includes(status);
+}
+
+function isCancelled(status) {
+  return CANCELED_STATUSES.includes(status);
+}
 
 const RideSchema = new Schema({
   token: {
@@ -73,6 +78,7 @@ const RideSchema = new Schema({
   departure: {
     _id: { type: String, alias: 'departure.id' },
     label: String,
+    address: String,
     location: {
       type: {
         type: String,
@@ -86,6 +92,7 @@ const RideSchema = new Schema({
   arrival: {
     _id: { type: String, alias: 'arrival.id' },
     label: String,
+    address: String,
     location: {
       type: {
         type: String,
@@ -96,8 +103,6 @@ const RideSchema = new Schema({
       },
     },
   },
-  wishedDeparture: String,
-  wishedArrival: String,
   driver: {
     _id: { type: Schema.ObjectId, alias: 'driver.id' },
     firstname: String,
@@ -122,9 +127,8 @@ const RideSchema = new Schema({
       type: String,
       default: process.env.TZ || DEFAULT_TIMEZONE,
     },
-    defaultReservationScope: {
-      type: Number,
-    },
+    defaultReservationScope: Number,
+    defaultRideDuration: Number,
   },
   comments: String,
   userComments: {
@@ -135,10 +139,6 @@ const RideSchema = new Schema({
     type: Number,
     default: 1,
   },
-  passengersList: [{
-    firstname: String,
-    lastname: String,
-  }],
   phone: String,
   luggage: {
     type: Boolean,
@@ -155,10 +155,9 @@ RideSchema.pre('validate', async function beforeSave() {
     throw new Error('End date should be higher than start date');
   }
 
-  if (isValidated(this.status) && !this.car._id) {
+  if (isValidated(this.status) && !isCancelled(this.status) && !this.car._id) {
     throw new APIError(400, 'Car must be provided');
   }
-
 
   if (this.departure.id && this.arrival.id) {
     if (this.departure.id === this.arrival.id) {
@@ -172,9 +171,7 @@ RideSchema.pre('validate', async function beforeSave() {
   } catch (e) {
     // Silent error
   }
-  if (this.status === DRAFTED) {
-    this.end = DateTime.fromJSDate(this.start).plus(Duration.fromObject({ hours: 1 })).toJSDate();
-  }
+
   if (typeof this.driver === 'undefined' || !this.driver._id) {
     this.driver = null;
   }
@@ -184,6 +181,12 @@ RideSchema.pre('validate', async function beforeSave() {
       const campusId = this.campus._id;
       this.campus = await Campus.findById(campusId);
       if (this.campus) {
+        if (this.status === DRAFTED) {
+          this.end = DateTime
+            .fromJSDate(this.start)
+            .plus(Duration.fromObject({ minutes: this.campus.defaultRideDuration || 30 }))
+            .toJSDate();
+        }
         const currentReservationScope = DateTime.local()
           .plus({ seconds: this.campus.defaultReservationScope })
           .toJSDate();
@@ -224,7 +227,7 @@ RideSchema.pre('validate', async function beforeSave() {
     })(mongoose.model(POI_MODEL_NAME)),
   ]);
 
-  if (isValidated(this.status)) {
+  if (this.car) {
     const carCapacity = this.car.model.capacity || 3;
     if (this.passengersCount > carCapacity) {
       throw new APIError(400, 'Passenger count is higher than car capacity');

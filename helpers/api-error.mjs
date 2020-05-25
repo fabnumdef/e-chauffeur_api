@@ -1,6 +1,11 @@
 export default class APIError extends Error {
   constructor(status = 500, message = null) {
     super(message);
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, APIError);
+    }
+
     this.status = status;
     this.errors = [];
   }

@@ -7,6 +7,7 @@ import { csvToJson, validateCampus } from '../middlewares/csv-to-json';
 import contentNegociation from '../middlewares/content-negociation';
 import maskOutput from '../middlewares/mask-output';
 import searchQuery from '../middlewares/search-query';
+import { filtersFromParams } from '../middlewares/query-helper';
 
 const router = generateCRUD(Car, {
   create: {
@@ -14,13 +15,11 @@ const router = generateCRUD(Car, {
   },
   list: {
     right: CAN_LIST_CAR,
-    filters: {
-      campus: 'campus._id',
-    },
     middlewares: [
       contentNegociation,
       maskOutput,
       searchQuery,
+      filtersFromParams('campus._id', 'campus_id'),
     ],
   },
   get: {
