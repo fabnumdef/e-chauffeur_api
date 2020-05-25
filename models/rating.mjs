@@ -3,6 +3,7 @@ import createdAtPlugin from './helpers/created-at';
 import addCSVContentPlugin from './helpers/add-csv-content';
 import Ride from './ride';
 import { RATING_COLLECTION_NAME, RATING_MODEL_NAME } from './helpers/constants';
+import APIError from '../helpers/api-error';
 
 const { Schema } = mongoose;
 
@@ -42,10 +43,7 @@ RatingSchema.plugin(addCSVContentPlugin);
 RatingSchema.pre('validate', async function preValidate(next) {
   const ride = await Ride.findById(this.ride._id).lean();
   if (!ride) {
-    const err = new Error();
-    err.status = 404;
-    err.message = 'Ride does not exist in database';
-    throw err;
+    throw new APIError(404, 'Ride does not exist in database');
   }
 
   this.ride.campus._id = ride.campus._id;

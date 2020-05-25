@@ -12,6 +12,7 @@ import {
   CAR_MODEL_NAME,
   CAMPUS_COLLECTION_NAME,
 } from './helpers/constants';
+import APIError from '../helpers/api-error';
 
 const DEFAULT_TIMEZONE = config.get('default_timezone');
 const { Schema } = mongoose;
@@ -300,7 +301,7 @@ CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverT
       averageKey = { $hour: '$start' };
       break;
     default:
-      throw new Error('Unexpected time-unit');
+      throw new APIError(400, 'Unexpected time-unit');
   }
   let format;
   switch (timeScope) {
@@ -317,7 +318,7 @@ CampusSchema.statics.aggregateRidesOverTime = async function aggregateRidesOverT
       format = '%Y-%m-%d';
       break;
     default:
-      throw new Error('Unexpected time-scope');
+      throw new APIError(400, 'Unexpected time-scope');
   }
   return Ride.aggregate([
     {

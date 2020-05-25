@@ -152,7 +152,7 @@ RideSchema.plugin(stateMachinePlugin.default, { stateMachine });
 
 RideSchema.pre('validate', async function beforeSave() {
   if (this.start >= this.end) {
-    throw new Error('End date should be higher than start date');
+    throw new APIError(400, 'End date should be higher than start date');
   }
 
   if (isValidated(this.status) && !isCancelled(this.status) && !this.car._id) {
@@ -191,16 +191,10 @@ RideSchema.pre('validate', async function beforeSave() {
           .plus({ seconds: this.campus.defaultReservationScope })
           .toJSDate();
         if (currentReservationScope < this.start) {
-          const err = new Error();
-          err.status = 403;
-          err.message = 'Ride date should be in campus reservation scope';
-          throw err;
+          throw new APIError(403, 'Ride date should be in campus reservation scope');
         }
       } else {
-        const err = new Error();
-        err.status = 404;
-        err.message = 'Campus not found';
-        throw err;
+        throw new APIError(404, 'Campus not found');
       }
     })(mongoose.model(CAMPUS_MODEL_NAME)),
     (async (User) => {
