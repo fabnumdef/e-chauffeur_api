@@ -139,6 +139,9 @@ const RideSchema = new Schema({
     type: Number,
     default: 1,
   },
+  passengersList: [{
+    name: String,
+  }],
   phone: String,
   luggage: {
     type: Boolean,
@@ -215,13 +218,16 @@ RideSchema.pre('validate', async function beforeSave() {
       this.car.model = await CarModel.findById(this.car.model._id).lean();
     })(mongoose.model(CAR_MODEL_NAME), mongoose.model(CAR_MODEL_MODEL_NAME)),
     (async (Poi) => {
-      const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
-      this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
-      this.departure = pois.find(({ _id }) => _id === this.departure._id);
+      if (!this.departure.address && !this.arrival.address) {
+        const pois = await Poi.find({ _id: { $in: [this.arrival._id, this.departure._id] } });
+        this.arrival = pois.find(({ _id }) => _id === this.arrival._id);
+        this.departure = pois.find(({ _id }) => _id === this.departure._id);
+      }
     })(mongoose.model(POI_MODEL_NAME)),
   ]);
 
-  if (this.car) {
+
+  if (this.car && this.status !== DRAFTED) {
     const carCapacity = this.car.model.capacity || 3;
     if (this.passengersCount > carCapacity) {
       throw new APIError(400, 'Passenger count is higher than car capacity');
